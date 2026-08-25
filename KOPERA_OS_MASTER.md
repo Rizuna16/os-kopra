@@ -3954,6 +3954,225 @@ FRONTEND CUSTOMER V1 — COMPLETE / LOCKED
 
 ---
 
+## 23. FRONTEND EMPLOYEE V1
+=================================================
+
+Status: 🟢 SELESAI & LOCKED
+Contract: FRONTEND EMPLOYEE V1 — LOCKED
+RED: COMPLETE
+GREEN: COMPLETE
+Verification: PASS
+Backend: UNTOUCHED
+API contract: UNCHANGED
+Foundation V1: UNTOUCHED
+Business/Location Context V1: UNTOUCHED
+Product Module V1: UNTOUCHED
+Inventory Module V1: UNTOUCHED
+Supplier V1: UNTOUCHED
+Purchasing V1: UNTOUCHED
+SALES V1: UNTOUCHED
+Customer V1: UNTOUCHED
+Finance V1: UNTOUCHED
+AuthContext / BusinessContext: UNTOUCHED
+apiClient / tokenStore / env: UNTOUCHED
+AppLayout: UNTOUCHED
+test utilities: UNTOUCHED
+
+Frontend Employee V1 is complete. Contract locked. Implementation verified. Future changes require the full controlled workflow:
+
+Discovery
+→ Contract Lock
+→ RED
+→ GREEN
+→ Verification
+→ Documentation
+→ LOCK
+
+Note: Frontend Employee V1 does NOT receive a new PART number in roadmap numbering (it follows the backend Employee contract PART 17, already locked) and is documented as a frontend module block, consistent with the existing frontend documentation structure.
+
+---
+
+### A. SCOPE
+
+IN SCOPE:
+- Employee List
+- Employee Create
+- Employee Detail
+- Employee Edit
+- Employee Delete
+- Loading state
+- Empty state
+- Error state
+- 401 handling
+- 404 handling
+- 400 field-error handling
+- Business tenant isolation
+- Tailwind UI
+
+OUT OF SCOPE:
+- Employee scheduling/attendance
+- Employee payroll/salary
+- Employee permissions/RBAC redesign
+- Employee-Location assignment (Employee is Business-scoped)
+- Search / Filter / Sort / Pagination
+- Shared component architecture
+- Backend / API changes
+- PUT
+- Notes / Comments / Photo upload / Bulk operations
+
+---
+
+### B. ROUTING
+
+- /employees
+- /employees/new
+- /employees/:employeeId
+- /employees/:employeeId/edit
+
+Route guard:
+ProtectedRoute
+→ BusinessRoute
+→ AppLayout
+
+/employees/:employeeId co-renders:
+EmployeeDetail + EmployeeDelete
+
+No separate delete route. DELETE 204 → navigate("/employees") is the frontend flow.
+
+---
+
+### C. FRONTEND IMPLEMENTATION
+
+Production files (created):
+- frontend/src/employee/types.ts
+- frontend/src/employee/employeeService.ts
+- frontend/src/pages/EmployeeList.tsx
+- frontend/src/pages/EmployeeCreate.tsx
+- frontend/src/pages/EmployeeDetail.tsx
+- frontend/src/pages/EmployeeEdit.tsx
+- frontend/src/pages/EmployeeDelete.tsx
+
+Router (only Employee routes appended; existing routes/guards unchanged):
+- frontend/src/routes/router.tsx
+
+---
+
+### D. API CONTRACT
+
+GET    /api/v1/businesses/<business_id>/employees/
+POST   /api/v1/businesses/<business_id>/employees/
+GET    /api/v1/businesses/<business_id>/employees/<id>/
+PATCH  /api/v1/businesses/<business_id>/employees/<id>/
+DELETE /api/v1/businesses/<business_id>/employees/<id>/
+
+Contract rules:
+- PATCH only for update. NO PUT.
+- DELETE returns 204 with no body (no JSON parsing).
+- Create payload = { name, code, hire_date, active } (empty optionals sent as null).
+- Update payload = { name, code, hire_date, active } (optional PATCH fields).
+- business_id comes from BusinessContext (currentBusinessId).
+- id comes from route params.
+- business/id/timestamps are never client-writable.
+- List response is a plain array (no pagination metadata).
+- Employee response fields: id, business, name, code, hire_date, active, created_at, updated_at.
+- Name validation: required, non-empty / non-whitespace-only.
+- 400 field errors: name / code / hire_date / active / non_field_errors.
+- 401 follows locked /login behavior (apiClient onUnauthorized → /login).
+- 404 is generic and must not leak tenant/object existence.
+
+---
+
+### E. TENANT / SECURITY
+
+- business_id is sourced exclusively from BusinessContext.currentBusinessId.
+- employeeId is sourced from route params.
+- business is never included in writable payload.
+- id / timestamps are never client-writable.
+- Backend owner filter remains the security authority.
+- Cross-business access results in a generic 404.
+- Switching currentBusinessId reloads Employee data and clears stale rows.
+- Existing JWT / 401 handling preserved (apiClient / AuthContext unchanged).
+
+---
+
+### F. UI
+
+- Tailwind utility classes used on all Employee pages matching KOPERA baseline UI.
+- Page: `min-h-screen bg-gray-50`
+- Container: `w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6`
+- Card: `bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6`
+- Title: `text-2xl font-bold tracking-tight text-gray-900`
+- Label: `text-sm font-medium text-gray-700`
+- Input: `w-full px-4 py-2.5 text-sm rounded-xl border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all`
+- Button: `py-3 px-4 bg-blue-600 hover:bg-blue-700 font-medium text-sm text-white rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed`
+- Delete Button: `py-3 px-4 bg-red-600 hover:bg-red-700 font-medium text-sm text-white rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed`
+
+---
+
+### G. VERIFICATION EVIDENCE
+
+Employee contract & page tests:
+39/39 PASS
+
+Full frontend regression:
+765/765 PASS
+
+TypeScript:
+npx tsc --noEmit → PASS (0 errors)
+
+Production build:
+npm run build → PASS
+
+Security / tenant isolation:
+PASS
+
+Contract verification:
+PASS
+
+Browser limitation:
+BROWSER VERIFICATION NOT EXECUTED — environment limitation.
+Browser verification must NOT be claimed as PASS. Execution of browser verification was not available because the environment has no real browser / browser automation AND there is no reachable backend / PostgreSQL. Therefore browser verification could not be run and is not claimed as PASS.
+
+---
+
+### H. DEPENDENCY / LOCK INTEGRITY
+
+Unchanged locked modules:
+- AuthContext (LOCKED)
+- BusinessContext (LOCKED)
+- apiClient (LOCKED)
+- tokenStore (LOCKED)
+- env (LOCKED)
+- AppLayout (LOCKED)
+- Product Module V1 (LOCKED)
+- Inventory Module V1 (LOCKED)
+- Supplier V1 (LOCKED)
+- Purchasing V1 (LOCKED)
+- SALES V1 (LOCKED)
+- Customer V1 (LOCKED)
+- Finance V1 (LOCKED)
+- Business/Location Context V1 (LOCKED)
+- test utilities (testUtils.tsx, setup.ts) (LOCKED)
+- backend (LOCKED / UNTOUCHED)
+
+No new dependency introduced. No shared component architecture introduced. No refactor of unrelated modules.
+
+---
+
+### I. LOCK
+
+FRONTEND EMPLOYEE V1:
+🟢 SELESAI & LOCKED
+
+Future changes require the full controlled workflow:
+Discovery → Contract Lock → RED → GREEN → Verification → Documentation → LOCK
+
+No new PART is created.
+
+FRONTEND EMPLOYEE V1 — COMPLETE / LOCKED
+
+---
+
 ## 19. FRONTEND FOUNDATION UI / TAILWIND V1
 
 ### STATUS

@@ -26,6 +26,10 @@ import { SupplierList } from "../pages/SupplierList";
 import { SupplierCreate } from "../pages/SupplierCreate";
 import { SupplierDetail } from "../pages/SupplierDetail";
 import { SupplierEdit } from "../pages/SupplierEdit";
+import { EmployeeList } from "../pages/EmployeeList";
+import { EmployeeCreate } from "../pages/EmployeeCreate";
+import { EmployeeDetail } from "../pages/EmployeeDetail";
+import { EmployeeEdit } from "../pages/EmployeeEdit";
 import { VariantList } from "../pages/VariantList";
 import { VariantCreate } from "../pages/VariantCreate";
 import { VariantDetail } from "../pages/VariantDetail";
@@ -282,6 +286,55 @@ export function AppRoutes() {
               <BusinessRoute>
                 <AppLayout>
                   <SupplierDetail />
+                </AppLayout>
+              </BusinessRoute>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/employees"
+          element={
+            <ProtectedRoute>
+              <BusinessRoute>
+                <AppLayout>
+                  <EmployeeList />
+                </AppLayout>
+              </BusinessRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/employees/new"
+          element={
+            <ProtectedRoute>
+              <BusinessRoute>
+                <AppLayout>
+                  <EmployeeCreate />
+                </AppLayout>
+              </BusinessRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/employees/:employeeId/edit"
+          element={
+            <ProtectedRoute>
+              <BusinessRoute>
+                <AppLayout>
+                  <EmployeeEdit />
+                </AppLayout>
+              </BusinessRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/employees/:employeeId"
+          element={
+            <ProtectedRoute>
+              <BusinessRoute>
+                <AppLayout>
+                  <EmployeeDetail />
                 </AppLayout>
               </BusinessRoute>
             </ProtectedRoute>
