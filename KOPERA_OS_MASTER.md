@@ -5075,5 +5075,103 @@ Discovery → Contract Lock → RED → GREEN → Verification → Documentation
 
 ---
 
+## 27. FRONTEND UI NORMALIZATION V1 — BATCH 3: TRANSACTIONAL (PURCHASING)
+
+### STATUS
+🟢 SELESAI & LOCKED
+Contract: FRONTEND UI NORMALIZATION V1 — BATCH 3: TRANSACTIONAL (PURCHASING) — LOCKED
+Scope: Presentation-only UI normalization for Purchasing module (List/Create/Detail/Edit/Delete)
+Discovery: COMPLETE
+Contract: LOCKED
+RED: COMPLETE — `src/test/purchasing.tailwind.test.tsx` (7/7 expected RED, satisfied at GREEN)
+GREEN: COMPLETE — 7/7 PASS in `src/test/purchasing.tailwind.test.tsx`
+Behavioral regression: 34/34 PASS
+  - `src/test/purchaseOrderList.test.tsx` 5/5
+  - `src/test/purchaseOrderCreate.test.tsx` 8/8
+  - `src/test/purchaseOrderEdit.test.tsx` 6/6
+  - `src/test/purchaseOrderDetail.test.tsx` 5/5
+  - `src/test/purchaseOrderDelete.test.tsx` 5/5
+  - `src/test/purchaseOrderTenantIsolation.test.tsx` 3/3
+  - `src/test/purchaseService.test.ts` 2/2
+TypeScript: PASS (`npx tsc --noEmit` — 0 errors)
+Production build: PASS (`npm run build` — `tsc --noEmit && vite build`)
+Git Diff Audit: PASS (`git diff --check` — no errors, presentation-only)
+Purchasing UI Normalization: VERIFIED / LOCKED
+
+---
+
+### A. SCOPE & PRESENTATION CONTRACT
+
+IN SCOPE (presentation-only):
+- Root/page wrapper: `min-h-screen bg-gray-50`
+- Container: `w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6`
+- Card: `bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6`
+- Title: `text-2xl font-bold tracking-tight text-gray-900`
+- Label: `text-sm font-medium text-gray-700`
+- Input: `w-full px-4 py-2.5 text-sm rounded-xl border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all`
+- Button (submit): `py-3 px-4 bg-blue-600 hover:bg-blue-700 font-medium text-sm text-white rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed`
+- Delete button: `bg-red-600 hover:bg-red-700 font-medium text-sm text-white rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed`
+- Error: `text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl p-3 sm:p-4`
+- Loading/empty-state wrappers normalized to same page/container/card baseline
+
+STRICTLY OUT OF SCOPE / UNTOUCHED:
+- `listPurchaseOrders`, `createPurchaseOrder`, `getPurchaseOrder`, `updatePurchaseOrder`, `deletePurchaseOrder` API calls and payloads
+- `purchasingService`, `types`, `BusinessContext`, `AuthContext`
+- Form validation logic and `handleSubmit` / `handleDelete` handlers
+- Navigation and redirect behavior (`navigate(...)`)
+- Backend endpoints and models
+- All existing `data-testid` attributes
+
+---
+
+### B. DATA-TESTID PRESERVATION AUDIT
+
+All existing Purchasing `data-testid` values preserved without semantic relocation:
+- PurchaseOrderList: `purchase-order-list`, `purchase-order-list-loading`, `purchase-order-list-error`, `purchase-order-list-empty`, `purchase-order-item-*`, `purchase-order-item-id-*`, `purchase-order-item-status-*`
+- PurchaseOrderCreate: `purchase-order-create-form`, `purchase-order-create-error`, `purchase-order-supplier-select`, `purchase-order-location-select`, `purchase-order-status-select`, `purchase-order-add-line-button`, `purchase-order-line-*`, `purchase-order-line-variant-select`, `purchase-order-line-quantity-input`, `purchase-order-line-unit-price-input`, `purchase-order-remove-line-button`, `purchase-order-create-submit`
+- PurchaseOrderDetail: `purchase-order-detail`, `purchase-order-detail-loading`, `purchase-order-detail-error`, `purchase-order-detail-id`, `purchase-order-detail-status`, `purchase-order-detail-created-at`, `purchase-order-detail-updated-at`, `purchase-order-detail-lines`, `purchase-order-detail-line-*-variant`, `purchase-order-detail-line-*-quantity`, `purchase-order-detail-line-*-unit-price`
+- PurchaseOrderEdit: `purchase-order-edit`, `purchase-order-edit-loading`, `purchase-order-edit-error`, `purchase-order-edit-form`, `purchase-order-edit-supplier-select`, `purchase-order-edit-location-select`, `purchase-order-edit-status-select`, `purchase-order-edit-line-*`, `purchase-order-edit-line-variant-select`, `purchase-order-edit-line-quantity-input`, `purchase-order-edit-line-unit-price-input`, `purchase-order-edit-submit`
+- PurchaseOrderDelete: `purchase-order-delete`, `purchase-order-delete-confirm-button`, `purchase-order-delete-error`
+
+---
+
+### C. IMPLEMENTATION & FILES MODIFIED
+
+1. Modified Components (presentation-only):
+   - `frontend/src/pages/PurchaseOrderList.tsx`
+   - `frontend/src/pages/PurchaseOrderCreate.tsx`
+   - `frontend/src/pages/PurchaseOrderDetail.tsx`
+   - `frontend/src/pages/PurchaseOrderEdit.tsx`
+   - `frontend/src/pages/PurchaseOrderDelete.tsx`
+2. Test Suite (RED):
+   - `frontend/src/test/purchasing.tailwind.test.tsx`
+
+---
+
+### D. VERIFICATION EVIDENCE
+
+1. Targeted Tailwind Test (RED→GREEN):
+   - `npx vitest run src/test/purchasing.tailwind.test.tsx` → 7/7 PASS
+2. Purchasing Behavioral Regression:
+   - 34/34 PASS (7 test files, listed in STATUS)
+3. TypeScript Check:
+   - `npx tsc --noEmit` → PASS (0 errors)
+4. Production Build:
+   - `npm run build` → PASS
+5. Git Diff Audit:
+   - `git diff --check` → no errors (presentation-only Tailwind wrappers)
+
+---
+
+### E. LOCK STATUS
+
+PURCHASING UI NORMALIZATION V1 (BATCH 3 — TRANSACTIONAL):
+STATUS: 🟢 SELESAI & LOCKED
+
+No further modifications are allowed to Purchasing UI without following the full controlled workflow:
+Discovery → Contract Lock → RED → GREEN → Verification → Documentation → LOCK
+
+---
+
 END OF MASTER BLUEPRINT / DOMAIN ROADMAP
 ==================================================

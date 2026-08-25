@@ -24,15 +24,26 @@ export function PurchaseOrderDelete() {
   };
 
   return (
-    <div data-testid="purchase-order-delete">
-      {error && <div data-testid="purchase-order-delete-error">{error}</div>}
-      <button
-        data-testid="purchase-order-delete-confirm-button"
-        onClick={handleDelete}
-        disabled={loading}
-      >
-        {loading ? "Deleting…" : "Delete purchase order"}
-      </button>
+    <div className="min-h-screen bg-gray-50">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6">
+          <div data-testid="purchase-order-delete" className="space-y-4">
+            {error && (
+              <div data-testid="purchase-order-delete-error" className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl p-3 sm:p-4">
+                {error}
+              </div>
+            )}
+            <button
+              data-testid="purchase-order-delete-confirm-button"
+              onClick={handleDelete}
+              disabled={loading}
+              className="bg-red-600 hover:bg-red-700 font-medium text-sm text-white rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed py-3 px-4"
+            >
+              {loading ? "Deleting…" : "Delete purchase order"}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

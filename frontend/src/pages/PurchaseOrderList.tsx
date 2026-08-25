@@ -37,20 +37,28 @@ export function PurchaseOrderList() {
 
   if (loading) return <div data-testid="purchase-order-list-loading">Loading…</div>;
   if (error) return <div data-testid="purchase-order-list-error">{error}</div>;
+
   return (
-    <div data-testid="purchase-order-list" className="p-4">
-      {items.length === 0 ? (
-        <div data-testid="purchase-order-list-empty">No purchase orders.</div>
-      ) : (
-        <ul className="divide-y">
-          {items.map((po) => (
-            <li key={po.id} data-testid={`purchase-order-item-${po.id}`}>
-              <span data-testid={`purchase-order-item-id-${po.id}`}>{po.id}</span>
-              <span data-testid={`purchase-order-item-status-${po.id}`}>{po.status}</span>
-            </li>
-          ))}
-        </ul>
-      )}
+    <div className="min-h-screen bg-gray-50">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6">
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900 mb-6">Purchase Orders</h1>
+          <div data-testid="purchase-order-list">
+            {items.length === 0 ? (
+              <div data-testid="purchase-order-list-empty">No purchase orders.</div>
+            ) : (
+              <ul className="divide-y divide-gray-100">
+                {items.map((po) => (
+                  <li key={po.id} data-testid={`purchase-order-item-${po.id}`} className="py-4 flex justify-between items-center">
+                    <span data-testid={`purchase-order-item-id-${po.id}`} className="text-sm font-medium text-gray-900">{po.id}</span>
+                    <span data-testid={`purchase-order-item-status-${po.id}`} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">{po.status}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
