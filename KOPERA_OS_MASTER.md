@@ -5782,5 +5782,117 @@ Discovery → Contract Lock → RED → GREEN → Verification → Documentation
 
 ---
 
+## 33. FRONTEND UI NORMALIZATION V1 — BATCH 7: PROMOTION & LOYALTY (INCLUDING SERIAL NUMBER)
+
+### STATUS
+🟢 SELESAI & LOCKED
+Contract: FRONTEND UI NORMALIZATION V1 — BATCH 7: PROMOTION & LOYALTY (INCLUDING SERIAL NUMBER) — LOCKED
+Scope: Presentation-only UI normalization for Promotion & Loyalty module (15 pages: Promotions, Loyalty Programs, Customer Loyalty Records) and Serial Number list/create page
+Discovery: COMPLETE
+Contract: LOCKED
+RED: COMPLETE — `src/test/promotionLoyalty.tailwind.test.tsx` (12/12 expected RED, satisfied at GREEN) and `src/test/serialNumber.tailwind.test.tsx` (4/4 expected RED, satisfied at GREEN)
+GREEN: COMPLETE — 12/12 PASS in `src/test/promotionLoyalty.tailwind.test.tsx` and 4/4 PASS in `src/test/serialNumber.tailwind.test.tsx`
+Behavioral regression: 113/113 PASS across promotion/loyalty behavioral test suites + 12/12 PASS across serial number suites
+TypeScript: PASS (`npx tsc --noEmit` — 0 errors)
+Production build: PASS (`npm run build` — `tsc --noEmit && vite build`)
+Git Diff Audit: PASS (`git diff --check` — no errors, presentation-only)
+Promotion, Loyalty, and Serial Number UI Normalization: VERIFIED / LOCKED
+
+---
+
+### A. SCOPE & PRESENTATION CONTRACT
+
+IN SCOPE (presentation-only):
+- Root/page wrapper: `min-h-screen bg-gray-50`
+- Container: `w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6`
+- Card: `bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6`
+- Title: `text-2xl font-bold tracking-tight text-gray-900`
+- Label: `text-sm font-medium text-gray-700`
+- Input: `w-full px-4 py-2.5 text-sm rounded-xl border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all`
+- Button (submit): `py-3 px-4 bg-blue-600 hover:bg-blue-700 font-medium text-sm text-white rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed`
+- Delete button: `bg-red-600 hover:bg-red-700 font-medium text-sm text-white rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed`
+- Error: `text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl p-3 sm:p-4`
+- Loading/empty-state wrappers normalized to same page/container/card baseline
+
+STRICTLY OUT OF SCOPE / UNTOUCHED:
+- All service endpoints, backend models, and API data payloads
+- Form validation business logic and onSubmit handlers
+- Existing JWT/401 handling, apiClient, and business context managers
+- All existing `data-testid` attributes
+
+---
+
+### B. DATA-TESTID PRESERVATION AUDIT
+
+All existing Promotion, Loyalty, and Serial Number `data-testid` values preserved without semantic relocation:
+- PromotionList: `promotion-list`, `promotion-list-loading`, `promotion-list-error`, `promotion-list-empty`, `promotion-item-*`
+- PromotionCreate: `promotion-create-form`, `promotion-name-input`, `promotion-discount-type-input`, `promotion-discount-value-input`, `promotion-valid-from-input`, `promotion-valid-to-input`, `promotion-status-input`, `promotion-applicability-input`, `promotion-target-product-input`, `promotion-target-variant-input`, `promotion-create-submit`, `promotion-create-error`
+- PromotionDetail: `promotion-detail`, `promotion-detail-loading`, `promotion-detail-error`, `promotion-detail-id`, `promotion-detail-business`, `promotion-detail-name`, `promotion-detail-discount-type`, `promotion-detail-discount-value`, `promotion-detail-valid-from`, `promotion-detail-valid-to`, `promotion-detail-status`, `promotion-detail-applicability`, `promotion-detail-target-product`, `promotion-detail-target-variant`, `promotion-detail-created-at`, `promotion-detail-updated-at`
+- PromotionEdit: `promotion-edit`, `promotion-edit-loading`, `promotion-edit-error`, `promotion-edit-form`, `promotion-name-input`, `promotion-discount-type-input`, `promotion-discount-value-input`, `promotion-valid-from-input`, `promotion-valid-to-input`, `promotion-status-input`, `promotion-applicability-input`, `promotion-target-product-input`, `promotion-target-variant-input`, `promotion-edit-submit`
+- PromotionDelete: `promotion-delete`, `promotion-delete-confirm-button`, `promotion-delete-error`
+- LoyaltyProgramList: `loyalty-program-list`, `loyalty-program-list-loading`, `loyalty-program-list-error`, `loyalty-program-list-empty`, `loyalty-program-item-*`
+- LoyaltyProgramCreate: `loyalty-program-create-form`, `loyalty-program-name-input`, `loyalty-program-status-input`, `loyalty-program-create-submit`, `loyalty-program-create-error`
+- LoyaltyProgramDetail: `loyalty-program-detail`, `loyalty-program-detail-loading`, `loyalty-program-detail-error`, `loyalty-program-detail-id`, `loyalty-program-detail-business`, `loyalty-program-detail-name`, `loyalty-program-detail-status`, `loyalty-program-detail-created-at`, `loyalty-program-detail-updated-at`
+- LoyaltyProgramEdit: `loyalty-program-edit`, `loyalty-program-edit-loading`, `loyalty-program-edit-error`, `loyalty-program-edit-form`, `loyalty-program-name-input`, `loyalty-program-status-input`, `loyalty-program-edit-submit`
+- LoyaltyProgramDelete: `loyalty-program-delete`, `loyalty-program-delete-confirm-button`, `loyalty-program-delete-error`
+- CustomerLoyaltyRecordList: `customer-loyalty-record-list`, `customer-loyalty-record-list-loading`, `customer-loyalty-record-list-error`, `customer-loyalty-record-list-empty`, `customer-loyalty-record-item-*`
+- CustomerLoyaltyRecordCreate: `customer-loyalty-record-create-form`, `customer-loyalty-record-customer-input`, `customer-loyalty-record-points-input`, `customer-loyalty-record-create-submit`, `customer-loyalty-record-create-error`
+- CustomerLoyaltyRecordDetail: `customer-loyalty-record-detail`, `customer-loyalty-record-detail-loading`, `customer-loyalty-record-detail-error`, `customer-loyalty-record-detail-id`, `customer-loyalty-record-detail-business`, `customer-loyalty-record-detail-program`, `customer-loyalty-record-detail-customer`, `customer-loyalty-record-detail-points`, `customer-loyalty-record-detail-created-at`, `customer-loyalty-record-detail-updated-at`
+- CustomerLoyaltyRecordEdit: `customer-loyalty-record-edit`, `customer-loyalty-record-edit-loading`, `customer-loyalty-record-edit-error`, `customer-loyalty-record-edit-form`, `customer-loyalty-record-points-input`, `customer-loyalty-record-edit-submit`
+- CustomerLoyaltyRecordDelete: `customer-loyalty-record-delete`, `customer-loyalty-record-delete-confirm-button`, `customer-loyalty-record-delete-error`
+- SerialNumberList: `serial-list`, `serial-list-loading`, `serial-list-error`, `serial-list-empty`, `serial-item-*`, `serial-create-form`, `serial-batch-input`, `serial-number-input`, `serial-create-submit`, `serial-create-error`, `serial-delete-button-*`
+
+---
+
+### C. IMPLEMENTATION & FILES MODIFIED
+
+1. Modified Components (presentation-only, completed in HEAD):
+   - `frontend/src/pages/CustomerLoyaltyRecordCreate.tsx`
+   - `frontend/src/pages/CustomerLoyaltyRecordDelete.tsx`
+   - `frontend/src/pages/CustomerLoyaltyRecordDetail.tsx`
+   - `frontend/src/pages/CustomerLoyaltyRecordEdit.tsx`
+   - `frontend/src/pages/CustomerLoyaltyRecordList.tsx`
+   - `frontend/src/pages/LoyaltyProgramCreate.tsx`
+   - `frontend/src/pages/LoyaltyProgramDelete.tsx`
+   - `frontend/src/pages/LoyaltyProgramDetail.tsx`
+   - `frontend/src/pages/LoyaltyProgramEdit.tsx`
+   - `frontend/src/pages/LoyaltyProgramList.tsx`
+   - `frontend/src/pages/PromotionCreate.tsx`
+   - `frontend/src/pages/PromotionDelete.tsx`
+   - `frontend/src/pages/PromotionDetail.tsx`
+   - `frontend/src/pages/PromotionEdit.tsx`
+   - `frontend/src/pages/PromotionList.tsx`
+   - `frontend/src/pages/SerialNumberList.tsx`
+2. Test Suites Added (staged and verified):
+   - `frontend/src/test/promotionLoyalty.tailwind.test.tsx`
+   - `frontend/src/test/serialNumber.tailwind.test.tsx`
+
+---
+
+### D. VERIFICATION EVIDENCE
+
+1. Targeted Tailwind Tests (RED→GREEN):
+   - `npx vitest run src/test/promotionLoyalty.tailwind.test.tsx` → 12/12 PASS
+   - `npx vitest run src/test/serialNumber.tailwind.test.tsx` → 4/4 PASS
+2. Full Frontend Regression:
+   - 720/720 PASS (116 test files)
+3. TypeScript Check:
+   - `npx tsc --noEmit` → PASS (0 errors)
+4. Production Build:
+   - `npm run build` → PASS
+5. Git Diff Audit:
+   - `git diff --check` → no errors (presentation-only Tailwind wrappers)
+
+---
+
+### E. LOCK STATUS
+
+FRONTEND UI NORMALIZATION V1 — BATCH 7: PROMOTION & LOYALTY (INCLUDING SERIAL NUMBER) = VERIFIED / LOCKED
+
+No further modifications are allowed without following the full controlled workflow:
+Discovery → Contract Lock → RED → GREEN → Verification → Documentation → LOCK
+
+---
+
 END OF MASTER BLUEPRINT / DOMAIN ROADMAP
 ==================================================

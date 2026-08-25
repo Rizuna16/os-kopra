@@ -26,18 +26,29 @@ export function CustomerLoyaltyRecordDelete() {
   };
 
   return (
-    <div data-testid="customer-loyalty-record-delete" className="p-4 space-y-3">
+    <div data-testid="customer-loyalty-record-delete" className="space-y-4 pt-4 border-t border-gray-100">
       <button
         type="button"
         data-testid="customer-loyalty-record-delete-submit"
         onClick={handleDelete}
         disabled={deleting}
-        className="bg-red-600 text-white rounded px-3 py-1"
+        className="py-3 px-4 bg-red-600 hover:bg-red-700 font-medium text-sm text-white rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {deleting ? "…" : "Delete record"}
       </button>
-      {deleting && <span data-testid="customer-loyalty-record-delete-deleting">Deleting…</span>}
-      {error && <div data-testid="customer-loyalty-record-delete-error" className="text-red-600">{error}</div>}
+      {deleting && (
+        <span data-testid="customer-loyalty-record-delete-deleting" className="ml-2 text-sm text-gray-500">
+          Deleting…
+        </span>
+      )}
+      {error && (
+        <div
+          data-testid="customer-loyalty-record-delete-error"
+          className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl p-3 sm:p-4 mt-2"
+        >
+          {error}
+        </div>
+      )}
     </div>
   );
 }
