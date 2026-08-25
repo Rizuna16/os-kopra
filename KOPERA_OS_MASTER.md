@@ -5894,5 +5894,81 @@ Discovery → Contract Lock → RED → GREEN → Verification → Documentation
 
 ---
 
+## 34. FRONTEND UI NORMALIZATION V1 — BATCH 8: PUBLIC STOREFRONT
+
+### STATUS
+🟢 SELESAI & LOCKED
+Contract: FRONTEND UI NORMALIZATION V1 — BATCH 8: PUBLIC STOREFRONT — LOCKED
+Scope: Presentation-only UI normalization for Public Storefront module (Storefront.tsx)
+Discovery: COMPLETE
+Contract: LOCKED
+RED: COMPLETE — `src/test/storefront.tailwind.test.tsx` (1/1 expected RED, satisfied at GREEN)
+GREEN: COMPLETE — 1/1 PASS in `src/test/storefront.tailwind.test.tsx`
+Behavioral regression: 4/4 PASS
+  - `src/test/storefrontRegression.test.tsx` (4/4)
+TypeScript: PASS (`npx tsc --noEmit` — 0 errors)
+Production build: PASS (`npm run build` — `tsc --noEmit && vite build`)
+Git Diff Audit: PASS (`git diff --check` — no errors, presentation-only)
+Public Storefront UI Normalization: VERIFIED / LOCKED
+
+---
+
+### A. SCOPE & PRESENTATION CONTRACT
+
+IN SCOPE (presentation-only):
+- Root/page wrapper: `min-h-screen bg-gray-50`
+- Container: `w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6`
+- Card: `bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6`
+- Title: `text-2xl font-bold tracking-tight text-gray-900`
+- Text: `text-sm text-gray-600`
+
+STRICTLY OUT OF SCOPE / UNTOUCHED:
+- All service endpoints, backend models, and API data payloads
+- Form validation business logic and onSubmit handlers
+- Existing JWT/401 handling, apiClient, and business context managers
+- All existing `data-testid` attributes
+
+---
+
+### B. DATA-TESTID PRESERVATION AUDIT
+
+All existing Storefront `data-testid` values preserved without semantic relocation:
+- Storefront: `storefront`
+
+---
+
+### C. IMPLEMENTATION & FILES MODIFIED
+
+1. Modified Components (presentation-only, completed in HEAD):
+   - `frontend/src/pages/Storefront.tsx`
+2. Test Suites Added (staged and verified):
+   - `frontend/src/test/storefront.tailwind.test.tsx`
+
+---
+
+### D. VERIFICATION EVIDENCE
+
+1. Targeted Tailwind Tests (RED→GREEN):
+   - `npx vitest run src/test/storefront.tailwind.test.tsx` → 1/1 PASS
+2. Full Frontend Regression:
+   - 721/721 PASS (117 test files)
+3. TypeScript Check:
+   - `npx tsc --noEmit` → PASS (0 errors)
+4. Production Build:
+   - `npm run build` → PASS
+5. Git Diff Audit:
+   - `git diff --check` → no errors (presentation-only Tailwind wrappers)
+
+---
+
+### E. LOCK STATUS
+
+FRONTEND UI NORMALIZATION V1 — BATCH 8: PUBLIC STOREFRONT = VERIFIED / LOCKED
+
+No further modifications are allowed without following the full controlled workflow:
+Discovery → Contract Lock → RED → GREEN → Verification → Documentation → LOCK
+
+---
+
 END OF MASTER BLUEPRINT / DOMAIN ROADMAP
 ==================================================
