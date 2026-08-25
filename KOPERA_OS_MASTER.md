@@ -5392,5 +5392,133 @@ Discovery → Contract Lock → RED → GREEN → Verification → Documentation
 
 ---
 
+## 30. FRONTEND UI NORMALIZATION V1 — BATCH 4C: INVENTORY (BATCH)
+
+### STATUS
+🟢 SELESAI & LOCKED
+Contract: FRONTEND UI NORMALIZATION V1 — BATCH 4C: INVENTORY (BATCH) — LOCKED
+Scope: Presentation-only UI normalization for Inventory Batch module (BatchList hybrid page: list + create)
+Discovery: COMPLETE
+Contract: LOCKED
+RED: COMPLETE — `src/test/batch.tailwind.test.tsx` (3/3 expected RED, satisfied at GREEN)
+GREEN: COMPLETE — 3/3 PASS in `src/test/batch.tailwind.test.tsx`
+Behavioral regression: 33/33 PASS (including 6/6 batch behavioral tests + 27/27 inventory service tests)
+  - `src/test/batch.test.tsx` (6/6)
+  - `src/test/inventoryService.test.ts` (27/27)
+TypeScript: PASS (`npx tsc --noEmit` — 0 errors)
+Production build: PASS (`npm run build` — `tsc --noEmit && vite build`)
+Git Diff Audit: PASS (`git diff --check` — no errors, presentation-only)
+Batch UI Normalization: VERIFIED / LOCKED
+
+---
+
+### A. SCOPE & PRESENTATION CONTRACT
+
+IN SCOPE (presentation-only):
+- Root/page wrapper: `min-h-screen bg-gray-50`
+- Container: `w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6`
+- Card: `bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6`
+- Title: `text-2xl font-bold tracking-tight text-gray-900`
+- Label: `text-sm font-medium text-gray-700`
+- Input / Select: `w-full px-4 py-2.5 text-sm rounded-xl border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all`
+- Button (submit): `py-3 px-4 bg-blue-600 hover:bg-blue-700 font-medium text-sm text-white rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed`
+- Error: `text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl p-3 sm:p-4`
+- Loading: `min-h-screen bg-gray-50 flex items-center justify-center` with `text-sm text-gray-500 py-8 text-center`
+- Empty state: `text-center py-12 text-gray-500 text-sm`
+- List items: `divide-y divide-gray-100` on list, `py-3 flex items-center justify-between text-sm text-gray-900` per item
+
+STRICTLY OUT OF SCOPE / UNTOUCHED:
+- `listBatches`, `createBatch` API calls and payloads
+- `inventoryService.ts`, `variantLookup.ts`, `types`, `BusinessContext`, `AuthContext`
+- Form validation logic and `handleCreate` handler
+- Navigation and redirect behavior (`navigate("/login", { replace: true })`)
+- Backend endpoints and models
+- All existing `data-testid` attributes
+- Batch variant options logic (empty select with placeholder preserved)
+
+---
+
+### B. DATA-TESTID PRESERVATION AUDIT
+
+All existing Batch `data-testid` values preserved without semantic relocation (14 total):
+- `batch-list-loading`
+- `batch-list-error`
+- `batch-list`
+- `batch-create-form`
+- `batch-code-input`
+- `batch-variant-input`
+- `batch-quantity-input`
+- `batch-expired-date-input`
+- `batch-create-submit`
+- `batch-create-error`
+- `batch-list-empty`
+- `batch-item-${b.id}` (dynamic)
+- `batch-code`
+- `batch-quantity`
+
+---
+
+### C. IMPLEMENTATION & FILES MODIFIED
+
+1. Modified Components (presentation-only):
+   - `frontend/src/pages/BatchList.tsx`
+2. Test Suite (RED):
+   - `frontend/src/test/batch.tailwind.test.tsx`
+
+---
+
+### D. VERIFICATION EVIDENCE
+
+1. Targeted Tailwind Test (RED→GREEN):
+   - `npx vitest run src/test/batch.tailwind.test.tsx` → 3/3 PASS
+2. Batch Behavioral Regression:
+   - 6/6 PASS (`src/test/batch.test.tsx`)
+3. Inventory Service Regression:
+   - 27/27 PASS (`src/test/inventoryService.test.ts`)
+4. Combined regression executed: 33/33 PASS
+5. TypeScript Check:
+   - `npx tsc --noEmit` → PASS (0 errors)
+6. Production Build:
+   - `npm run build` → PASS
+7. Git Diff Audit:
+   - `git diff --check` → no errors (presentation-only Tailwind wrappers)
+
+---
+
+### E. FUNCTIONAL-DIFF AUDIT
+
+- API calls unchanged: `listBatches`, `createBatch` invoked identically with same payload shape
+- Payloads unchanged: `code`, `location`, `variant`, `quantity`, `expired_date` fields preserved
+- Validation unchanged: `quantity === "" ? 0 : Number(quantity)` preserved
+- Handlers unchanged: `handleCreate` logic and error mapping preserved
+- State unchanged: `useState` fields (`items`, `loading`, `error`, `code`, `variant`, `quantity`, `expiredDate`, `submitting`, `createError`) preserved
+- Routing unchanged: `navigate("/login", { replace: true })` on 401 preserved
+- Context usage unchanged: `useBusiness()` (`currentLocationId`) preserved
+- data-testid unchanged: 14 values verbatim
+
+---
+
+### F. FORBIDDEN-FILE AUDIT
+
+Untouched and verified safe:
+- `inventoryService.ts`, `variantLookup.ts`, `types`
+- `BusinessContext`, `AuthContext`
+- Backend / models
+- All other Inventory pages: `StockList`, `StockCreate`, `StockDetail`, `StockEdit`, `StockDelete`, `StockTransfer`, `StockOpname`, `StockAdjustment`, `SerialNumberList`
+- All other domain modules (Product, Variant, Customer, Supplier, Purchasing, Sales, Finance)
+- Batch 4A Stock CRUD pages and documentation (Section 28)
+- Batch 4B Stock Operations pages and documentation (Section 29)
+
+---
+
+### G. LOCK STATUS
+
+Inventory UI Normalization V1 — Batch 4C: Batch = VERIFIED / LOCKED
+
+No further modifications are allowed to Batch UI without following the full controlled workflow:
+Discovery → Contract Lock → RED → GREEN → Verification → Documentation → LOCK
+
+---
+
 END OF MASTER BLUEPRINT / DOMAIN ROADMAP
 ==================================================
