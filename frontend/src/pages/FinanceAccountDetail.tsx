@@ -49,25 +49,92 @@ export function FinanceAccountDetail() {
     }
   };
 
-  if (loading) return <div data-testid="finance-account-detail-loading">Loading…</div>;
-  if (error) return <div data-testid="finance-account-detail-error">{error}</div>;
-  if (!item) return <div data-testid="finance-account-detail">No account.</div>;
+  if (loading)
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6">
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900">Account</h1>
+            <div data-testid="finance-account-detail-loading">Loading…</div>
+          </div>
+        </div>
+      </div>
+    );
+  if (error)
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6">
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900">Account</h1>
+            <div
+              data-testid="finance-account-detail-error"
+              className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl p-3 sm:p-4"
+            >
+              {error}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  if (!item)
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6">
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900">Account</h1>
+            <div data-testid="finance-account-detail" className="text-gray-500 text-sm">
+              No account.
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   return (
-    <div data-testid="finance-account-detail" className="p-4 space-y-2">
-      <h1 className="text-2xl font-bold">Account</h1>
-      <p data-testid="finance-account-detail-id">{item.id}</p>
-      <p data-testid="finance-account-detail-name">{item.name}</p>
-      <p data-testid="finance-account-detail-code">{item.code}</p>
-      <p data-testid="finance-account-detail-business">{item.business}</p>
-      <p data-testid="finance-account-detail-created-at">{item.created_at}</p>
-      <p data-testid="finance-account-detail-updated-at">{item.updated_at}</p>
-      <div className="flex gap-2">
-        <Link to={`/finance/accounts/${item.id}/edit`} className="bg-blue-600 text-white rounded px-3 py-1">
-          Edit
-        </Link>
-        <button onClick={handleDelete} className="bg-red-600 text-white rounded px-3 py-1">
-          Delete
-        </button>
+    <div className="min-h-screen bg-gray-50">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div data-testid="finance-account-detail" className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6 space-y-4">
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Account</h1>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <span className="block text-xs font-semibold text-gray-500 uppercase tracking-wider">ID</span>
+              <span data-testid="finance-account-detail-id" className="text-sm text-gray-900">{item.id}</span>
+            </div>
+            <div>
+              <span className="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</span>
+              <span data-testid="finance-account-detail-name" className="text-sm text-gray-900 font-medium">{item.name}</span>
+            </div>
+            <div>
+              <span className="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Code</span>
+              <span data-testid="finance-account-detail-code" className="text-sm text-gray-900 font-medium">{item.code}</span>
+            </div>
+            <div>
+              <span className="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Business</span>
+              <span data-testid="finance-account-detail-business" className="text-sm text-gray-900">{item.business}</span>
+            </div>
+            <div>
+              <span className="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Created At</span>
+              <span data-testid="finance-account-detail-created-at" className="text-sm text-gray-900">{item.created_at}</span>
+            </div>
+            <div>
+              <span className="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Updated At</span>
+              <span data-testid="finance-account-detail-updated-at" className="text-sm text-gray-900">{item.updated_at}</span>
+            </div>
+          </div>
+          <div className="flex gap-3 pt-2">
+            <Link
+              to={`/finance/accounts/${item.id}/edit`}
+              className="py-3 px-4 bg-blue-600 hover:bg-blue-700 font-medium text-sm text-white rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Edit
+            </Link>
+            <button
+              onClick={handleDelete}
+              className="py-3 px-4 bg-red-600 hover:bg-red-700 font-medium text-sm text-white rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

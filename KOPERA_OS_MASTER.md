@@ -5644,5 +5644,143 @@ Discovery → Contract Lock → RED → GREEN → Verification → Documentation
 
 ---
 
+## 32. FRONTEND UI NORMALIZATION V1 — BATCH 6: FINANCE
+
+### STATUS
+🟢 SELESAI & LOCKED
+Contract: FRONTEND UI NORMALIZATION V1 — BATCH 6: FINANCE — LOCKED
+Scope: Presentation-only UI normalization for Finance module (Account List / Create / Detail / Edit, Journal List, Expense List)
+Discovery: COMPLETE
+Contract: LOCKED
+RED: COMPLETE — `src/test/finance.tailwind.test.tsx` (8/8 expected RED, verified FAIL before source change, satisfied at GREEN)
+GREEN: COMPLETE — 8/8 PASS in `src/test/finance.tailwind.test.tsx`
+Finance behavioral regression: 31/31 PASS (existing finance behavioral suites, listed below)
+Finance service regression: 20/20 PASS (`src/finance/financeService.test.ts`)
+Full frontend regression: 704/704 PASS (114 test files)
+TypeScript: PASS (`npx tsc --noEmit` — 0 errors)
+Production build: PASS (`npm run build` — `tsc --noEmit && vite build`)
+Git Diff Audit: PASS (`git diff --check` — presentation-only Tailwind wrappers; only LF/CRLF normalization warnings)
+Finance UI Normalization: VERIFIED / LOCKED
+
+---
+
+### A. SCOPE & PRESENTATION CONTRACT
+
+IN SCOPE (presentation-only):
+- Root/page wrapper: `min-h-screen bg-gray-50`
+- Container: `w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6`
+- Card: `bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6`
+- Title: `text-2xl font-bold tracking-tight text-gray-900`
+- Label: `text-sm font-medium text-gray-700`
+- Input: `w-full px-4 py-2.5 text-sm rounded-xl border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all`
+- Button (submit / new): `py-3 px-4 bg-blue-600 hover:bg-blue-700 font-medium text-sm text-white rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed`
+- Delete button: `bg-red-600 hover:bg-red-700 font-medium text-sm text-white rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed`
+- Error: `text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl p-3 sm:p-4`
+- Loading/empty-state wrappers normalized to same page/container/card baseline
+- List items: `divide-y divide-gray-100` on list, `py-3` per item; journal items use status badge `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800`
+
+STRICTLY OUT OF SCOPE / UNTOUCHED:
+- `listAccounts`, `createAccount`, `fetchAccount`, `updateAccount`, `deleteAccount`, `listJournals`, `listExpenses` API calls and payloads
+- `financeService.ts`, `types`, `BusinessContext`, `AuthContext`
+- Form validation logic and `handleSubmit` / `handleDelete` handlers
+- Navigation and redirect behavior (`navigate("/finance/accounts")`, `navigate("/finance/accounts/${accountId}")`, `confirm(...)` on delete)
+- Backend endpoints and models
+- All existing `data-testid` attributes
+
+---
+
+### B. DATA-TESTID PRESERVATION AUDIT
+
+All existing Finance `data-testid` values preserved without semantic relocation:
+- FinanceAccountList: `finance-account-list-loading`, `finance-account-list-error`, `finance-account-list`, `finance-account-list-empty`, `finance-account-item-${a.id}` (dynamic)
+- FinanceAccountCreate: `finance-account-create-form`, `finance-account-name-input`, `finance-account-code-input`, `finance-account-create-error`, `finance-account-create-submit`
+- FinanceAccountDetail: `finance-account-detail-loading`, `finance-account-detail-error`, `finance-account-detail`, `finance-account-detail-id`, `finance-account-detail-name`, `finance-account-detail-code`, `finance-account-detail-business`, `finance-account-detail-created-at`, `finance-account-detail-updated-at`
+- FinanceAccountEdit: `finance-account-edit-loading`, `finance-account-edit-error`, `finance-account-edit`, `finance-account-edit-form`, `finance-account-name-input`, `finance-account-code-input`, `finance-account-edit-submit`
+- FinanceExpenseList: `finance-expense-list-loading`, `finance-expense-list-error`, `finance-expense-list`, `finance-expense-list-empty`, `finance-expense-item-${e.id}` (dynamic)
+- FinanceJournalList: `finance-journal-list-loading`, `finance-journal-list-error`, `finance-journal-list`, `finance-journal-list-empty`, `finance-journal-item-${j.id}` (dynamic)
+
+Note: `finance-account-detail` and `finance-account-edit` each appear on two branches (not-found/empty branch and main branch). The data-testid value is byte-identical and preserved verbatim on both branches.
+
+---
+
+### C. IMPLEMENTATION & FILES MODIFIED
+
+1. Modified Components (presentation-only):
+   - `frontend/src/pages/FinanceAccountList.tsx`
+   - `frontend/src/pages/FinanceAccountCreate.tsx`
+   - `frontend/src/pages/FinanceAccountDetail.tsx`
+   - `frontend/src/pages/FinanceAccountEdit.tsx`
+   - `frontend/src/pages/FinanceExpenseList.tsx`
+   - `frontend/src/pages/FinanceJournalList.tsx`
+2. Test Suite (RED):
+   - `frontend/src/test/finance.tailwind.test.tsx`
+
+---
+
+### D. VERIFICATION EVIDENCE
+
+1. Targeted Tailwind Test (RED→GREEN):
+   - `npx vitest run src/test/finance.tailwind.test.tsx` → 8/8 PASS
+2. Finance Behavioral Regression:
+   - 31/31 PASS
+     - `src/test/financeAccountList.test.tsx` (7/7)
+     - `src/test/financeAccountCreate.test.tsx` (3/3)
+     - `src/test/financeAccountDetail.test.tsx` (3/3)
+     - `src/test/financeAccountEdit.test.tsx` (3/3)
+     - `src/test/financeExpenseList.test.tsx` (6/6)
+     - `src/test/financeJournalList.test.tsx` (6/6)
+     - `src/test/financeTenantIsolation.test.tsx` (3/3)
+3. Finance Service Regression:
+   - 20/20 PASS (`src/finance/financeService.test.ts`)
+4. Full Frontend Regression:
+   - 704/704 PASS (114 test files)
+5. TypeScript Check:
+   - `npx tsc --noEmit` → PASS (0 errors)
+6. Production Build:
+   - `npm run build` → PASS
+7. Git Diff Audit:
+   - `git diff --check` → only LF/CRLF normalization warnings; no trailing-whitespace / no real diff errors; presentation-only Tailwind wrappers
+
+---
+
+### E. FUNCTIONAL-DIFF AUDIT
+
+- API calls unchanged: `listAccounts`, `createAccount`, `fetchAccount`, `updateAccount`, `deleteAccount`, `listJournals`, `listExpenses` invoked identically with same URL/payload shape.
+- Payloads unchanged: Account create = `{ name, code }`; Account update (PUT) = `{ name, code }`; no extra/missing fields.
+- Validation unchanged: `if (!name.trim()) { setError("Name must not be empty or whitespace only."); return; }` preserved verbatim on both Create and Edit.
+- Handlers unchanged: `handleSubmit` (Create/Edit) and `handleDelete` (Detail) logic and error mapping preserved.
+- State unchanged: `useState` fields (`items`, `loading`, `error`, `item`, `nameRef`, `codeRef`, `submitting`) preserved.
+- Routing unchanged: `navigate("/finance/accounts")` after Create/Delete; `navigate("/finance/accounts/${accountId}")` after Edit; `confirm("Delete this account?")` gate before delete; loading → error → not-found → form branch order preserved.
+- Context usage unchanged: `useBusiness()` (`currentBusinessId`) preserved.
+- data-testid unchanged: all values verbatim (see Section B).
+
+---
+
+### F. FORBIDDEN-FILE AUDIT
+
+Untouched and verified safe:
+- `financeService.ts`, `types`
+- `BusinessContext`, `AuthContext`
+- `apiClient`, `tokenStore`, `env`
+- AppLayout
+- All other domain modules (Product, Variant, Customer, Supplier, Purchasing, Sales, Inventory, Promotion & Loyalty)
+- Batch 1–5 UI Normalization pages and documentation (Sections 22–31)
+- Backend / models
+- router.tsx (no route changes; Finance routes already exist)
+- test utilities (testUtils.tsx, setup.ts)
+
+No new dependency introduced. No shared component architecture introduced. No refactor of unrelated modules. No backend change. No new PART created.
+
+---
+
+### G. LOCK STATUS
+
+FRONTEND UI NORMALIZATION V1 — BATCH 6: FINANCE = VERIFIED / LOCKED
+
+No further modifications are allowed to Finance UI without following the full controlled workflow:
+Discovery → Contract Lock → RED → GREEN → Verification → Documentation → LOCK
+
+---
+
 END OF MASTER BLUEPRINT / DOMAIN ROADMAP
 ==================================================
