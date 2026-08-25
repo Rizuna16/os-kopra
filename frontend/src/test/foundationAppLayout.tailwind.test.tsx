@@ -52,8 +52,10 @@ describe("AppLayout — Foundation Tailwind contract", () => {
       "gap-4",
       "flex-wrap",
       "p-4",
-      "bg-gray-100",
+      "bg-white",
       "border-b",
+      "border-gray-100",
+      "shadow-sm",
     );
     const brand = header.querySelector("span") as HTMLElement;
     expect(brand).toHaveClass("font-bold");

@@ -4563,5 +4563,122 @@ No new PART is created.
 
 FRONTEND FINANCE V1 — COMPLETE / LOCKED
 
+---
+
+## 22. FRONTEND UI NORMALIZATION V1 — BATCH 1: ONBOARDING VISUAL CORRECTION
+
+### STATUS
+🟢 SELESAI & LOCKED
+Contract: FRONTEND UI NORMALIZATION V1 — BATCH 1: ONBOARDING — LOCKED
+Scope: Presentation-only visual correction to modern SaaS wizard layout
+RED: COMPLETE — `src/test/onboardingVisual.tailwind.test.tsx` (verified initial mismatch)
+GREEN: COMPLETE — 2/2 PASS in `src/test/onboardingVisual.tailwind.test.tsx`
+Existing Onboarding tests: 6/6 PASS (`src/test/onboardingCompletion.test.tsx`, `src/test/onboardingRoute.test.tsx`)
+Full regression: 647/647 PASS (104 test files)
+TypeScript: PASS (`npx tsc --noEmit` — 0 errors)
+Production build: PASS (`npm run build` — `tsc --noEmit && vite build`)
+Backend: UNTOUCHED
+Functional logic / State machine / Navigation: UNTOUCHED
+data-testid preservation: 100% PRESERVED
+Documentation & Lock: COMPLETE
+Final status: LOCKED
+
+---
+
+### A. SCOPE & PRESENTATION CONTRACT
+
+IN SCOPE:
+- Modern horizontal wizard progress indicator at the top of the onboarding card
+- Step state visual representations:
+  - COMPLETED: Blue circular indicator (`bg-blue-600 text-white`), checkmark icon SVG (`✓`), blue connecting progress line
+  - ACTIVE: Blue circular indicator (`bg-blue-600 text-white ring-4 ring-blue-100`), white step number, blue emphasis label (`text-blue-600 font-semibold`)
+  - UPCOMING: Gray circular indicator (`bg-gray-200 text-gray-500`), gray step number, gray connecting line, gray label (`text-gray-500`)
+- Step labels:
+  1. Business
+  2. Location
+  3. Subscription
+  4. Plans
+- Layout & Card styling:
+  - Root: `min-h-screen bg-gray-50 flex items-center justify-center p-4 sm:p-6`
+  - Card: `w-full max-w-lg bg-white rounded-2xl border border-gray-100 shadow-xl p-6 sm:p-8`
+- Typography styling:
+  - Title: `text-2xl font-bold tracking-tight text-gray-900`
+  - Subtitle: `text-sm text-gray-600`
+  - Step title: `text-lg font-semibold text-gray-900`
+  - Step label: `text-xs sm:text-sm font-medium`
+- Form inputs & buttons:
+  - Input: `w-full px-4 py-2.5 text-sm rounded-xl border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all`
+  - Button: `w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 font-medium text-sm text-white rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed`
+- Error alert:
+  - Preserved attributes: `role="alert"`, `data-testid="onboarding-error"`
+  - Styling: `text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl p-3 sm:p-4 mb-4`
+- Plan cards (Step 4):
+  - Card: `border border-gray-200 rounded-xl p-4 sm:p-5 hover:border-blue-600 transition-all bg-white`
+  - Rendered fields: `name`, `amount`, `currency`, `billing_interval`
+- Responsive design:
+  - Viewports supported: 320px, 375px, 430px, 768px, 1024px, 1280px+ without horizontal overflow
+
+STRICTLY OUT OF SCOPE / UNTOUCHED:
+- Onboarding state machine (`step` 1 → 2 → 3 → 4)
+- `createBusiness`, `createLocation`, `createSubscription`, `listPlans` API calls and payloads
+- Form validation logic and error handling logic
+- Navigation and redirect behavior (`/onboarding` → `/app`)
+- `AuthContext` and `BusinessContext`
+- Backend endpoints and models
+- All existing `data-testid` attributes
+
+---
+
+### B. DATA-TESTID PRESERVATION AUDIT
+
+All 11 required data-testid values preserved without semantic relocation:
+1. `onboarding`
+2. `onboarding-error`
+3. `business-name-input`
+4. `business-submit`
+5. `location-name-input`
+6. `location-submit`
+7. `subscription-submit`
+8. `plans`
+9. `plans-list`
+10. `plan-option-*`
+11. `plans-continue`
+
+---
+
+### C. IMPLEMENTATION & FILES MODIFIED
+
+1. Modified Component:
+   - `frontend/src/pages/Onboarding.tsx`
+2. Added Test Suite:
+   - `frontend/src/test/onboardingVisual.tailwind.test.tsx`
+
+---
+
+### D. VERIFICATION EVIDENCE
+
+1. Targeted Tailwind Visual Test:
+   - `npx vitest run src/test/onboardingVisual.tailwind.test.tsx` → 2/2 PASS
+2. Existing Onboarding Tests:
+   - `npx vitest run src/test/onboardingCompletion.test.tsx src/test/onboardingRoute.test.tsx` → 6/6 PASS
+3. Full Regression Suite:
+   - `npx vitest run` → 647/647 PASS (104 test files)
+4. TypeScript Check:
+   - `npx tsc --noEmit` → PASS (0 errors)
+5. Production Build:
+   - `npm run build` → PASS (`dist/assets/index-*.js`, `dist/assets/index-*.css`)
+6. Browser Verification Note:
+   - No real browser automation runtime present in environment; verified via Vitest DOM tree & Tailwind utility contract assertions.
+
+---
+
+### E. LOCK STATUS
+
+ONBOARDING UI NORMALIZATION V1:
+STATUS: 🟢 SELESAI & LOCKED
+
+No further modifications are allowed to Onboarding UI without following the full controlled workflow:
+Discovery → Contract Lock → RED → GREEN → Verification → Documentation → LOCK
+
 END OF MASTER BLUEPRINT / DOMAIN ROADMAP
 ==================================================

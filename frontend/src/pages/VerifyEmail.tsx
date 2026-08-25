@@ -29,14 +29,16 @@ export function VerifyEmail() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center p-4"
+      className="min-h-screen bg-gray-50 flex items-center justify-center p-4"
       data-testid="verify-email"
     >
-      <div className="w-full max-w-md border rounded p-6">
-        <h1 className="text-2xl font-bold">Email Verification</h1>
-        <p aria-busy={!done}>{message}</p>
+      <div className="w-full max-w-md bg-white rounded-2xl border border-gray-100 shadow-xl p-6 sm:p-8">
+        <h1 className="text-2xl font-bold tracking-tight text-gray-900">Email Verification</h1>
+        <p aria-busy={!done} className="text-sm text-gray-600">
+          {message}
+        </p>
         {done && (
-          <p>
+          <p className="text-sm text-gray-600 mt-4">
             <a href="/login" className="text-blue-600 hover:underline">
               Go to login
             </a>

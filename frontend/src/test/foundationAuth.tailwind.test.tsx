@@ -51,7 +51,7 @@ describe("Login — Foundation Tailwind contract", () => {
     expect(root.querySelector(".max-w-md")).not.toBeNull();
     // FORM
     const form = root.querySelector("form") as HTMLElement;
-    expect(form).toHaveClass("space-y-3");
+    expect(form).toHaveClass("space-y-4");
     // HEADING
     expect(screen.getByRole("heading", { name: "Login" })).toHaveClass(
       "text-2xl",
@@ -59,29 +59,59 @@ describe("Login — Foundation Tailwind contract", () => {
     );
     // INPUTS
     expect(screen.getByTestId("email-input")).toHaveClass(
-      "border",
-      "rounded",
-      "px-2",
-      "py-1",
       "w-full",
+      "px-4",
+      "py-2.5",
+      "text-sm",
+      "rounded-xl",
+      "border",
+      "border-gray-300",
+      "bg-white",
+      "text-gray-900",
+      "placeholder-gray-400",
+      "focus:outline-none",
+      "focus:ring-2",
+      "focus:ring-blue-600",
+      "focus:border-transparent",
+      "transition-all",
     );
     expect(screen.getByTestId("password-input")).toHaveClass(
-      "border",
-      "rounded",
-      "px-2",
-      "py-1",
       "w-full",
+      "px-4",
+      "py-2.5",
+      "text-sm",
+      "rounded-xl",
+      "border",
+      "border-gray-300",
+      "bg-white",
+      "text-gray-900",
+      "placeholder-gray-400",
+      "focus:outline-none",
+      "focus:ring-2",
+      "focus:ring-blue-600",
+      "focus:border-transparent",
+      "transition-all",
     );
     // BUTTON
     const btn = screen.getByTestId("login-submit") as HTMLButtonElement;
     expect(btn).toHaveClass(
+      "py-3",
+      "px-4",
       "bg-blue-600",
+      "hover:bg-blue-700",
+      "font-medium",
+      "text-sm",
       "text-white",
-      "rounded",
-      "px-3",
-      "py-1",
+      "rounded-xl",
+      "shadow-sm",
+      "transition-colors",
+      "focus:outline-none",
+      "focus:ring-2",
+      "focus:ring-blue-600",
+      "focus:ring-offset-2",
       "disabled:opacity-50",
       "disabled:cursor-not-allowed",
+      "w-full",
     );
     expect(btn).toHaveAttribute("type", "submit");
     // LINKS
@@ -160,41 +190,81 @@ describe("Register — Foundation Tailwind contract", () => {
     );
     expect(root.querySelector(".max-w-md")).not.toBeNull();
     const form = root.querySelector("form") as HTMLElement;
-    expect(form).toHaveClass("space-y-3");
+    expect(form).toHaveClass("space-y-4");
     expect(screen.getByRole("heading", { name: "Register" })).toHaveClass(
       "text-2xl",
       "font-bold",
     );
     expect(screen.getByTestId("reg-email")).toHaveClass(
-      "border",
-      "rounded",
-      "px-2",
-      "py-1",
       "w-full",
+      "px-4",
+      "py-2.5",
+      "text-sm",
+      "rounded-xl",
+      "border",
+      "border-gray-300",
+      "bg-white",
+      "text-gray-900",
+      "placeholder-gray-400",
+      "focus:outline-none",
+      "focus:ring-2",
+      "focus:ring-blue-600",
+      "focus:border-transparent",
+      "transition-all",
     );
     expect(screen.getByTestId("reg-password")).toHaveClass(
-      "border",
-      "rounded",
-      "px-2",
-      "py-1",
       "w-full",
+      "px-4",
+      "py-2.5",
+      "text-sm",
+      "rounded-xl",
+      "border",
+      "border-gray-300",
+      "bg-white",
+      "text-gray-900",
+      "placeholder-gray-400",
+      "focus:outline-none",
+      "focus:ring-2",
+      "focus:ring-blue-600",
+      "focus:border-transparent",
+      "transition-all",
     );
     expect(screen.getByTestId("reg-confirm")).toHaveClass(
-      "border",
-      "rounded",
-      "px-2",
-      "py-1",
       "w-full",
+      "px-4",
+      "py-2.5",
+      "text-sm",
+      "rounded-xl",
+      "border",
+      "border-gray-300",
+      "bg-white",
+      "text-gray-900",
+      "placeholder-gray-400",
+      "focus:outline-none",
+      "focus:ring-2",
+      "focus:ring-blue-600",
+      "focus:border-transparent",
+      "transition-all",
     );
     const btn = screen.getByTestId("register-submit") as HTMLButtonElement;
     expect(btn).toHaveClass(
+      "py-3",
+      "px-4",
       "bg-blue-600",
+      "hover:bg-blue-700",
+      "font-medium",
+      "text-sm",
       "text-white",
-      "rounded",
-      "px-3",
-      "py-1",
+      "rounded-xl",
+      "shadow-sm",
+      "transition-colors",
+      "focus:outline-none",
+      "focus:ring-2",
+      "focus:ring-blue-600",
+      "focus:ring-offset-2",
       "disabled:opacity-50",
       "disabled:cursor-not-allowed",
+      "w-full",
     );
     expect(btn).toHaveAttribute("type", "submit");
     const link = screen.getByRole("link", { name: /login/i });
@@ -284,27 +354,47 @@ describe("ForgotPassword — Foundation Tailwind contract", () => {
     );
     expect(root.querySelector(".max-w-md")).not.toBeNull();
     const form = root.querySelector("form") as HTMLElement;
-    expect(form).toHaveClass("space-y-3");
+    expect(form).toHaveClass("space-y-4");
     expect(screen.getByRole("heading", { name: "Forgot Password" })).toHaveClass(
       "text-2xl",
       "font-bold",
     );
     expect(screen.getByTestId("forgot-email")).toHaveClass(
-      "border",
-      "rounded",
-      "px-2",
-      "py-1",
       "w-full",
+      "px-4",
+      "py-2.5",
+      "text-sm",
+      "rounded-xl",
+      "border",
+      "border-gray-300",
+      "bg-white",
+      "text-gray-900",
+      "placeholder-gray-400",
+      "focus:outline-none",
+      "focus:ring-2",
+      "focus:ring-blue-600",
+      "focus:border-transparent",
+      "transition-all",
     );
     const btn = screen.getByTestId("forgot-submit") as HTMLButtonElement;
     expect(btn).toHaveClass(
+      "py-3",
+      "px-4",
       "bg-blue-600",
+      "hover:bg-blue-700",
+      "font-medium",
+      "text-sm",
       "text-white",
-      "rounded",
-      "px-3",
-      "py-1",
+      "rounded-xl",
+      "shadow-sm",
+      "transition-colors",
+      "focus:outline-none",
+      "focus:ring-2",
+      "focus:ring-blue-600",
+      "focus:ring-offset-2",
       "disabled:opacity-50",
       "disabled:cursor-not-allowed",
+      "w-full",
     );
     expect(btn).toHaveAttribute("type", "submit");
     const link = screen.getByRole("link", { name: /login/i });
@@ -332,24 +422,44 @@ describe("ResetPassword — Foundation Tailwind contract", () => {
     );
     expect(root.querySelector(".max-w-md")).not.toBeNull();
     const form = root.querySelector("form") as HTMLElement;
-    expect(form).toHaveClass("space-y-3");
+    expect(form).toHaveClass("space-y-4");
     expect(screen.getByRole("heading", { name: "Reset Password" })).toHaveClass(
       "text-2xl",
       "font-bold",
     );
     expect(screen.getByTestId("new-password")).toHaveClass(
-      "border",
-      "rounded",
-      "px-2",
-      "py-1",
       "w-full",
+      "px-4",
+      "py-2.5",
+      "text-sm",
+      "rounded-xl",
+      "border",
+      "border-gray-300",
+      "bg-white",
+      "text-gray-900",
+      "placeholder-gray-400",
+      "focus:outline-none",
+      "focus:ring-2",
+      "focus:ring-blue-600",
+      "focus:border-transparent",
+      "transition-all",
     );
     expect(screen.getByTestId("confirm-password")).toHaveClass(
-      "border",
-      "rounded",
-      "px-2",
-      "py-1",
       "w-full",
+      "px-4",
+      "py-2.5",
+      "text-sm",
+      "rounded-xl",
+      "border",
+      "border-gray-300",
+      "bg-white",
+      "text-gray-900",
+      "placeholder-gray-400",
+      "focus:outline-none",
+      "focus:ring-2",
+      "focus:ring-blue-600",
+      "focus:border-transparent",
+      "transition-all",
     );
     expect(screen.getByTestId("new-password")).toHaveAttribute(
       "autocomplete",
@@ -361,13 +471,23 @@ describe("ResetPassword — Foundation Tailwind contract", () => {
     );
     const btn = screen.getByTestId("reset-submit") as HTMLButtonElement;
     expect(btn).toHaveClass(
+      "py-3",
+      "px-4",
       "bg-blue-600",
+      "hover:bg-blue-700",
+      "font-medium",
+      "text-sm",
       "text-white",
-      "rounded",
-      "px-3",
-      "py-1",
+      "rounded-xl",
+      "shadow-sm",
+      "transition-colors",
+      "focus:outline-none",
+      "focus:ring-2",
+      "focus:ring-blue-600",
+      "focus:ring-offset-2",
       "disabled:opacity-50",
       "disabled:cursor-not-allowed",
+      "w-full",
     );
     expect(btn).toHaveAttribute("type", "submit");
   });
