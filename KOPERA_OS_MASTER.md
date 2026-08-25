@@ -5173,5 +5173,106 @@ Discovery → Contract Lock → RED → GREEN → Verification → Documentation
 
 ---
 
+## 28. FRONTEND UI NORMALIZATION V1 — BATCH 4A: INVENTORY (STOCK CRUD)
+
+### STATUS
+🟢 SELESAI & LOCKED
+Contract: FRONTEND UI NORMALIZATION V1 — BATCH 4A: INVENTORY (STOCK CRUD) — LOCKED
+Scope: Presentation-only UI normalization for Inventory Stock CRUD module (List/Create/Detail/Edit/Delete)
+Discovery: COMPLETE
+Contract: LOCKED
+RED: COMPLETE — `src/test/stock.tailwind.test.tsx` (6/6 expected RED, satisfied at GREEN)
+GREEN: COMPLETE — 6/6 PASS in `src/test/stock.tailwind.test.tsx`
+Behavioral regression: 79/79 PASS
+  - `src/test/stockList.test.tsx` (8/8)
+  - `src/test/stockCreate.test.tsx` (5/5)
+  - `src/test/stockDetail.test.tsx` (5/5)
+  - `src/test/stockEdit.test.tsx` (4/4)
+  - `src/test/stockDelete.test.tsx` (5/5)
+  - `src/test/inventoryService.test.ts` (18/18)
+  - `src/test/stockTransfer.test.tsx` (11/11)
+  - `src/test/stockOpname.test.tsx` (11/11)
+  - `src/test/stockAdjustment.test.tsx` (6/6)
+  - `src/test/batch.test.tsx` (6/6)
+TypeScript: PASS (`npx tsc --noEmit` — 0 errors)
+Production build: PASS (`npm run build` — `tsc --noEmit && vite build`)
+Git Diff Audit: PASS (`git diff --check` — no errors, presentation-only)
+Stock CRUD UI Normalization: VERIFIED / LOCKED
+
+---
+
+### A. SCOPE & PRESENTATION CONTRACT
+
+IN SCOPE (presentation-only):
+- Root/page wrapper: `min-h-screen bg-gray-50`
+- Container: `w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6`
+- Card: `bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6`
+- Title: `text-2xl font-bold tracking-tight text-gray-900`
+- Label: `text-sm font-medium text-gray-700`
+- Input / Select: `w-full px-4 py-2.5 text-sm rounded-xl border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all`
+- Button (submit): `py-3 px-4 bg-blue-600 hover:bg-blue-700 font-medium text-sm text-white rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed`
+- Delete button: `bg-red-600 hover:bg-red-700 font-medium text-sm text-white rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed`
+- Error: `text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl p-3 sm:p-4`
+- Loading/empty-state wrappers normalized to same page/container/card baseline
+- Responsive layout
+
+STRICTLY OUT OF SCOPE / UNTOUCHED:
+- `listStocks`, `createStock`, `getStock`, `updateStock`, `deleteStock` API calls and payloads
+- `inventoryService.ts`, `variantLookup.ts`, `types`, `BusinessContext`, `AuthContext`
+- Form validation logic and `handleSubmit` / `handleDelete` handlers
+- Navigation and redirect behavior (`navigate(...)`)
+- Backend endpoints and models
+- All existing `data-testid` attributes
+
+---
+
+### B. DATA-TESTID PRESERVATION AUDIT
+
+All existing Stock `data-testid` values preserved without semantic relocation:
+- StockList: `stock-list-loading`, `stock-list-error`, `stock-list`, `stock-list-empty`, `stock-item-*`
+- StockCreate: `stock-create-form`, `stock-variant-input`, `stock-quantity-input`, `stock-create-submit`, `stock-create-error`
+- StockDetail: `stock-detail-loading`, `stock-detail-error`, `stock-detail-empty`, `stock-detail`, `stock-id`, `stock-location`, `stock-variant`, `stock-quantity`
+- StockEdit: `stock-edit-loading`, `stock-edit-error`, `stock-edit-form`, `stock-quantity-input`, `stock-edit-submit`
+- StockDelete: `stock-delete`, `stock-delete-error`, `stock-delete-confirm-button`
+
+---
+
+### C. IMPLEMENTATION & FILES MODIFIED
+
+1. Modified Components (presentation-only):
+   - `frontend/src/pages/StockList.tsx`
+   - `frontend/src/pages/StockCreate.tsx`
+   - `frontend/src/pages/StockDetail.tsx`
+   - `frontend/src/pages/StockEdit.tsx`
+   - `frontend/src/pages/StockDelete.tsx`
+2. Test Suite (RED):
+   - `frontend/src/test/stock.tailwind.test.tsx`
+
+---
+
+### D. VERIFICATION EVIDENCE
+
+1. Targeted Tailwind Test (RED→GREEN):
+   - `npx vitest run src/test/stock.tailwind.test.tsx` → 6/6 PASS
+2. Stock Behavioral Regression:
+   - 79/79 PASS (10 test files, listed in STATUS)
+3. TypeScript Check:
+   - `npx tsc --noEmit` → PASS (0 errors)
+4. Production Build:
+   - `npm run build` → PASS
+5. Git Diff Audit:
+   - `git diff --check` → no errors (presentation-only Tailwind wrappers)
+
+---
+
+### E. LOCK STATUS
+
+Inventory UI Normalization V1 — Batch 4a: Stock CRUD = VERIFIED / LOCKED
+
+No further modifications are allowed to Stock UI without following the full controlled workflow:
+Discovery → Contract Lock → RED → GREEN → Verification → Documentation → LOCK
+
+---
+
 END OF MASTER BLUEPRINT / DOMAIN ROADMAP
 ==================================================
