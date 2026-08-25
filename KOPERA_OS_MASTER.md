@@ -5520,5 +5520,129 @@ Discovery → Contract Lock → RED → GREEN → Verification → Documentation
 
 ---
 
+## 31. FRONTEND UI NORMALIZATION V1 — BATCH 5: SALES
+
+### STATUS
+🟢 SELESAI & LOCKED
+Contract: FRONTEND UI NORMALIZATION V1 — BATCH 5: SALES — LOCKED
+Scope: Presentation-only UI normalization for Sales module (List / Create / Detail / Edit / Delete)
+Discovery: COMPLETE
+Contract: LOCKED
+RED: COMPLETE — `src/test/sale.tailwind.test.tsx` (7/7 expected RED, satisfied at GREEN)
+GREEN: COMPLETE — 7/7 PASS in `src/test/sale.tailwind.test.tsx`
+Behavioral regression: 29/29 PASS (5 existing sale behavioral test files)
+Service regression: 11/11 PASS (`src/test/saleService.test.ts`)
+Tenant isolation regression: 4/4 PASS (`src/test/saleTenantIsolation.test.ts`)
+TypeScript: PASS (`npx tsc --noEmit` — 0 errors)
+Production build: PASS (`npm run build` — `tsc --noEmit && vite build`)
+Git Diff Audit: PASS (`git diff --check` — no errors, presentation-only)
+Sales UI Normalization: VERIFIED / LOCKED
+
+---
+
+### A. SCOPE & PRESENTATION CONTRACT
+
+IN SCOPE (presentation-only):
+- Root/page wrapper: `min-h-screen bg-gray-50`
+- Container: `w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6`
+- Card: `bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6`
+- Title: `text-2xl font-bold tracking-tight text-gray-900`
+- Label: `text-sm font-medium text-gray-700`
+- Input / Select: `w-full px-4 py-2.5 text-sm rounded-xl border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all`
+- Button (submit): `py-3 px-4 bg-blue-600 hover:bg-blue-700 font-medium text-sm text-white rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed`
+- Delete button: `bg-red-600 hover:bg-red-700 font-medium text-sm text-white rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed`
+- Error: `text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl p-3 sm:p-4`
+- Loading: `min-h-screen bg-gray-50 flex items-center justify-center` with `text-sm text-gray--500 py-8 text-center`
+- Empty state: `text-center py-12 text-gray-500 text-sm`
+- List items: `divide-y divide-gray-100` on list, `py-4 flex justify-between items-center` per item with status badge `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800`
+
+STRICTLY OUT OF SCOPE / UNTOUCHED:
+- `listSales`, `getSale`, `createSale`, `updateSale`, `deleteSale` API calls and payloads
+- `saleService.ts`, `types`, `BusinessContext`, `AuthContext`
+- Form validation logic and `handleSubmit` handlers
+- Navigation and redirect behavior (`navigate("/sales")` on success/delete)
+- Backend endpoints and models
+- All existing `data-testid` attributes
+
+---
+
+### B. DATA-TESTID PRESERVATION AUDIT
+
+All existing Sales `data-testid` values preserved without semantic relocation:
+- SaleList: `sale-list-loading`, `sale-list-error`, `sale-list`, `sale-list-empty`, `sale-item-${po.id}` (dynamic), `sale-item-id-${po.id}` (dynamic), `sale-item-status-${po.id}` (dynamic)
+- SaleCreate: `sale-create-form`, `sale-create-error`, `sale-location-select`, `sale-status-select`, `sale-add-line-button`, `sale-line-${idx}` (dynamic), `sale-line-variant-select`, `sale-line-quantity-input`, `sale-line-unit-price-input`, `sale-remove-line-button`, `sale-create-submit`
+- SaleDetail: `sale-detail-loading`, `sale-detail-error`, `sale-detail`, `sale-detail-id`, `sale-detail-status`, `sale-detail-created-at`, `sale-detail-updated-at`, `sale-detail-lines`, `sale-detail-line-${line.id}-variant` (dynamic), `sale-detail-line-${line.id}-quantity` (dynamic), `sale-detail-line-${line.id}-unit-price` (dynamic)
+- SaleEdit: `sale-edit-loading`, `sale-edit-error`, `sale-edit`, `sale-edit-form`, `sale-edit-location-select`, `sale-edit-status-select`, `sale-edit-line-${idx}` (dynamic), `sale-edit-line-variant-select`, `sale-edit-line-quantity-input`, `sale-edit-line-unit-price-input`, `sale-edit-submit`
+- SaleDelete: `sale-delete`, `sale-delete-error`, `sale-delete-confirm-button`
+
+---
+
+### C. IMPLEMENTATION & FILES MODIFIED
+
+1. Modified Components (presentation-only):
+   - `frontend/src/pages/SaleList.tsx`
+   - `frontend/src/pages/SaleCreate.tsx`
+   - `frontend/src/pages/SaleDetail.tsx`
+   - `frontend/src/pages/SaleEdit.tsx`
+   - `frontend/src/pages/SaleDelete.tsx`
+2. Test Suite (RED):
+   - `frontend/src/test/sale.tailwind.test.tsx`
+
+---
+
+### D. VERIFICATION EVIDENCE
+
+1. Targeted Tailwind Test (RED→GREEN):
+   - `npx vitest run src/test/sale.tailwind.test.tsx` → 7/7 PASS
+2. Sales Behavioral Regression:
+   - 29/29 PASS (5 test files: saleList, saleCreate, saleDetail, saleEdit, saleDelete)
+3. Sales Service Regression:
+   - 11/11 PASS (`src/test/saleService.test.ts`)
+4. Sales Tenant Isolation Regression:
+   - 4/4 PASS (`src/test/saleTenantIsolation.test.ts`)
+5. Combined Sales regression executed: 44/44 PASS
+6. TypeScript Check:
+   - `npx tsc --noEmit` → PASS (0 errors)
+7. Production Build:
+   - `npm run build` → PASS
+8. Git Diff Audit:
+   - `git diff --check` → no errors (presentation-only Tailwind wrappers)
+
+---
+
+### E. FUNCTIONAL-DIFF AUDIT
+
+- API calls unchanged: `listSales`, `getSale`, `createSale`, `updateSale`, `deleteSale` invoked identically with same payload shape
+- Payloads unchanged: `location`, `status`, `lines[]` (variant/quantity/unit_price) fields preserved
+- Validation unchanged: `if (!location) { setError("Location is required."); return; }` preserved
+- Handlers unchanged: `handleSubmit` / `handleDelete` logic and error mapping preserved
+- State unchanged: `useState` fields (`items`, `loading`, `error`, `location`, `status`, `lines`, `submitting`, `item`) preserved
+- Routing unchanged: `navigate("/sales")` on 201/204 preserved; error + loading + not-found branch order preserved (`loading` → `error` → `!item` → form)
+- Context usage unchanged: `useBusiness()` (`currentBusinessId`) preserved
+- data-testid unchanged: all values verbatim
+- SaleDetail renders embedded `SaleDelete` as in source
+
+---
+
+### F. FORBIDDEN-FILE AUDIT
+
+Untouched and verified safe:
+- `saleService.ts`, `types`
+- `BusinessContext`, `AuthContext`
+- Backend / models
+- All other domain modules (Product, Variant, Customer, Supplier, Purchasing, Inventory, Finance)
+- Inventory Batch 4A/4B/4C pages and documentation (Sections 28/29/30)
+
+---
+
+### G. LOCK STATUS
+
+Sales UI Normalization V1 — Batch 5: Sales = VERIFIED / LOCKED
+
+No further modifications are allowed to Sales UI without following the full controlled workflow:
+Discovery → Contract Lock → RED → GREEN → Verification → Documentation → LOCK
+
+---
+
 END OF MASTER BLUEPRINT / DOMAIN ROADMAP
 ==================================================
