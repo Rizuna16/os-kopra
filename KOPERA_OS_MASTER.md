@@ -5274,5 +5274,123 @@ Discovery → Contract Lock → RED → GREEN → Verification → Documentation
 
 ---
 
+## 29. FRONTEND UI NORMALIZATION V1 — BATCH 4B: INVENTORY (STOCK OPERATIONS)
+
+### STATUS
+🟢 SELESAI & LOCKED
+Contract: FRONTEND UI NORMALIZATION V1 — BATCH 4B: INVENTORY (STOCK OPERATIONS) — LOCKED
+Scope: Presentation-only UI normalization for Inventory Stock Operations module (Transfer / Opname / Adjustment)
+Discovery: COMPLETE
+Contract: LOCKED
+RED: COMPLETE — `src/test/stockOperations.tailwind.test.tsx` (6/6 expected RED, satisfied at GREEN)
+GREEN: COMPLETE — 6/6 PASS in `src/test/stockOperations.tailwind.test.tsx`
+Behavioral regression: 43/43 PASS (including 16/16 operation behavioral tests + 27/27 inventory service tests)
+  - `src/test/stockTransfer.test.tsx` (6/6)
+  - `src/test/stockOpname.test.tsx` (5/5)
+  - `src/test/stockAdjustment.test.tsx` (5/5)
+  - `src/test/inventoryService.test.ts` (27/27)
+TypeScript: PASS (`npx tsc --noEmit` — 0 errors)
+Production build: PASS (`npm run build` — `tsc --noEmit && vite build`)
+Git Diff Audit: PASS (`git diff --check` — no errors, presentation-only)
+Stock Operations UI Normalization: VERIFIED / LOCKED
+
+---
+
+### A. SCOPE & PRESENTATION CONTRACT
+
+IN SCOPE (presentation-only):
+- Root/page wrapper: `min-h-screen bg-gray-50`
+- Container: `w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6`
+- Card: `bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6`
+- Title: `text-2xl font-bold tracking-tight text-gray-900`
+- Label: `text-sm font-medium text-gray-700`
+- Input / Select: `w-full px-4 py-2.5 text-sm rounded-xl border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all`
+- Button (submit): `py-3 px-4 bg-blue-600 hover:bg-blue-700 font-medium text-sm text-white rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed`
+- Error: `text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl p-3 sm:p-4`
+- Result presentation: card consistent with CARD baseline (`bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6`), subtle neutral visual treatment allowed
+- Loading/empty states: NOT implemented in these pages; no normalization required
+
+STRICTLY OUT OF SCOPE / UNTOUCHED:
+- `transferStock`, `opnameStock`, `adjustStock` API calls and payloads
+- `inventoryService.ts`, `variantLookup.ts`, `types`, `BusinessContext`, `AuthContext`
+- Form validation logic and `handleSubmit` handlers
+- Navigation and redirect behavior (`navigate(...)`)
+- Backend endpoints and models
+- All existing `data-testid` attributes
+
+---
+
+### B. DATA-TESTID PRESERVATION AUDIT
+
+All existing Stock Operations `data-testid` values preserved without semantic relocation (25 total):
+- StockTransfer: `stock-transfer-form`, `stock-transfer-source`, `stock-transfer-destination`, `stock-transfer-variant`, `stock-transfer-quantity`, `stock-transfer-submit`, `stock-transfer-error`, `stock-transfer-result`, `stock-transfer-source-result`, `stock-transfer-destination-result`, `stock-transfer-transferred-quantity`
+- StockOpname: `stock-opname-form`, `stock-opname-location`, `stock-opname-variant`, `stock-opname-quantity`, `stock-opname-submit`, `stock-opname-error`, `stock-opname-result`, `stock-opname-quantity-result`, `stock-opname-detail-result`
+- StockAdjustment: `stock-adjustment-form`, `stock-adjustment-location`, `stock-adjustment-variant`, `stock-adjustment-quantity`, `stock-adjustment-submit`, `stock-adjustment-error`, `stock-adjustment-result`
+
+---
+
+### C. IMPLEMENTATION & FILES MODIFIED
+
+1. Modified Components (presentation-only):
+   - `frontend/src/pages/StockTransfer.tsx`
+   - `frontend/src/pages/StockOpname.tsx`
+   - `frontend/src/pages/StockAdjustment.tsx`
+2. Test Suite (RED):
+   - `frontend/src/test/stockOperations.tailwind.test.tsx`
+
+---
+
+### D. VERIFICATION EVIDENCE
+
+1. Targeted Tailwind Test (RED→GREEN):
+   - `npx vitest run src/test/stockOperations.tailwind.test.tsx` → 6/6 PASS
+2. Operation Behavioral Regression:
+   - 16/16 PASS (3 operation test files)
+3. Inventory Service Regression:
+   - 27/27 PASS (`src/test/inventoryService.test.ts`)
+4. Combined regression executed: 43/43 PASS
+5. TypeScript Check:
+   - `npx tsc --noEmit` → PASS (0 errors)
+6. Production Build:
+   - `npm run build` → PASS
+7. Git Diff Audit:
+   - `git diff --check` → no errors (presentation-only Tailwind wrappers)
+
+---
+
+### E. FUNCTIONAL-DIFF AUDIT
+
+- API calls unchanged: `transferStock`, `opnameStock`, `adjustStock` invoked identically
+- Payloads unchanged: source/destination/location/variant/quantity field structures preserved
+- Validation unchanged: `quantity === "" ? 0 : Number(quantity)` preserved
+- Handlers unchanged: `handleSubmit` logic and error mapping preserved
+- State unchanged: `useState` fields and `setResult`/`setDetail` branching preserved
+- Routing unchanged: `navigate("/login", { replace: true })` on 401 preserved
+- Context usage unchanged: `useBusiness()` (currentLocationId, locations) preserved
+- data-testid unchanged: 25 values verbatim
+
+---
+
+### F. FORBIDDEN-FILE AUDIT
+
+Untouched and verified safe:
+- `inventoryService.ts`, `variantLookup.ts`, `types`
+- `BusinessContext`, `AuthContext`
+- Backend / models
+- All other Inventory pages: `StockList`, `StockCreate`, `StockDetail`, `StockEdit`, `StockDelete`, `BatchList`, `SerialNumber`
+- All other domain modules (Product, Variant, Customer, Supplier, Purchasing, Sales, Finance)
+- Batch 4A Stock CRUD pages and documentation (Section 28)
+
+---
+
+### G. LOCK STATUS
+
+Inventory UI Normalization V1 — Batch 4B: Stock Operations = VERIFIED / LOCKED
+
+No further modifications are allowed to Stock Operations UI without following the full controlled workflow:
+Discovery → Contract Lock → RED → GREEN → Verification → Documentation → LOCK
+
+---
+
 END OF MASTER BLUEPRINT / DOMAIN ROADMAP
 ==================================================
