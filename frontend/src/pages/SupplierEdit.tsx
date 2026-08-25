@@ -74,67 +74,93 @@ export function SupplierEdit() {
     }
   };
 
-  if (loading) return <div data-testid="supplier-edit-loading">Loading…</div>;
-  if (error) return <div data-testid="supplier-edit-error">{error}</div>;
+  if (loading && !item) return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6">
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Edit supplier</h1>
+          <div data-testid="supplier-edit-loading">Loading…</div>
+        </div>
+      </div>
+    </div>
+  );
+  if (error && !item) return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6">
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Edit supplier</h1>
+          <div data-testid="supplier-edit-error" className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl p-3 sm:p-4">{error}</div>
+        </div>
+      </div>
+    </div>
+  );
   if (!item) return <div data-testid="supplier-edit">Supplier not found.</div>;
   return (
-    <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-bold">Edit supplier</h1>
-      <form data-testid="supplier-edit-form" onSubmit={handleSubmit} className="space-y-3">
-        <div>
-          <label htmlFor="name" className="block">Name</label>
-          <input
-            id="name"
-            type="text"
-            data-testid="supplier-name-input"
-            ref={nameRef}
-            defaultValue={item.name}
-            className="border rounded px-2 py-1 w-full"
-          />
+    <div className="min-h-screen bg-gray-50">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6">
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900 mb-6">Edit supplier</h1>
+          <form data-testid="supplier-edit-form" onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+              <input
+                id="name"
+                type="text"
+                data-testid="supplier-name-input"
+                ref={nameRef}
+                defaultValue={item.name}
+                className="w-full px-4 py-2.5 text-sm rounded-xl border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+              />
+            </div>
+            <div>
+              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+              <input
+                id="phone"
+                type="text"
+                data-testid="supplier-phone-input"
+                ref={phoneRef}
+                defaultValue={item.phone}
+                className="w-full px-4 py-2.5 text-sm rounded-xl border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+              />
+            </div>
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <input
+                id="email"
+                type="text"
+                data-testid="supplier-email-input"
+                ref={emailRef}
+                defaultValue={item.email}
+                className="w-full px-4 py-2.5 text-sm rounded-xl border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+              />
+            </div>
+            <div>
+              <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+              <input
+                id="address"
+                type="text"
+                data-testid="supplier-address-input"
+                ref={addressRef}
+                defaultValue={item.address}
+                className="w-full px-4 py-2.5 text-sm rounded-xl border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+              />
+            </div>
+            {error && (
+              <div data-testid="supplier-edit-error" className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl p-3 sm:p-4">
+                {error}
+              </div>
+            )}
+            <button
+              type="submit"
+              data-testid="supplier-edit-submit"
+              disabled={loading}
+              className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 font-medium text-sm text-white rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? "…" : "Update supplier"}
+            </button>
+          </form>
         </div>
-        <div>
-          <label htmlFor="phone" className="block">Phone</label>
-          <input
-            id="phone"
-            type="text"
-            data-testid="supplier-phone-input"
-            ref={phoneRef}
-            defaultValue={item.phone}
-            className="border rounded px-2 py-1 w-full"
-          />
-        </div>
-        <div>
-          <label htmlFor="email" className="block">Email</label>
-          <input
-            id="email"
-            type="text"
-            data-testid="supplier-email-input"
-            ref={emailRef}
-            defaultValue={item.email}
-            className="border rounded px-2 py-1 w-full"
-          />
-        </div>
-        <div>
-          <label htmlFor="address" className="block">Address</label>
-          <input
-            id="address"
-            type="text"
-            data-testid="supplier-address-input"
-            ref={addressRef}
-            defaultValue={item.address}
-            className="border rounded px-2 py-1 w-full"
-          />
-        </div>
-        {error && <div data-testid="supplier-edit-error" className="text-red-600">{error}</div>}
-        <button
-          type="submit"
-          data-testid="supplier-edit-submit"
-          disabled={loading}
-          className="bg-blue-600 text-white rounded px-3 py-1"
-        >
-          {loading ? "…" : "Update supplier"}
-        </button>
-      </form>
+      </div>
     </div>
   );
 }

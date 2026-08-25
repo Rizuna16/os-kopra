@@ -4680,5 +4680,400 @@ STATUS: 🟢 SELESAI & LOCKED
 No further modifications are allowed to Onboarding UI without following the full controlled workflow:
 Discovery → Contract Lock → RED → GREEN → Verification → Documentation → LOCK
 
+---
+
+## 23. FRONTEND UI NORMALIZATION V1 — BATCH 2: MASTER DATA (PRODUCT)
+
+### STATUS
+🟢 SELESAI & LOCKED
+Contract: FRONTEND UI NORMALIZATION V1 — BATCH 2: MASTER DATA (PRODUCT) — LOCKED
+Scope: Presentation-only UI normalization for Product module (List/Create/Detail/Edit/Delete)
+Discovery: COMPLETE
+Contract: LOCKED
+RED: COMPLETE — `src/test/product.tailwind.test.tsx` (5/5 expected RED, satisfied at GREEN)
+GREEN: COMPLETE — 5/5 PASS in `src/test/product.tailwind.test.tsx`
+Product behavioral regression: 43/43 PASS
+  - `src/test/productList.test.tsx` 6/6
+  - `src/test/productCreate.test.tsx` 8/8
+  - `src/test/productEdit.test.tsx` 7/7
+  - `src/test/productDetail.test.tsx` 6/6
+  - `src/test/productDelete.test.tsx` 5/5
+  - `src/test/productTenantIsolation.test.tsx` 2/2
+  - `src/test/productService.test.ts` 9/9
+TypeScript: PASS (`npx tsc --noEmit` — 0 errors)
+Production build: PASS (`npm run build` — `tsc --noEmit && vite build`)
+Git Diff Audit: PASS (`git diff --check` — no errors, presentation-only)
+Product UI Normalization: VERIFIED / LOCKED
+
+---
+
+### A. SCOPE & PRESENTATION CONTRACT
+
+IN SCOPE (presentation-only):
+- Root/page wrapper: `min-h-screen bg-gray-50`
+- Container: `w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6`
+- Card: `bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6`
+- Title: `text-2xl font-bold tracking-tight text-gray-900`
+- Label: `text-sm font-medium text-gray-700`
+- Input: `w-full px-4 py-2.5 text-sm rounded-xl border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all`
+- Button (submit): `py-3 px-4 bg-blue-600 hover:bg-blue-700 font-medium text-sm text-white rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed`
+- Delete button: `bg-red-600 hover:bg-red-700 font-medium text-sm text-white rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed`
+- Error: `text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl p-3 sm:p-4`
+- Loading/empty-state wrappers normalized to same page/container/card baseline
+
+STRICTLY OUT OF SCOPE / UNTOUCHED:
+- `listProducts`, `createProduct`, `getProduct`, `updateProduct`, `deleteProduct` API calls and payloads
+- `productService`, `types`, `BusinessContext`, `AuthContext`
+- Form validation logic and `handleSubmit` / `handleDelete` handlers
+- Navigation and redirect behavior (`navigate(...)`)
+- Backend endpoints and models
+- All existing `data-testid` attributes
+
+---
+
+### B. DATA-TESTID PRESERVATION AUDIT
+
+All existing Product `data-testid` values preserved without semantic relocation:
+- ProductList: `product-list`, `product-list-loading`, `product-list-error`, `product-list-empty`, `product-item-*`
+- ProductCreate: `product-create-form`, `product-name-input`, `product-price-input`, `product-create-submit`, `product-create-error`
+- ProductDetail: `product-detail`, `product-detail-loading`, `product-detail-error`, `product-detail-id`, `product-detail-name`, `product-detail-price`, `product-detail-business`, `product-detail-created-at`, `product-detail-updated-at`
+- ProductEdit: `product-edit-form`, `product-name-input`, `product-price-input`, `product-edit-submit`, `product-edit-loading`, `product-edit-error`, `product-edit`
+- ProductDelete: `product-delete`, `product-delete-error`, `product-delete-confirm-button`
+
+---
+
+### C. IMPLEMENTATION & FILES MODIFIED
+
+1. Modified Components (presentation-only):
+   - `frontend/src/pages/ProductList.tsx`
+   - `frontend/src/pages/ProductCreate.tsx`
+   - `frontend/src/pages/ProductDetail.tsx`
+   - `frontend/src/pages/ProductEdit.tsx`
+   - `frontend/src/pages/ProductDelete.tsx`
+2. Test Suite (RED, added earlier in checkpoint):
+   - `frontend/src/test/product.tailwind.test.tsx`
+
+---
+
+### D. VERIFICATION EVIDENCE
+
+1. Targeted Tailwind Test (RED→GREEN):
+   - `npx vitest run src/test/product.tailwind.test.tsx` → 5/5 PASS
+2. Product Behavioral Regression:
+   - 43/43 PASS (7 test files, listed in STATUS)
+3. TypeScript Check:
+   - `npx tsc --noEmit` → PASS (0 errors)
+4. Production Build:
+   - `npm run build` → PASS
+5. Git Diff Audit:
+   - `git diff --check` → no errors (presentation-only Tailwind wrappers)
+
+---
+
+### E. LOCK STATUS
+
+PRODUCT UI NORMALIZATION V1 (BATCH 2 — MASTER DATA):
+STATUS: 🟢 SELESAI & LOCKED
+
+No further modifications are allowed to Product UI without following the full controlled workflow:
+Discovery → Contract Lock → RED → GREEN → Verification → Documentation → LOCK
+
+---
+
+## 24. FRONTEND UI NORMALIZATION V1 — BATCH 2: MASTER DATA (VARIANT)
+
+### STATUS
+🟢 SELESAI & LOCKED
+Contract: FRONTEND UI NORMALIZATION V1 — BATCH 2: MASTER DATA (VARIANT) — LOCKED
+Scope: Presentation-only UI normalization for Variant module (List/Create/Detail/Edit/Delete)
+Discovery: COMPLETE
+Contract: LOCKED
+RED: COMPLETE — `src/test/variant.tailwind.test.tsx` (5/5 expected RED, satisfied at GREEN)
+GREEN: COMPLETE — 5/5 PASS in `src/test/variant.tailwind.test.tsx`
+Variant behavioral regression: 45/45 PASS
+  - `src/test/variantList.test.tsx` 6/6
+  - `src/test/variantCreate.test.tsx` 7/7
+  - `src/test/variantEdit.test.tsx` 7/7
+  - `src/test/variantDetail.test.tsx` 5/5
+  - `src/test/variantDelete.test.tsx` 4/4
+  - `src/test/variantTenantIsolation.test.tsx` 2/2
+  - `src/test/variantService.test.ts` 9/9
+  - `src/test/variantDependency.test.ts` 5/5
+TypeScript: PASS (`npx tsc --noEmit` — 0 errors)
+Production build: PASS (`npm run build` — `tsc --noEmit && vite build`)
+Git Diff Audit: PASS (`git diff --check` — no errors, presentation-only)
+Variant UI Normalization: VERIFIED / LOCKED
+
+---
+
+### A. SCOPE & PRESENTATION CONTRACT
+
+IN SCOPE (presentation-only):
+- Root/page wrapper: `min-h-screen bg-gray-50`
+- Container: `w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6`
+- Card: `bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6`
+- Title: `text-2xl font-bold tracking-tight text-gray-900`
+- Label: `text-sm font-medium text-gray-700`
+- Input: `w-full px-4 py-2.5 text-sm rounded-xl border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all`
+- Button (submit): `py-3 px-4 bg-blue-600 hover:bg-blue-700 font-medium text-sm text-white rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed`
+- Delete button: `bg-red-600 hover:bg-red-700 font-medium text-sm text-white rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed`
+- Error: `text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl p-3 sm:p-4`
+- Loading/empty-state wrappers normalized to same page/container/card baseline
+
+STRICTLY OUT OF SCOPE / UNTOUCHED:
+- `listVariants`, `createVariant`, `getVariant`, `updateVariant`, `deleteVariant` API calls and payloads
+- `variantService`, `types`, `BusinessContext`, `AuthContext`
+- Form validation logic and `handleSubmit` / `handleDelete` handlers
+- Navigation and redirect behavior (`navigate(...)`)
+- Backend endpoints and models
+- All existing `data-testid` attributes
+
+---
+
+### B. DATA-TESTID PRESERVATION AUDIT
+
+All existing Variant `data-testid` values preserved without semantic relocation:
+- VariantList: `variant-list`, `variant-list-loading`, `variant-list-error`, `variant-list-empty`
+- VariantCreate: `variant-create-form`, `variant-name-input`, `variant-create-submit`, `variant-create-error`
+- VariantDetail: `variant-detail`, `variant-detail-loading`, `variant-detail-error`, `variant-detail-id`, `variant-detail-name`, `variant-detail-product`, `variant-detail-created-at`, `variant-detail-updated-at`
+- VariantEdit: `variant-edit-form`, `variant-name-input`, `variant-edit-submit`, `variant-edit-loading`, `variant-edit-error`
+- VariantDelete: `variant-delete`, `variant-delete-submit`, `variant-delete-error`
+
+---
+
+### C. IMPLEMENTATION & FILES MODIFIED
+
+1. Modified Components (presentation-only):
+   - `frontend/src/pages/VariantList.tsx`
+   - `frontend/src/pages/VariantCreate.tsx`
+   - `frontend/src/pages/VariantDetail.tsx`
+   - `frontend/src/pages/VariantEdit.tsx`
+   - `frontend/src/pages/VariantDelete.tsx`
+2. Test Suite (RED, added earlier in checkpoint):
+   - `frontend/src/test/variant.tailwind.test.tsx`
+
+---
+
+### D. VERIFICATION EVIDENCE
+
+1. Targeted Tailwind Test (RED→GREEN):
+   - `npx vitest run src/test/variant.tailwind.test.tsx` → 5/5 PASS
+2. Variant Behavioral Regression:
+   - 45/45 PASS (8 test files, listed in STATUS)
+3. TypeScript Check:
+   - `npx tsc --noEmit` → PASS (0 errors)
+4. Production Build:
+   - `npm run build` → PASS
+5. Git Diff Audit:
+   - `git diff --check` → no errors (presentation-only Tailwind wrappers)
+
+---
+
+### E. LOCK STATUS
+
+VARIANT UI NORMALIZATION V1 (BATCH 2 — MASTER DATA):
+STATUS: 🟢 SELESAI & LOCKED
+
+No further modifications are allowed to Variant UI without following the full controlled workflow:
+Discovery → Contract Lock → RED → GREEN → Verification → Documentation → LOCK
+
+---
+
+## 25. FRONTEND UI NORMALIZATION V1 — BATCH 2: MASTER DATA (CUSTOMER)
+
+### STATUS
+🟢 SELESAI & LOCKED
+Contract: FRONTEND UI NORMALIZATION V1 — BATCH 2: MASTER DATA (CUSTOMER) — LOCKED
+Scope: Presentation-only UI normalization for Customer module (List/Create/Detail/Edit/Delete)
+Discovery: COMPLETE
+Contract: LOCKED
+RED: COMPLETE — `src/test/customer.tailwind.test.tsx` (5/5 expected RED, satisfied at GREEN)
+GREEN: COMPLETE — 5/5 PASS in `src/test/customer.tailwind.test.tsx`
+Behavioral regression: 51/51 PASS
+  - `src/test/customerList.test.tsx`
+  - `src/test/customerCreate.test.tsx`
+  - `src/test/customerEdit.test.tsx`
+  - `src/test/customerDetail.test.tsx`
+  - `src/test/customerDelete.test.tsx`
+  - `src/test/customerTenantIsolation.test.tsx`
+  - `src/test/customerService.test.ts`
+TypeScript: PASS (`npx tsc --noEmit` — 0 errors)
+Production build: PASS (`npm run build` — `tsc --noEmit && vite build`)
+Git Diff Audit: PASS (`git diff --check` — no errors, presentation-only)
+Customer UI Normalization: VERIFIED / LOCKED
+
+---
+
+### A. SCOPE & PRESENTATION CONTRACT
+
+IN SCOPE (presentation-only):
+- Root/page wrapper: `min-h-screen bg-gray-50`
+- Container: `w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6`
+- Card: `bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6`
+- Title: `text-2xl font-bold tracking-tight text-gray-900`
+- Label: `text-sm font-medium text-gray-700`
+- Input: `w-full px-4 py-2.5 text-sm rounded-xl border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all`
+- Button (submit): `py-3 px-4 bg-blue-600 hover:bg-blue-700 font-medium text-sm text-white rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed`
+- Delete button: `bg-red-600 hover:bg-red-700 font-medium text-sm text-white rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed`
+- Error: `text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl p-3 sm:p-4`
+- Loading/empty-state wrappers normalized to same page/container/card baseline
+
+STRICTLY OUT OF SCOPE / UNTOUCHED:
+- `listCustomers`, `createCustomer`, `getCustomer`, `updateCustomer`, `deleteCustomer` API calls and payloads
+- `customerService`, `types`, `BusinessContext`, `AuthContext`
+- Form validation logic and `handleSubmit` / `handleDelete` handlers
+- Navigation and redirect behavior (`navigate(...)`)
+- Backend endpoints and models
+- All existing `data-testid` attributes
+
+---
+
+### B. DATA-TESTID PRESERVATION AUDIT
+
+All existing Customer `data-testid` values preserved without semantic relocation:
+- CustomerList: `customer-list`, `customer-list-loading`, `customer-list-error`, `customer-list-empty`, `customer-item-*`
+- CustomerCreate: `customer-create-form`, `customer-name-input`, `customer-email-input`, `customer-phone-input`, `customer-address-input`, `customer-create-submit`, `customer-create-error`
+- CustomerDetail: `customer-detail`, `customer-detail-loading`, `customer-detail-error`, `customer-detail-id`, `customer-detail-name`, `customer-detail-email`, `customer-detail-phone`, `customer-detail-address`, `customer-detail-business`, `customer-detail-created-at`, `customer-detail-updated-at`
+- CustomerEdit: `customer-edit-form`, `customer-name-input`, `customer-email-input`, `customer-phone-input`, `customer-address-input`, `customer-edit-submit`, `customer-edit-loading`, `customer-edit-error`, `customer-edit`
+- CustomerDelete: `customer-delete`, `customer-delete-error`, `customer-delete-confirm-button`
+
+---
+
+### C. IMPLEMENTATION & FILES MODIFIED
+
+1. Modified Components (presentation-only):
+   - `frontend/src/pages/CustomerList.tsx`
+   - `frontend/src/pages/CustomerCreate.tsx`
+   - `frontend/src/pages/CustomerDetail.tsx`
+   - `frontend/src/pages/CustomerEdit.tsx`
+   - `frontend/src/pages/CustomerDelete.tsx`
+2. Test Suite (RED, added earlier in checkpoint):
+   - `frontend/src/test/customer.tailwind.test.tsx`
+
+---
+
+### D. VERIFICATION EVIDENCE
+
+1. Targeted Tailwind Test (RED→GREEN):
+   - `npx vitest run src/test/customer.tailwind.test.tsx` → 5/5 PASS
+2. Customer Behavioral Regression:
+   - 51/51 PASS across all customer test suites
+3. TypeScript Check:
+   - `npx tsc --noEmit` → PASS (0 errors)
+4. Production Build:
+   - `npm run build` → PASS
+5. Git Diff Audit:
+   - `git diff --check` → no errors (presentation-only Tailwind wrappers)
+
+---
+
+### E. LOCK STATUS
+
+CUSTOMER UI NORMALIZATION V1 (BATCH 2 — MASTER DATA):
+STATUS: 🟢 SELESAI & LOCKED
+
+No further modifications are allowed to Customer UI without following the full controlled workflow:
+Discovery → Contract Lock → RED → GREEN → Verification → Documentation → LOCK
+
+---
+
+## 26. FRONTEND UI NORMALIZATION V1 — BATCH 2: MASTER DATA (SUPPLIER)
+
+### STATUS
+🟢 SELESAI & LOCKED
+Contract: FRONTEND UI NORMALIZATION V1 — BATCH 2: MASTER DATA (SUPPLIER) — LOCKED
+Scope: Presentation-only UI normalization for Supplier module (List/Create/Detail/Edit/Delete)
+Discovery: COMPLETE
+Contract: LOCKED
+RED: COMPLETE — `src/test/supplier.tailwind.test.tsx` (5/5 expected RED, satisfied at GREEN)
+GREEN: COMPLETE — 5/5 PASS in `src/test/supplier.tailwind.test.tsx`
+Behavioral regression: 58/58 PASS
+  - `src/test/supplierList.test.tsx` 8/8
+  - `src/test/supplierCreate.test.tsx` 12/12
+  - `src/test/supplierEdit.test.tsx` 13/13
+  - `src/test/supplierDetail.test.tsx` 6/6
+  - `src/test/supplierDelete.test.tsx` 6/6
+  - `src/test/supplierTenantIsolation.test.tsx` 3/3
+  - `src/test/supplierService.test.ts` 10/10
+TypeScript: PASS (`npx tsc --noEmit` — 0 errors)
+Production build: PASS (`npm run build` — `tsc --noEmit && vite build`)
+Git Diff Audit: PASS (`git diff --check` — no errors, presentation-only)
+Supplier UI Normalization: VERIFIED / LOCKED
+
+---
+
+### A. SCOPE & PRESENTATION CONTRACT
+
+IN SCOPE (presentation-only):
+- Root/page wrapper: `min-h-screen bg-gray-50`
+- Container: `w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6`
+- Card: `bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6`
+- Title: `text-2xl font-bold tracking-tight text-gray-900`
+- Label: `text-sm font-medium text-gray-700`
+- Input: `w-full px-4 py-2.5 text-sm rounded-xl border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all`
+- Button (submit): `py-3 px-4 bg-blue-600 hover:bg-blue-700 font-medium text-sm text-white rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed`
+- Delete button: `bg-red-600 hover:bg-red-700 font-medium text-sm text-white rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed`
+- Error: `text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl p-3 sm:p-4`
+- Loading/empty-state wrappers normalized to same page/container/card baseline
+
+STRICTLY OUT OF SCOPE / UNTOUCHED:
+- `listSuppliers`, `createSupplier`, `getSupplier`, `updateSupplier`, `deleteSupplier` API calls and payloads
+- `supplierService`, `types`, `BusinessContext`, `AuthContext`
+- Form validation logic and `handleSubmit` / `handleDelete` handlers
+- Navigation and redirect behavior (`navigate(...)`)
+- Backend endpoints and models
+- All existing `data-testid` attributes
+
+---
+
+### B. DATA-TESTID PRESERVATION AUDIT
+
+All existing Supplier `data-testid` values preserved without semantic relocation:
+- SupplierList: `supplier-list`, `supplier-list-loading`, `supplier-list-error`, `supplier-list-empty`, `supplier-item-*`
+- SupplierCreate: `supplier-create-form`, `supplier-name-input`, `supplier-phone-input`, `supplier-email-input`, `supplier-address-input`, `supplier-create-submit`, `supplier-create-error`
+- SupplierDetail: `supplier-detail`, `supplier-detail-loading`, `supplier-detail-error`, `supplier-detail-id`, `supplier-detail-business`, `supplier-detail-name`, `supplier-detail-phone`, `supplier-detail-email`, `supplier-detail-address`, `supplier-detail-created-at`, `supplier-detail-updated-at`
+- SupplierEdit: `supplier-edit-form`, `supplier-name-input`, `supplier-phone-input`, `supplier-email-input`, `supplier-address-input`, `supplier-edit-submit`, `supplier-edit-loading`, `supplier-edit-error`, `supplier-edit`
+- SupplierDelete: `supplier-delete`, `supplier-delete-submit`, `supplier-delete-error`, `supplier-delete-deleting`
+
+---
+
+### C. IMPLEMENTATION & FILES MODIFIED
+
+1. Modified Components (presentation-only):
+   - `frontend/src/pages/SupplierList.tsx`
+   - `frontend/src/pages/SupplierCreate.tsx`
+   - `frontend/src/pages/SupplierDetail.tsx`
+   - `frontend/src/pages/SupplierEdit.tsx`
+   - `frontend/src/pages/SupplierDelete.tsx`
+2. Test Suite (RED, added earlier in checkpoint):
+   - `frontend/src/test/supplier.tailwind.test.tsx`
+
+---
+
+### D. VERIFICATION EVIDENCE
+
+1. Targeted Tailwind Test (RED→GREEN):
+   - `npx vitest run src/test/supplier.tailwind.test.tsx` → 5/5 PASS
+2. Supplier Behavioral Regression:
+   - 58/58 PASS (7 test files, listed in STATUS)
+3. TypeScript Check:
+   - `npx tsc --noEmit` → PASS (0 errors)
+4. Production Build:
+   - `npm run build` → PASS
+5. Git Diff Audit:
+   - `git diff --check` → no errors (presentation-only Tailwind wrappers)
+
+---
+
+### E. LOCK STATUS
+
+SUPPLIER UI NORMALIZATION V1 (BATCH 2 — MASTER DATA):
+STATUS: 🟢 SELESAI & LOCKED
+
+No further modifications are allowed to Supplier UI without following the full controlled workflow:
+Discovery → Contract Lock → RED → GREEN → Verification → Documentation → LOCK
+
+---
+
 END OF MASTER BLUEPRINT / DOMAIN ROADMAP
 ==================================================
