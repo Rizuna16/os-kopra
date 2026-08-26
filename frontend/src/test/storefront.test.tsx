@@ -1,0 +1,78 @@
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
+import { MemoryRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "../auth/AuthContext";
+import { bootAuth } from "./testUtils";
+import { Storefront } from "../pages/Storefront";
+
+const SLUG = "toko-makmur";
+
+function renderStorefront(slug: string) {
+  return render(
+    <MemoryRouter initialEntries={[`/store/${slug}`]}>
+      <AuthProvider>
+        <Routes>
+          <Route path="/store/:slug" element={<Storefront />} />
+        </Routes>
+      </AuthProvider>
+    </MemoryRouter>,
+  );
+}
+
+describe("Storefront public catalog UI component (/store/:slug)", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+    vi.restoreAllMocks();
+  });
+
+  it("renders active store info and published product catalog without auth", async () => {
+    await bootAuth(false);
+    const fetchMock = vi.fn(async (url: string) => {
+      if (String(url).includes(`/api/v1/stores/${SLUG}/products/`)) {
+        return new Response(
+          JSON.stringify([
+            {
+              id: "p1",
+              name: "Minyak Goreng",
+              price: "15000.00",
+              variants: [{ id: "v1", name: "1 Liter", available: 10 }]
+            }
+          ]),
+          { status: 200, headers: { "Content-Type": "application/json" } }
+        );
+      }
+      if (String(url).includes(`/api/v1/stores/${SLUG}/`)) {
+        return new Response(
+          JSON.stringify({ id: "s1", name: "Toko Makmur", slug: SLUG, is_active: true }),
+          { status: 200, headers: { "Content-Type": "application/json" } }
+        );
+      }
+      return new Response("{}", { status: 200 });
+    });
+    (globalThis as any).fetch = fetchMock;
+
+    renderStorefront(SLUG);
+
+    await waitFor(() => expect(screen.getByTestId("storefront")).toBeTruthy());
+    await waitFor(() => expect(screen.getByText("Online Store: Toko Makmur")).toBeTruthy());
+    await waitFor(() => expect(screen.getByText("Minyak Goreng")).toBeTruthy());
+    expect(screen.getByText("1 Liter")).toBeTruthy();
+    expect(screen.getByText("10")).toBeTruthy();
+  });
+
+  it("handles inactive store / 404 error gracefully", async () => {
+    await bootAuth(false);
+    const fetchMock = vi.fn(async (url: string) => {
+      if (String(url).includes(`/api/v1/stores/${SLUG}/`)) {
+        return new Response("Not found", { status: 404 });
+      }
+      return new Response("{}", { status: 200 });
+    });
+    (globalThis as any).fetch = fetchMock;
+
+    renderStorefront(SLUG);
+
+    await waitFor(() => expect(screen.getByTestId("storefront-error")).toBeTruthy());
+  });
+});

@@ -6424,5 +6424,103 @@ GET/PATCH requests targeting:
 
 ---
 
+## 39. ONLINE STORE FRONTEND V1 — PART 22
+
+### STATUS
+🟢 SELESAI & LOCKED
+- Contract: **ONLINE STORE FRONTEND V1 — LOCKED**
+- Discovery: **COMPLETE**
+- RED: **COMPLETE — 10 test files (28 tests)**
+- GREEN: **COMPLETE — 10 test files (28 tests)**
+- Targeted PART 22 tests: **28/28 PASS**
+- Regression: **COMPLETE — 853/853 PASS**
+- Security/Tenant Audit: **PASS**
+- TypeScript: **PASS (0 errors)**
+- Production build: **PASS (built successfully)**
+- Tenant isolation: **PASS**
+- Lock Boundary: **LOCKED**
+
+### A. EXACT SCOPE & FILES
+- Types created:
+  - `frontend/src/onlinestore/types.ts`
+- Services created:
+  - `frontend/src/onlinestore/onlineStoreService.ts`
+  - `frontend/src/onlinestore/storefrontService.ts`
+- Merchant pages created:
+  - `frontend/src/pages/OnlineStoreList.tsx`
+  - `frontend/src/pages/OnlineStoreCreate.tsx`
+  - `frontend/src/pages/OnlineStoreProductList.tsx`
+  - `frontend/src/pages/OnlineStoreOrders.tsx`
+- Public storefront pages created/modified:
+  - `frontend/src/pages/Storefront.tsx` (modified to full storefront catalog view)
+  - `frontend/src/pages/StorefrontCart.tsx` (created)
+  - `frontend/src/pages/StorefrontCheckout.tsx` (created)
+- Router modified:
+  - `frontend/src/routes/router.tsx`
+- Test files created/aligned:
+  - `frontend/src/test/onlineStoreCreate.test.tsx`
+  - `frontend/src/test/onlineStoreList.test.tsx`
+  - `frontend/src/test/onlineStoreOrders.test.tsx`
+  - `frontend/src/test/onlineStoreProductList.test.tsx`
+  - `frontend/src/test/onlineStoreService.test.ts`
+  - `frontend/src/test/router.onlinestore.test.tsx`
+  - `frontend/src/test/storefront.test.tsx`
+  - `frontend/src/test/storefrontCart.test.tsx`
+  - `frontend/src/test/storefrontCheckout.test.tsx`
+  - `frontend/src/test/storefrontService.test.ts`
+
+### B. ENDPOINT CONTRACT
+- Merchant endpoints:
+  - `GET /api/v1/businesses/<business_id>/online-stores/` (List online stores)
+  - `POST /api/v1/businesses/<business_id>/online-stores/` (Create online store)
+  - `GET /api/v1/businesses/<business_id>/online-stores/<pk>/` (Retrieve store detail)
+  - `PATCH /api/v1/businesses/<business_id>/online-stores/<pk>/` (Partial update store)
+  - `DELETE /api/v1/businesses/<business_id>/online-stores/<pk>/` (Delete store)
+  - `GET /api/v1/businesses/<business_id>/online-stores/<store_id>/products/` (List published products)
+  - `POST /api/v1/businesses/<business_id>/online-stores/<store_id>/products/` (Publish product)
+  - `PATCH /api/v1/businesses/<business_id>/online-stores/<store_id>/products/<pk>/` (Toggle publish status)
+  - `GET /api/v1/stores/<slug>/orders/` (List store orders, authenticated)
+- Public endpoints:
+  - `GET /api/v1/stores/<slug>/` (Public store details, AllowAny)
+  - `GET /api/v1/stores/<slug>/products/` (Public catalog of published products, AllowAny)
+  - `POST /api/v1/stores/<slug>/cart/` (Add item to session cart, AllowAny)
+  - `GET /api/v1/stores/<slug>/cart/?session_token=...` (Retrieve cart, AllowAny)
+  - `POST /api/v1/stores/<slug>/checkout/` (Guest checkout / order creation, AllowAny)
+
+### C. FRONTEND ROUTING & BOUNDARIES
+- Merchant routes:
+  - `/stores` (OnlineStoreList)
+  - `/stores/create` (OnlineStoreCreate)
+  - `/stores/:storeId/products` (OnlineStoreProductList)
+  - `/stores/:slug/orders` (OnlineStoreOrders)
+  - Guarded by: `ProtectedRoute → BusinessRoute → AppLayout`
+- Public routes:
+  - `/store/:slug` (Storefront)
+  - `/store/:slug/cart` (StorefrontCart)
+  - `/store/:slug/checkout` (StorefrontCheckout)
+  - Unauthenticated guest access (AllowAny)
+
+### D. SECURITY AUDIT
+- Authentication & Route Protection: **PASS** (Merchant routes protected; public routes accessible without auth)
+- Business/Tenant Isolation: **PASS** (`businessId` strictly derived from `useBusiness().currentBusinessId` for merchant actions)
+- IDOR / Cross-Tenant Object Access: **PASS**
+- Cart Session Handling: **PASS** (`session_token` stored locally and bound per store slug)
+- Guest Checkout Security: **PASS** (Guest fields only; server controls price and order state)
+- Secrets Non-Leak: **PASS** (No private credentials, client secrets, or Midtrans keys in frontend)
+- Deferred Boundaries: **PASS** (Order status mutation is deferred; no Midtrans/payment integration)
+- Security findings: **CRITICAL 0 / HIGH 0 / MEDIUM 0 / LOW 0**
+
+### E. FORBIDDEN-FILE AUDIT
+- No modifications made to backend code.
+- No modifications to locked frontend modules outside PART 22 scope.
+- Only online store services, types, pages, router, and test files created/modified.
+
+---
+
+## 40. PART 22 ONLINE STORE FRONTEND V1 — LOCK STATEMENT
+PART 22 Online Store Frontend V1 dinyatakan **SELESAI & LOCKED** setelah Regression dan Security Audit PASS. Backend LOCKED tetap untouched.
+
+---
+
 END OF MASTER BLUEPRINT / DOMAIN ROADMAP
 ==================================================

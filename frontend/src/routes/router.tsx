@@ -75,6 +75,12 @@ import { ReportsFinance } from "../pages/ReportsFinance";
 import { Notifications } from "../pages/Notifications";
 import { NotificationDetail } from "../pages/NotificationDetail";
 import { Billing } from "../pages/Billing";
+import { OnlineStoreList } from "../pages/OnlineStoreList";
+import { OnlineStoreCreate } from "../pages/OnlineStoreCreate";
+import { OnlineStoreProductList } from "../pages/OnlineStoreProductList";
+import { OnlineStoreOrders } from "../pages/OnlineStoreOrders";
+import { StorefrontCart } from "../pages/StorefrontCart";
+import { StorefrontCheckout } from "../pages/StorefrontCheckout";
 
 function BusinessRoute({ children }: { children: ReactNode }) {
   const { currentBusinessId, currentBusiness } = useBusiness();
@@ -819,8 +825,60 @@ export function AppRoutes() {
           }
         />
 
+        {/* Online Store (PART 22 V1) — Merchant routes */}
+        <Route
+          path="/stores"
+          element={
+            <ProtectedRoute>
+              <BusinessRoute>
+                <AppLayout>
+                  <OnlineStoreList />
+                </AppLayout>
+              </BusinessRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/stores/create"
+          element={
+            <ProtectedRoute>
+              <BusinessRoute>
+                <AppLayout>
+                  <OnlineStoreCreate />
+                </AppLayout>
+              </BusinessRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/stores/:storeId/products"
+          element={
+            <ProtectedRoute>
+              <BusinessRoute>
+                <AppLayout>
+                  <OnlineStoreProductList />
+                </AppLayout>
+              </BusinessRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/stores/:slug/orders"
+          element={
+            <ProtectedRoute>
+              <BusinessRoute>
+                <AppLayout>
+                  <OnlineStoreOrders />
+                </AppLayout>
+              </BusinessRoute>
+            </ProtectedRoute>
+          }
+        />
+
         {/* Public Online Store (AllowAny) — must NOT be behind the auth guard */}
         <Route path="/store/:slug" element={<Storefront />} />
+        <Route path="/store/:slug/cart" element={<StorefrontCart />} />
+        <Route path="/store/:slug/checkout" element={<StorefrontCheckout />} />
         <Route path="/store/:slug/*" element={<Storefront />} />
 
         <Route path="/forbidden" element={<Forbidden />} />
