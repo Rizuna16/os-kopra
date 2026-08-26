@@ -82,20 +82,7 @@ Toko Maju Jaya
 
 Owner memiliki akses penuh terhadap Business yang dimilikinya.
 
-Owner dapat melihat perkembangan keseluruhan Business dan seluruh Location di
-dalamnya.
-
-Dashboard Owner pada akhirnya dapat melihat:
-- omzet
-- penjualan
-- laba
-- HPP
-- stok
-- produk terlaris
-- performa lokasi
-- performa pegawai
-- cashflow
-- metrik bisnis lainnya
+Owner dapat melihat perkembangan keseluruhan Business dan seluruh Location di dalamnya.
 
 Owner dapat drill-down:
 ```
@@ -105,6 +92,175 @@ Business
 ```
 
 > Jangan membuat endpoint Dashboard dari dokumentasi ini.
+
+==================================================
+OWNER DASHBOARD — RETAIL OS (POST-V1 / DISCOVERY)
+==================================================
+
+KOPERA OS ditargetkan bukan hanya sebagai kumpulan modul retail, tetapi sebagai "Operating System untuk Retail Indonesia". Target jangka panjang adalah Retail OS sungguhan yang membuat Owner dapat:
+- SEE: mengetahui apa yang sedang terjadi di bisnis.
+- UNDERSTAND: memahami mengapa hal tersebut terjadi.
+- DECIDE: mendapatkan insight/rekomendasi untuk menentukan tindakan.
+- ACT: dapat melakukan tindakan operasional dari sistem.
+
+Dashboard Owner adalah pusat kendali utama untuk mewujudkan konsep tersebut.
+
+Status: 🟡 POST-V1 / DISCOVERY
+Status ini menandakan konsep dashboard ini belum menjadi kontrak implementasi aktif dan belum boleh dikembangkan secara langsung di V1. Dashboard V1 existing (static shell AppHome.tsx) tetap 🔒 LOCKED, valid, dan tidak diubah. Segala bentuk implementasi masa depan harus mengikuti workflow resmi:
+Discovery → Business Capability Mapping → Metric & Data Contract → UX/Product Contract → Contract Lock → RED → GREEN → Regression → Security Audit → Documentation & Lock → Commit → Push.
+
+### A. PRODUCT PRINCIPLES
+1. Executive Visibility: Owner dapat memahami kondisi bisnis secara cepat.
+2. Operational Visibility: Owner dapat melihat Sales, Inventory, Finance, Customer, Supplier, Online Store, aktivitas, dan alert.
+3. Exception Management: Sistem menonjolkan kondisi yang membutuhkan perhatian Owner (misal: stok habis, piutang jatuh tempo).
+4. Quick Action: Owner dapat berpindah dari insight ke tindakan operasional dengan friction minimal.
+5. Multi-business Awareness: Owner dapat melihat satu usaha atau agregasi semua usaha secara terpadu.
+6. Multi-location Awareness: Data dapat dianalisis pada level business maupun location.
+7. Intelligence-ready: Menjadi fondasi untuk analytics, forecasting, rekomendasi, dan integrasi KOPERA AI.
+8. Single Source of Business Truth: Metrik Dashboard tidak boleh memiliki definisi yang bertentangan dengan modul Reports, Sales, Purchasing, Finance, Inventory, atau modul lain.
+
+### B. OFFICIAL PRODUCT CONCEPT STRUCTURE
+Struktur Dashboard Owner Post-V1 terdiri dari 15 domain utama:
+1. HEADER
+   - Logo / Brand Usaha
+   - Nama Owner
+   - Pemilih Usaha (Semua Usaha, Usaha 1, Usaha 2, Usaha 3)
+   - Pemilih Periode (Hari Ini, Minggu Ini, Bulan Ini, Tahun Ini, Custom)
+   - Notifikasi
+   - Bantuan
+   - Profile Owner
+2. RINGKASAN BISNIS
+   - Total Omzet
+   - Total Penjualan
+   - Total Laba
+   - Total Pengeluaran
+   - Total Piutang
+   - Total Hutang
+   - Total Produk
+   - Total Stok
+   - Jumlah Usaha
+3. PERFORMANCE USAHA
+   - Daftar Semua Usaha
+   - Omzet per Usaha
+   - Laba per Usaha
+   - Pengeluaran per Usaha
+   - Jumlah Transaksi
+   - Pertumbuhan
+   - Ranking Performance
+4. GRAFIK BISNIS
+   - Grafik Penjualan
+   - Grafik Omzet
+   - Grafik Laba
+   - Grafik Pengeluaran
+   - Grafik Arus Kas
+   - Perbandingan Periode
+5. PENJUALAN
+   - Penjualan Hari Ini
+   - Penjualan Minggu Ini
+   - Penjualan Bulan Ini
+   - Jumlah Transaksi
+   - Nilai Transaksi Rata-rata
+   - Penjualan per Usaha
+   - Penjualan per Produk
+   - Penjualan per Lokasi
+6. INVENTORY
+   - Total Produk
+   - Total Stok
+   - Stok Habis
+   - Stok Menipis
+   - Produk Terlaris
+   - Produk Tidak Bergerak
+   - Nilai Inventory
+   - Notifikasi Stok
+7. KEUANGAN
+   - Pendapatan
+   - Pengeluaran
+   - Laba Kotor
+   - Laba Bersih
+   - Piutang
+   - Hutang
+   - Arus Kas
+   - Saldo
+8. CUSTOMER
+   - Total Customer
+   - Customer Baru
+   - Customer Aktif
+   - Customer Terbaik
+   - Customer Belum Bayar
+   - Riwayat Customer
+9. SUPPLIER
+   - Total Supplier
+   - Pembelian
+   - Hutang Supplier
+   - Jatuh Tempo
+   - Supplier Terbaik
+10. ONLINE STORE
+    - Status Online Store
+    - Pesanan Baru
+    - Pesanan Diproses
+    - Pesanan Dikirim
+    - Pesanan Selesai
+    - Pendapatan Online
+    - Produk Online Terlaris
+11. AKTIVITAS TERBARU
+    - Penjualan
+    - Pembelian
+    - Perubahan Stok
+    - Pembayaran
+    - Customer Baru
+    - User Baru
+    - Aktivitas Online Store
+12. NOTIFIKASI & PERINGATAN
+    - Stok Habis
+    - Stok Menipis
+    - Hutang Jatuh Tempo
+    - Piutang Jatuh Tempo
+    - Pesanan Baru
+    - Pembayaran Berhasil
+    - Subscription
+    - System Alert
+13. QUICK ACTION
+    - Tambah Produk
+    - Tambah Penjualan
+    - Tambah Pembelian
+    - Tambah Customer
+    - Tambah Supplier
+    - Tambah Usaha
+    - Buka Online Store
+14. LAPORAN CEPAT
+    - Laporan Penjualan
+    - Laporan Laba
+    - Laporan Stok
+    - Laporan Keuangan
+    - Laporan Customer
+    - Laporan Supplier
+15. PENGATURAN OWNER
+    - Profile
+    - Account
+    - Usaha
+    - Brand
+    - Logo
+    - Warna Brand
+    - Lokasi
+    - User
+    - Role & Permission
+    - Subscription
+    - Payment
+    - Notification
+    - Security
+    - Backup
+    - Integrasi
+
+### C. METRIC CONTRACT WARNING
+Masing-masing metrik di bawah ini **BELUM BOLEH** diimplementasikan atau dirujuk dalam kode produksi sebelum memiliki definisi formula bisnis, periode, penanganan pembatalan/void/refund, dan aturan agregasi yang dikunci via Contract Lock berikutnya:
+- Total Omzet, Total Penjualan, Total Laba, Laba Kotor, Laba Bersih, Total Pengeluaran, Piutang, Hutang, Arus Kas, Saldo, Nilai Inventory, Pertumbuhan, Ranking Performance, Customer Aktif, Produk Terlaris, Produk Tidak Bergerak, Supplier Terbaik.
+
+### D. DATA & SECURITY PRINCIPLE
+Owner Dashboard wajib mempertahankan batasan keamanan KOPERA OS:
+- Tenant/Business Isolation: Scoping data harus didasarkan pada user terautentikasi (server-side owner validation) dan tidak boleh mempercayai parameter input mentah dari client.
+- Location Isolation: Tampilan metrik lokasi harus terisolasi sesuai hak akses/lokasi aktif.
+- Aggregation Scope: Agregasi lintas usaha/lokasi wajib mematuhi aturan otorisasi dan tidak boleh membocorkan data antar tenant.
+- No Permission Bypass: Dashboard tidak boleh mengekspos metrik finansial/penjualan sensitif kepada pengguna yang tidak memiliki hak akses pada modul sumber (misal: modul Penjualan/Finance).
 
 ---
 
