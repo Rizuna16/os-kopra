@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
+import { useLocation } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { useBusiness } from "../business/BusinessContext";
 
 export function AppLayout({ children }: { children: ReactNode }) {
+  const location = useLocation();
   const { user, logout } = useAuth();
   const {
     businesses,
@@ -13,6 +15,11 @@ export function AppLayout({ children }: { children: ReactNode }) {
     selectBusiness,
     selectLocation,
   } = useBusiness();
+
+  // If on Owner Dashboard, let OwnerDashboard render its complete command center shell (Sidebar + Topbar + Content)
+  if (location.pathname === "/app/dashboard") {
+    return <>{children}</>;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">

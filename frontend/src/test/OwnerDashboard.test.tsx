@@ -216,4 +216,62 @@ describe("OwnerDashboard (Post-V1)", () => {
     // 6. Online Store
     expect(screen.getByTestId("store-s1-status")).toHaveTextContent("Active");
   });
+
+  it("renders sidebar with correct navigation links and active state", async () => {
+    await bootAuth(true);
+    (globalThis as any).fetch = baseFetch();
+    renderDashboard(BID);
+
+    await waitFor(() => expect(screen.getByTestId("sidebar-logo")).toHaveTextContent("KOPERA"));
+    expect(screen.getByTestId("sidebar-nav-dashboard")).toHaveAttribute("href", "/app/dashboard");
+    expect(screen.getByTestId("sidebar-nav-produk")).toHaveAttribute("href", "/products");
+    expect(screen.getByTestId("sidebar-nav-inventory")).toHaveAttribute("href", "/products");
+    expect(screen.getByTestId("sidebar-nav-penjualan")).toHaveAttribute("href", "/sales");
+    expect(screen.getByTestId("sidebar-nav-pembelian")).toHaveAttribute("href", "/purchasing");
+    expect(screen.getByTestId("sidebar-nav-customer")).toHaveAttribute("href", "/customers");
+    expect(screen.getByTestId("sidebar-nav-supplier")).toHaveAttribute("href", "/suppliers");
+    expect(screen.getByTestId("sidebar-nav-keuangan")).toHaveAttribute("href", "/finance/accounts");
+    expect(screen.getByTestId("sidebar-nav-laporan")).toHaveAttribute("href", "/reports/overview");
+    expect(screen.getByTestId("sidebar-nav-toko-online")).toHaveAttribute("href", "/stores");
+    expect(screen.getByTestId("sidebar-nav-notifikasi")).toHaveAttribute("href", "/notifications");
+    expect(screen.getByTestId("sidebar-nav-pengaturan")).toHaveAttribute("href", "/billing");
+
+    // active state check
+    expect(screen.getByTestId("sidebar-nav-dashboard")).toHaveClass("active-menu-item");
+  });
+
+  it("renders topbar elements correctly", async () => {
+    await bootAuth(true);
+    (globalThis as any).fetch = baseFetch();
+    renderDashboard(BID);
+
+    await waitFor(() => expect(screen.getByTestId("topbar-business-name")).toHaveTextContent("Toko A"));
+    expect(screen.getByTestId("topbar-notification-btn")).toBeTruthy();
+    expect(screen.getByTestId("topbar-refresh-btn")).toBeTruthy();
+  });
+
+  it("toggles mobile menu drawer correctly", async () => {
+    await bootAuth(true);
+    (globalThis as any).fetch = baseFetch();
+    const { container } = renderDashboard(BID);
+
+    await waitFor(() => expect(screen.getByTestId("mobile-menu-burger-btn")).toBeTruthy());
+    
+    // initially drawer is not rendered or hidden
+    expect(screen.queryByTestId("mobile-drawer")).toBeNull();
+
+    // open mobile menu drawer
+    const burgerBtn = screen.getByTestId("mobile-menu-burger-btn");
+    burgerBtn.click();
+
+    // drawer should be open
+    await waitFor(() => expect(screen.getByTestId("mobile-drawer")).toBeTruthy());
+
+    // close mobile menu drawer
+    const closeBtn = screen.getByTestId("mobile-menu-close-btn");
+    closeBtn.click();
+
+    // drawer should be closed
+    await waitFor(() => expect(screen.queryByTestId("mobile-drawer")).toBeNull());
+  });
 });
