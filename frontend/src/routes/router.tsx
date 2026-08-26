@@ -72,6 +72,8 @@ import { ReportsOverview } from "../pages/ReportsOverview";
 import { ReportsSales } from "../pages/ReportsSales";
 import { ReportsPurchasing } from "../pages/ReportsPurchasing";
 import { ReportsFinance } from "../pages/ReportsFinance";
+import { Notifications } from "../pages/Notifications";
+import { NotificationDetail } from "../pages/NotificationDetail";
 
 function BusinessRoute({ children }: { children: ReactNode }) {
   const { currentBusinessId, currentBusiness } = useBusiness();
@@ -770,6 +772,32 @@ export function AppRoutes() {
               <BusinessRoute>
                 <AppLayout>
                   <ReportsFinance />
+                </AppLayout>
+              </BusinessRoute>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Notifications (PART 19 V1) — business-scoped, recipient-isolated */}
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute>
+              <BusinessRoute>
+                <AppLayout>
+                  <Notifications />
+                </AppLayout>
+              </BusinessRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/notifications/:notificationId"
+          element={
+            <ProtectedRoute>
+              <BusinessRoute>
+                <AppLayout>
+                  <NotificationDetail />
                 </AppLayout>
               </BusinessRoute>
             </ProtectedRoute>

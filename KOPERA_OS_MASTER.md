@@ -6249,5 +6249,65 @@ GET requests targeting:
 
 ---
 
+## 36. FRONTEND NOTIFICATION V1 — PART 19
+
+### STATUS
+🟢 SELESAI & LOCKED
+- Contract: **FRONTEND NOTIFICATION V1 — LOCKED**
+- Discovery: **COMPLETE**
+- RED: **COMPLETE — 4 notification test suites (14 tests)**
+- GREEN: **COMPLETE — 4 notification test suites (14 tests)**
+- Regression: **COMPLETE — 797/797 PASS (135 test files)**
+- Security/Tenant Audit: **PASS**
+- TypeScript: **PASS (0 errors)**
+- Production build: **PASS (built successfully)**
+- Tenant isolation: **PASS**
+- Lock Boundary: **LOCKED**
+
+### A. EXACT SCOPE & FILES
+- Types: `frontend/src/notifications/types.ts`
+- Service: `frontend/src/notifications/notificationService.ts`
+- Pages:
+  - `frontend/src/pages/Notifications.tsx`
+  - `frontend/src/pages/NotificationDetail.tsx`
+- Routes added in `frontend/src/routes/router.tsx`:
+  - `/notifications`
+  - `/notifications/:notificationId`
+- Test files created/modified:
+  - `frontend/src/test/notificationService.test.ts`
+  - `frontend/src/test/notifications.test.tsx`
+  - `frontend/src/test/notificationDetail.test.tsx`
+  - `frontend/src/test/notificationTenantIsolation.test.tsx`
+
+### B. ENDPOINT CONTRACT
+GET/PATCH requests targeting:
+- `GET /api/v1/businesses/<business_id>/notifications/`
+- `GET /api/v1/businesses/<business_id>/notifications/<notification_id>/`
+- `PATCH /api/v1/businesses/<business_id>/notifications/<notification_id>/read/`
+
+### C. TENANT ISOLATION
+- `businessId` strictly derived from `useBusiness().currentBusinessId`.
+- No client-side parameter injection or user input of business ID.
+- Recipient scoping enforced server-side via authenticated user.
+- Swapping business context triggers clean reload and fetches for the new business.
+- No global/unread-count/mark-unread endpoints.
+
+### D. SECURITY AUDIT
+- Authentication: **PASS** (routes under `ProtectedRoute → BusinessRoute → AppLayout`)
+- Business/Tenant Isolation: **PASS**
+- Recipient Isolation: **PASS**
+- IDOR / Object Access: **PASS**
+- Mark-Read Contract: **PASS** (PATCH `/read/`; empty payload; server sets `is_read`)
+- Data Exposure: **PASS** (only `id, type, title, message, is_read, created_at`)
+- API Surface: **PASS** (only GET list, GET detail, PATCH read)
+- Security findings: **CRITICAL 0 / HIGH 0 / MEDIUM 0 / LOW 0**
+
+### E. FORBIDDEN-FILE AUDIT
+- No modifications made to backend code.
+- No modifications to auth flow, tokenStore, apiClient, or pre-existing locked pages and tests.
+- Only Notification routes added to `router.tsx`.
+
+---
+
 END OF MASTER BLUEPRINT / DOMAIN ROADMAP
 ==================================================
