@@ -13,6 +13,7 @@ import { ResetPassword } from "../pages/ResetPassword";
 import { Onboarding } from "../pages/Onboarding";
 import { AppLayout } from "../layouts/AppLayout";
 import { AppHome } from "../pages/AppHome";
+import { OwnerDashboard } from "../pages/OwnerDashboard";
 import { Admin } from "../pages/Admin";
 import { Storefront } from "../pages/Storefront";
 import { Forbidden } from "../pages/Forbidden";
@@ -138,6 +139,18 @@ export function AppRoutes() {
               <BusinessRoute>
                 <AppLayout>
                   <AppHome />
+                </AppLayout>
+              </BusinessRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/app/dashboard"
+          element={
+            <ProtectedRoute>
+              <BusinessRoute>
+                <AppLayout>
+                  <OwnerDashboard />
                 </AppLayout>
               </BusinessRoute>
             </ProtectedRoute>

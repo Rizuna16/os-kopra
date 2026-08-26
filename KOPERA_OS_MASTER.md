@@ -105,9 +105,14 @@ KOPERA OS ditargetkan bukan hanya sebagai kumpulan modul retail, tetapi sebagai 
 
 Dashboard Owner adalah pusat kendali utama untuk mewujudkan konsep tersebut.
 
-Status: 🟡 POST-V1 / DISCOVERY
-Status ini menandakan konsep dashboard ini belum menjadi kontrak implementasi aktif dan belum boleh dikembangkan secara langsung di V1. Dashboard V1 existing (static shell AppHome.tsx) tetap 🔒 LOCKED, valid, dan tidak diubah. Segala bentuk implementasi masa depan harus mengikuti workflow resmi:
+Status: 🟢 POST-V1 CONTRACT LOCKED & INTEGRATED
+Status ini menandakan konsep dashboard single-business telah dikunci kontraknya, diimplementasikan, dan diintegrasikan di bawah route `/app/dashboard`. Dashboard V1 existing (static shell AppHome.tsx) tetap 🔒 LOCKED, valid, dan tidak diubah. Segala bentuk implementasi masa depan harus mengikuti workflow resmi:
 Discovery → Business Capability Mapping → Metric & Data Contract → UX/Product Contract → Contract Lock → RED → GREEN → Regression → Security Audit → Documentation & Lock → Commit → Push.
+
+### POST-V1 CONTRACT LOCKED SCOPE
+- **Locked Scope**: Single-business Executive Summary (total omzet, total penjualan, total pengeluaran, total produk), Sales/Purchasing/Finance summaries, Notifications, Online Store visibility, and Quick Actions.
+- **Route**: `/app/dashboard` (wrapped under `ProtectedRoute` + `BusinessRoute`).
+- **Deferred Scope**: Multi-business aggregation ("Semua Usaha"), profit margins (laba), cost price architecture (HPP), receivables & payables, time-series charts, and automated notification producers. Refer to the official Contract Lock Report for details.
 
 ### A. PRODUCT PRINCIPLES
 1. Executive Visibility: Owner dapat memahami kondisi bisnis secara cepat.
