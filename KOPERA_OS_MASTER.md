@@ -6189,5 +6189,65 @@ Discovery → Contract Lock → RED → GREEN → Verification → Documentation
 
 ---
 
+## 35. FRONTEND REPORTS V1 — PART 18
+
+### STATUS
+🟢 SELESAI & LOCKED
+- Contract: **FRONTEND REPORTS V1 — LOCKED**
+- Discovery: **COMPLETE**
+- RED: **COMPLETE — 6 report test suites (18 tests)**
+- GREEN: **COMPLETE — 6 report test suites (18 tests)**
+- Verification: **PASS**
+- Full regression: **783/783 PASS (131 test files)**
+- TypeScript: **PASS (0 errors)**
+- Production build: **PASS (built successfully)**
+- Tenant isolation: **PASS**
+- Security audit: **PASS**
+- Lock Boundary: **LOCKED**
+
+### A. EXACT SCOPE & FILES
+- Service: `frontend/src/reports/reportsService.ts`
+- Types: `frontend/src/reports/types.ts`
+- Pages:
+  - `frontend/src/pages/ReportsOverview.tsx`
+  - `frontend/src/pages/ReportsSales.tsx`
+  - `frontend/src/pages/ReportsPurchasing.tsx`
+  - `frontend/src/pages/ReportsFinance.tsx`
+- Routes added in `frontend/src/routes/router.tsx`:
+  - `/reports`
+  - `/reports/overview`
+  - `/reports/sales`
+  - `/reports/purchasing`
+  - `/reports/finance`
+- Test files created:
+  - `frontend/src/test/reportsService.test.ts`
+  - `frontend/src/test/reportsOverview.test.tsx`
+  - `frontend/src/test/reportsSales.test.tsx`
+  - `frontend/src/test/reportsPurchasing.test.tsx`
+  - `frontend/src/test/reportsFinance.test.tsx`
+  - `frontend/src/test/reportsTenantIsolation.test.tsx`
+
+### B. ENDPOINT CONTRACT
+GET requests targeting:
+- `/api/v1/businesses/<business_id>/reports/overview/`
+- `/api/v1/businesses/<business_id>/reports/sales/`
+- `/api/v1/businesses/<business_id>/reports/purchasing/`
+- `/api/v1/businesses/<business_id>/reports/finance/`
+
+### C. TENANT ISOLATION
+- `businessId` strictly derived from `useBusiness().currentBusinessId`.
+- No client-side parameter injection or user input of business ID.
+- Swapping business context triggers clean reload and fetches for the new business.
+
+### D. DATA-TESTID AUDIT
+- All required contract testids (`reports-overview-page`, `sales-metrics-card`, `purchasing-metrics-card`, `finance-metrics-card`, `counts-metrics-card`, etc.) are fully implemented.
+
+### E. FORBIDDEN-FILE AUDIT
+- No modifications made to backend code.
+- No modifications to auth flow, tokenStore, apiClient, or pre-existing locked pages and tests.
+- Only Reports routes added to `router.tsx`.
+
+---
+
 END OF MASTER BLUEPRINT / DOMAIN ROADMAP
 ==================================================

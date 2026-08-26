@@ -68,6 +68,10 @@ import { FinanceAccountDetail } from "../pages/FinanceAccountDetail";
 import { FinanceAccountEdit } from "../pages/FinanceAccountEdit";
 import { FinanceJournalList } from "../pages/FinanceJournalList";
 import { FinanceExpenseList } from "../pages/FinanceExpenseList";
+import { ReportsOverview } from "../pages/ReportsOverview";
+import { ReportsSales } from "../pages/ReportsSales";
+import { ReportsPurchasing } from "../pages/ReportsPurchasing";
+import { ReportsFinance } from "../pages/ReportsFinance";
 
 function BusinessRoute({ children }: { children: ReactNode }) {
   const { currentBusinessId, currentBusiness } = useBusiness();
@@ -704,6 +708,68 @@ export function AppRoutes() {
               <BusinessRoute>
                 <AppLayout>
                   <FinanceExpenseList />
+                </AppLayout>
+              </BusinessRoute>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Reports (PART 18 V1) — business-scoped, tenant-isolated */}
+        <Route
+          path="/reports"
+          element={
+            <ProtectedRoute>
+              <BusinessRoute>
+                <AppLayout>
+                  <ReportsOverview />
+                </AppLayout>
+              </BusinessRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reports/overview"
+          element={
+            <ProtectedRoute>
+              <BusinessRoute>
+                <AppLayout>
+                  <ReportsOverview />
+                </AppLayout>
+              </BusinessRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reports/sales"
+          element={
+            <ProtectedRoute>
+              <BusinessRoute>
+                <AppLayout>
+                  <ReportsSales />
+                </AppLayout>
+              </BusinessRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reports/purchasing"
+          element={
+            <ProtectedRoute>
+              <BusinessRoute>
+                <AppLayout>
+                  <ReportsPurchasing />
+                </AppLayout>
+              </BusinessRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reports/finance"
+          element={
+            <ProtectedRoute>
+              <BusinessRoute>
+                <AppLayout>
+                  <ReportsFinance />
                 </AppLayout>
               </BusinessRoute>
             </ProtectedRoute>
