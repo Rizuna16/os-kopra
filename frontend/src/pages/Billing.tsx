@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useBusiness } from "../business/BusinessContext";
-import { listPlans, createSubscription } from "../business/businessService";
-import type { Plan } from "../business/types";
+import { listPlans, createSubscription, createPayment } from "../business/businessService";
+import type { PaymentResponse, Plan } from "../business/types";
 import { ApiError } from "../auth/types";
 
 export function Billing() {
@@ -12,12 +12,22 @@ export function Billing() {
   const [actionBusy, setActionBusy] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
 
+  const [subscriptionId, setSubscriptionId] = useState<string | null>(null);
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
+  const [payment, setPayment] = useState<PaymentResponse | null>(null);
+  const [paymentBusy, setPaymentBusy] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+
   useEffect(() => {
     setLoading(true);
     setError(null);
     listPlans()
       .then((data) => {
-        setPlans(Array.isArray(data) ? data : []);
+        const list = Array.isArray(data) ? data : [];
+        setPlans(list);
+        if (list.length > 0) {
+          setSelectedPlanId((prev) => prev ?? list[0].id);
+        }
       })
       .catch((err) => {
         setError(err instanceof ApiError ? err.message : "Failed to load plans");
@@ -32,12 +42,27 @@ export function Billing() {
     setActionBusy(true);
     setActionError(null);
     try {
-      await createSubscription(currentBusinessId);
+      const sub = await createSubscription(currentBusinessId);
+      if (sub?.id) setSubscriptionId(sub.id);
       setSubscriptionCreated(true);
     } catch (err) {
       setActionError(err instanceof ApiError ? err.message : "Failed to create subscription");
     } finally {
       setActionBusy(false);
+    }
+  }
+
+  async function handlePay() {
+    if (!subscriptionId || !selectedPlanId) return;
+    setPaymentBusy(true);
+    setPaymentError(null);
+    try {
+      const result = await createPayment(subscriptionId, selectedPlanId);
+      setPayment(result);
+    } catch (err) {
+      setPaymentError(err instanceof ApiError ? err.message : "Payment initiation failed");
+    } finally {
+      setPaymentBusy(false);
     }
   }
 
@@ -79,8 +104,62 @@ export function Billing() {
       <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Current Subscription</h2>
         {subscriptionCreated ? (
-          <div data-testid="subscription-created-badge" className="inline-flex items-center px-4 py-2 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm font-medium">
-            Subscription Created
+          <div className="space-y-4">
+            <div data-testid="subscription-created-badge" className="inline-flex items-center px-4 py-2 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm font-medium">
+              Subscription Created
+            </div>
+
+            {!payment && (
+              <div className="space-y-4 border-t border-gray-100 pt-4">
+                <p className="text-sm text-gray-600">Complete your subscription by making a payment.</p>
+                {plans.length > 1 && (
+                  <select
+                    value={selectedPlanId ?? ""}
+                    onChange={(e) => setSelectedPlanId(e.target.value)}
+                    data-testid="plan-select"
+                    className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm text-gray-800"
+                  >
+                    {plans.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name} ({p.currency} {p.amount})
+                      </option>
+                    ))}
+                  </select>
+                )}
+                <button
+                  type="button"
+                  disabled={paymentBusy || !selectedPlanId || !subscriptionId}
+                  onClick={handlePay}
+                  data-testid="pay-cta"
+                  className="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 font-medium text-sm text-white rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {paymentBusy ? "Processing..." : "Pay Now"}
+                </button>
+                {paymentBusy && (
+                  <div data-testid="payment-loading" className="text-sm text-gray-500">
+                    Initiating payment...
+                  </div>
+                )}
+                {paymentError && (
+                  <div data-testid="payment-error" className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl p-4">
+                    {paymentError}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {payment && (
+              <div data-testid="payment-redirect" className="space-y-3 border-t border-gray-100 pt-4">
+                <p className="text-sm text-gray-600">Payment initiated. Complete your payment to activate the subscription.</p>
+                <a
+                  href={payment.redirect_url}
+                  data-testid="payment-redirect-link"
+                  className="inline-block py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 font-medium text-sm text-white rounded-xl shadow-sm"
+                >
+                  Continue to Payment
+                </a>
+              </div>
+            )}
           </div>
         ) : (
           <div className="space-y-4">

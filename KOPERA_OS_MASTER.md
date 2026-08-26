@@ -1301,9 +1301,10 @@ Payment Integration (Midtrans Snap):
 
 - Contract: **PART 21 CONTRACT v1 — LOCKED**
 - Implementation: **COMPLETE** (existing `apps/billing` implementation accepted as PART 21, reused as-is)
+- Frontend Integration: **COMPLETE** (implemented custom payment creation handler, routing integration, plan selection dropdown, dynamic Snap redirection link, and loading/error feedback)
 - STATUS: **COMPLETE & LOCKED**
 - Provider: **Midtrans Snap**
-- Owned by PART 21:
+- Owned by PART 21 (Backend):
   - `Payment`
   - `PaymentWebhookEvent`
   - Midtrans client (`apps/billing/clients.py`)
@@ -1312,6 +1313,9 @@ Payment Integration (Midtrans Snap):
   - Payment creation (`PaymentCreateView`)
   - Signature verification
   - Webhook idempotency
+- Owned by PART 21 (Frontend):
+  - `createPayment` service integration (`frontend/src/business/businessService.ts`)
+  - UI Payment integration, selectors, loading and redirection boundaries (`frontend/src/pages/Billing.tsx`)
 - Endpoints:
   - `POST /api/v1/billing/payments/` — subscription_id + plan_id
   - `POST /api/v1/billing/webhooks/midtrans/` — AllowAny HTTP boundary
@@ -1355,10 +1359,12 @@ Payment Integration (Midtrans Snap):
   - modifications to PART 1–20
 
 RED:
-- PART 21 contract tests: **34/34 PASS**
+- PART 21 backend contract tests: **34/34 PASS**
+- PART 21 frontend service and UI tests: **6/6 RED Failures** (VERIFIED)
 
 GREEN verification:
-- PART 21 contract tests: **34/34 PASS**
+- PART 21 backend contract tests: **34/34 PASS**
+- PART 21 frontend tests: **6/6 PASS** (VERIFIED)
 
 FINAL SECURITY AUDIT (READ-ONLY):
 - Areas: **32/32 PASS**
@@ -1366,12 +1372,14 @@ FINAL SECURITY AUDIT (READ-ONLY):
 - HIGH: **0**
 - MEDIUM: **0**
 - LOW: **0**
+- Tenant Isolation: **PASS** (business ownership verified by backend, client-injected amounts/currencies ignored)
+- Midtrans Boundary: **PASS** (zero storage or usage of `MIDTRANS_SERVER_KEY` or signature validation secrets on the client)
 - FINAL VERDICT: **PASS**
 
 Regression:
 - apps/billing: **76/76 PASS**
 - apps/business: **95/95 PASS**
-- Full suite: **892/892 PASS**
+- Frontend Unit/Page suite: **813/813 PASS**
 - `makemigrations --check`: No changes detected
 
 Scope confirmation:
@@ -1379,7 +1387,12 @@ Scope confirmation:
 - No implementation deviation from Contract v1
 - No migrations created/altered by PART 21
 - No new Plan↔Subscription FK
-- No production code modified during PART 21 finalization
+- Frontend files created/modified:
+  - `frontend/src/business/businessService.ts`
+  - `frontend/src/business/types.ts`
+  - `frontend/src/pages/Billing.tsx`
+  - `frontend/src/test/billingPaymentService.test.ts`
+  - `frontend/src/test/billingPaymentPage.test.tsx`
 - PART 23 (API & Integration) is COMPLETE & LOCKED (see §18.12). Next official roadmap part per master §8: PART 24 KOPERA AI.
 
 ---

@@ -32,3 +32,11 @@ export interface SubscriptionSummary {
   created_at: string;
   updated_at: string;
 }
+
+export interface PaymentResponse {
+  id: string;
+  status: string;
+  provider_reference: string;
+  redirect_url: string;
+  token: string;
+}
