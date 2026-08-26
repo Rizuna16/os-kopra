@@ -114,6 +114,24 @@ Discovery → Business Capability Mapping → Metric & Data Contract → UX/Prod
 - **Route**: `/app/dashboard` (wrapped under `ProtectedRoute` + `BusinessRoute`).
 - **Deferred Scope**: Multi-business aggregation ("Semua Usaha"), profit margins (laba), cost price architecture (HPP), receivables & payables, time-series charts, and automated notification producers. Refer to the official Contract Lock Report for details.
 
+### PHASE 1 — EXECUTIVE COMMAND CENTER UI UPGRADE (LOCKED)
+- **Status**: 🟢 PHASE 1 UI — LOCKED
+- **Parent Contract**: POST-V1 CONTRACT LOCKED & INTEGRATED (Owner Dashboard route `/app/dashboard`).
+- **Scope Preserved**: Single-business scope unchanged. No new backend contracts, no new API endpoints, no deferred metrics, no multi-business iteration, no "Semua Usaha" mechanism.
+- **Implementation**: `frontend/src/pages/OwnerDashboard.tsx` upgraded into a premium, dense, responsive "Executive Command Center" using Tailwind CSS only. No new UI framework dependency and no new npm packages installed.
+- **UX Contract Delivered**:
+  - **Header / Context**: Business name (`currentBusiness.name`) and Owner name (`useAuth().user`) displayed; "Executive Command Center" badge; welcome subtitle; refresh button (`dashboard-refresh-btn`) that re-fetches data.
+  - **Executive KPI Section**: Four prominent locked KPI cards — Total Omzet, Total Penjualan, Total Pengeluaran, Total Produk — with strong visual hierarchy, large primary numbers, Indonesian labels, and micro-descriptions. No fake trend percentages.
+  - **Operational Summary**: Three visually distinct sections — Penjualan, Pembelian, Keuangan — using only existing `overview` report fields (sales/purchasing/finance counts, revenue, cost, expense, journal status counts, journal entry debit/credit). No profit calculations.
+  - **Notifications**: Dedicated "Perlu Perhatian" section using existing notification API data, with unread/read distinction via `is_read` indicator; graceful empty state; no fake alerts; dashboard remains READ-ONLY.
+  - **Online Store**: Compact "Integrasi Toko Online" card showing store name, slug, and active/inactive status from existing service; no order mutation.
+  - **Quick Actions**: Grid of links to existing, already-registered module routes (products, sales, purchasing, customers, suppliers, onboarding, stores/create). No invented routes; all wrapped under existing `ProtectedRoute` + `BusinessRoute`.
+  - **States**: Premium `animate-pulse` skeleton loading (`dashboard-loading`), zero-valued empty state (`dashboard-empty`), and recoverable error state with "Coba Lagi (Retry Loading)" (`dashboard-error`) that re-fetches.
+- **Tests**: `frontend/src/test/OwnerDashboard.test.tsx` extended with RED→GREEN visual contract tests (business context, owner name, operational summary fields, unread notification indicator, store status). All existing regression, dashboard route, service, and AppHome non-regression tests pass.
+- **Security Audit**: ProtectedRoute, BusinessRoute, and BusinessContext unchanged. No client-side tenant authorization, no multi-business iteration, no arbitrary business IDs, no `dangerouslySetInnerHTML`, no deferred financial metrics, no new dependency. Notification and online store data remain business-scoped via `dashboardService`.
+- **Verification**: `npm run typecheck` ✅, `npm run build` ✅, `npx vitest run` ✅ (873 passed). AppHome V1 remains 🔒 LOCKED. Route protection intact.
+- **Explicit Preservation**: AppHome V1 remains LOCKED; `/app/dashboard` remains POST-V1; single-business scope remains locked; deferred analytics remain deferred.
+
 ### A. PRODUCT PRINCIPLES
 1. Executive Visibility: Owner dapat memahami kondisi bisnis secara cepat.
 2. Operational Visibility: Owner dapat melihat Sales, Inventory, Finance, Customer, Supplier, Online Store, aktivitas, dan alert.

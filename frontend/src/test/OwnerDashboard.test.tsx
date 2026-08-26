@@ -180,4 +180,40 @@ describe("OwnerDashboard (Post-V1)", () => {
     expect(screen.getByTestId("quick-action-tambah-usaha")).toBeTruthy();
     expect(screen.getByTestId("quick-action-buka-online-store")).toBeTruthy();
   });
+
+  it("renders premium command center UI components (business name, owner name, refresh button, operational summary details, notifications read/unread, store details)", async () => {
+    await bootAuth(true);
+    (globalThis as any).fetch = baseFetch();
+    renderDashboard(BID);
+    
+    // 1. Context & Header
+    await waitFor(() => expect(screen.getByTestId("dashboard-business-name")).toHaveTextContent("Toko A"));
+    expect(screen.getByTestId("dashboard-owner-name")).toHaveTextContent("a@b.com");
+    expect(screen.getByTestId("dashboard-refresh-btn")).toBeTruthy();
+
+    // 2. Operational Summary - Penjualan
+    expect(screen.getByTestId("summary-sales-total")).toHaveTextContent("10");
+    expect(screen.getByTestId("summary-sales-completed")).toHaveTextContent("8");
+    expect(screen.getByTestId("summary-sales-voided")).toHaveTextContent("1");
+    expect(screen.getByTestId("summary-sales-draft")).toHaveTextContent("1");
+
+    // 3. Operational Summary - Pembelian
+    expect(screen.getByTestId("summary-purchasing-total")).toHaveTextContent("5");
+    expect(screen.getByTestId("summary-purchasing-confirmed")).toHaveTextContent("4");
+    expect(screen.getByTestId("summary-purchasing-cancelled")).toHaveTextContent("0");
+    expect(screen.getByTestId("summary-purchasing-draft")).toHaveTextContent("1");
+
+    // 4. Operational Summary - Keuangan
+    expect(screen.getByTestId("summary-finance-expense")).toHaveTextContent("200.00");
+    expect(screen.getByTestId("summary-finance-journal-posted")).toHaveTextContent("2");
+    expect(screen.getByTestId("summary-finance-debit")).toHaveTextContent("1000.00");
+    expect(screen.getByTestId("summary-finance-credit")).toHaveTextContent("1000.00");
+
+    // 5. Notifications
+    expect(screen.getByText("Perlu Perhatian")).toBeTruthy();
+    expect(screen.getByTestId("notif-n1-unread-badge")).toBeTruthy();
+
+    // 6. Online Store
+    expect(screen.getByTestId("store-s1-status")).toHaveTextContent("Active");
+  });
 });
