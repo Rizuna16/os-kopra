@@ -137,9 +137,7 @@ export function AppRoutes() {
           element={
             <ProtectedRoute>
               <BusinessRoute>
-                <AppLayout>
-                  <AppHome />
-                </AppLayout>
+                <Navigate to="/app/dashboard" replace />
               </BusinessRoute>
             </ProtectedRoute>
           }

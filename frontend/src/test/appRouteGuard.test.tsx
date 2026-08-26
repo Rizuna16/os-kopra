@@ -28,6 +28,20 @@ describe("App route guard /app (BusinessContext-aware)", () => {
 
   it("authenticated user with current business: /app is allowed", async () => {
     await bootAuth(true);
+    (globalThis as any).fetch = vi.fn(async (url: string) => {
+      if (String(url).includes("/auth/me/")) {
+        return new Response(JSON.stringify({ id: "1", email: "a@b.com", first_name: "", last_name: "", is_email_verified: true }), { status: 200, headers: { "Content-Type": "application/json" } });
+      }
+      if (String(url).includes("/reports/overview/")) {
+        return new Response(JSON.stringify({
+          sales: { total: 0, completed: 0, voided: 0, draft: 0, revenue: "0.00", loyalty_earned: "0.00" },
+          purchasing: { total: 0, confirmed: 0, cancelled: 0, draft: 0, cost: "0.00" },
+          finance: { expense_total: "0.00", journal: { DRAFT: 0, POSTED: 0, REVERSED: 0 }, journal_entry: { DEBIT: "0.00", CREDIT: "0.00" } },
+          counts: { customers: 0, products: 0, variants: 0, employees: 0, employees_active: 0 },
+        }), { status: 200, headers: { "Content-Type": "application/json" } });
+      }
+      return new Response("[]", { status: 200, headers: { "Content-Type": "application/json" } });
+    });
     localStorage.setItem(
       "kopera_businesses",
       JSON.stringify([
@@ -50,7 +64,7 @@ describe("App route guard /app (BusinessContext-aware)", () => {
         </AuthProvider>
       </MemoryRouter>,
     );
-    await waitFor(() => expect(screen.getByTestId("app-home")).toBeTruthy());
+    await waitFor(() => expect(screen.getByTestId("dashboard-business-name")).toBeTruthy());
   });
 
   it("does not accept arbitrary client-created business ids to bypass the guard", async () => {

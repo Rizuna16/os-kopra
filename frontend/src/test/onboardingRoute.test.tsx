@@ -53,7 +53,18 @@ describe("Onboarding route /onboarding", () => {
           { status: 200, headers: { "Content-Type": "application/json" } },
         );
       }
-      return new Response("[]", { status: 200 });
+      if (String(url).includes("/reports/overview/")) {
+        return new Response(
+          JSON.stringify({
+            sales: { total: 0, completed: 0, voided: 0, draft: 0, revenue: "0.00", loyalty_earned: "0.00" },
+            purchasing: { total: 0, confirmed: 0, cancelled: 0, draft: 0, cost: "0.00" },
+            finance: { expense_total: "0.00", journal: { DRAFT: 0, POSTED: 0, REVERSED: 0 }, journal_entry: { DEBIT: "0.00", CREDIT: "0.00" } },
+            counts: { customers: 0, products: 0, variants: 0, employees: 0, employees_active: 0 },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("[]", { status: 200, headers: { "Content-Type": "application/json" } });
     });
     (globalThis as any).fetch = fetchMock;
     localStorage.setItem(
@@ -78,7 +89,7 @@ describe("Onboarding route /onboarding", () => {
     );
     await waitFor(() =>
       expect(
-        screen.getByTestId("app-home").textContent,
+        screen.getByTestId("dashboard-empty"),
       ).toBeTruthy(),
     );
   });

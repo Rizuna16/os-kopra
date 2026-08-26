@@ -74,7 +74,7 @@ describe("Owner Dashboard route /app/dashboard", () => {
     );
   });
 
-  it("existing /app route still resolves to AppHome (non-regression)", async () => {
+  it("existing /app route redirects to /app/dashboard (resolves to OwnerDashboard)", async () => {
     await bootAuth(true);
     seedBusinessContext(BID);
     render(
@@ -85,7 +85,7 @@ describe("Owner Dashboard route /app/dashboard", () => {
       </MemoryRouter>,
     );
     await waitFor(() =>
-      expect(screen.getByTestId("app-home")).toBeTruthy(),
+      expect(screen.getByTestId("dashboard-loading")).toBeTruthy(),
     );
   });
 });
