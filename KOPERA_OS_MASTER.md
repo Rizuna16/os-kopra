@@ -6309,5 +6309,59 @@ GET/PATCH requests targeting:
 
 ---
 
+## 37. FRONTEND SUBSCRIPTION & BILLING V1 — PART 20
+
+### STATUS
+🟢 SELESAI & LOCKED
+- Contract: **FRONTEND SUBSCRIPTION & BILLING V1 — LOCKED**
+- Discovery: **COMPLETE**
+- RED: **COMPLETE — 5 test suites (12 tests)**
+- GREEN: **COMPLETE — 5 test suites (12 tests)**
+- Regression: **COMPLETE — 807/807 PASS (139 test files)**
+- Security/Tenant Audit: **PASS**
+- TypeScript: **PASS (0 errors)**
+- Production build: **PASS (built successfully)**
+- Tenant isolation: **PASS**
+- Lock Boundary: **LOCKED**
+
+### A. EXACT SCOPE & FILES
+- Types modified: `frontend/src/business/types.ts` (`Plan`, `SubscriptionSummary`)
+- Services reused/extended: `frontend/src/business/businessService.ts` (`listPlans`, `createSubscription`)
+- Pages:
+  - `frontend/src/pages/Billing.tsx`
+- Routes added in `frontend/src/routes/router.tsx`:
+  - `/billing` (protected by `ProtectedRoute → BusinessRoute → AppLayout`)
+- Test files created/modified:
+  - `frontend/src/test/billingPlanService.test.ts`
+  - `frontend/src/test/billingSubscriptionService.test.ts`
+  - `frontend/src/test/billingPage.test.tsx`
+  - `frontend/src/test/billingRouter.test.tsx`
+  - `frontend/src/test/plans.test.tsx`
+
+### B. ENDPOINT CONTRACT
+- `GET /api/v1/billing/plans/` (Global active plan catalog, authentication required, no business scope)
+- `POST /api/v1/businesses/<business_id>/subscription/` (Owner-scoped subscription creation, empty body `{}`, initial status `ONBOARDING`)
+
+### C. TENANT ISOLATION
+- `businessId` strictly derived from `useBusiness().currentBusinessId`.
+- No client-side parameter injection or user input of business ID.
+- Plan catalog intentionally lacks business scoping (global catalog).
+- No payment/PART 21 logic or Midtrans integration.
+
+### D. SECURITY AUDIT
+- Authentication: **PASS** (routes under `ProtectedRoute → BusinessRoute → AppLayout`)
+- Business/Tenant Isolation: **PASS**
+- IDOR / Object Access: **PASS**
+- Data Exposure: **PASS** (Plan exposes only id, name, code, amount, currency, billing_interval; amount is string at API/domain boundary)
+- Payment Boundary: **PASS** (No PART 21 / Midtrans / payment functionality in PART 20)
+- Security findings: **CRITICAL 0 / HIGH 0 / MEDIUM 0 / LOW 0**
+
+### E. FORBIDDEN-FILE AUDIT
+- No modifications made to backend code.
+- No modifications to locked frontend modules.
+- Only billing page, route, and test files created/modified.
+
+---
+
 END OF MASTER BLUEPRINT / DOMAIN ROADMAP
 ==================================================

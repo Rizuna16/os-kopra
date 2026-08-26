@@ -20,7 +20,7 @@ export interface Plan {
   id: string;
   name: string;
   code: string;
-  amount: number;
+  amount: string;
   currency: string;
   billing_interval: string;
 }

@@ -74,6 +74,7 @@ import { ReportsPurchasing } from "../pages/ReportsPurchasing";
 import { ReportsFinance } from "../pages/ReportsFinance";
 import { Notifications } from "../pages/Notifications";
 import { NotificationDetail } from "../pages/NotificationDetail";
+import { Billing } from "../pages/Billing";
 
 function BusinessRoute({ children }: { children: ReactNode }) {
   const { currentBusinessId, currentBusiness } = useBusiness();
@@ -798,6 +799,20 @@ export function AppRoutes() {
               <BusinessRoute>
                 <AppLayout>
                   <NotificationDetail />
+                </AppLayout>
+              </BusinessRoute>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Subscription & Billing (PART 20 V1) */}
+        <Route
+          path="/billing"
+          element={
+            <ProtectedRoute>
+              <BusinessRoute>
+                <AppLayout>
+                  <Billing />
                 </AppLayout>
               </BusinessRoute>
             </ProtectedRoute>
