@@ -6376,5 +6376,53 @@ GET/PATCH requests targeting:
 
 ---
 
+## 38. PAYMENT / MIDTRANS FRONTEND V1 — PART 21
+
+### STATUS
+🟢 SELESAI & LOCKED
+- Contract: **PAYMENT / MIDTRANS FRONTEND V1 — LOCKED**
+- Discovery: **COMPLETE**
+- RED: **COMPLETE — 2 test files (6 tests)**
+- GREEN: **COMPLETE — 2 test files (6 tests)**
+- Regression: **COMPLETE — 813/813 PASS**
+- Security/Tenant Audit: **PASS**
+- TypeScript: **PASS (0 errors)**
+- Production build: **PASS (built successfully)**
+- Tenant isolation: **PASS**
+- Lock Boundary: **LOCKED**
+
+### A. EXACT SCOPE & FILES
+- Types modified: `frontend/src/business/types.ts` (`PaymentInitResponse`, `PaymentStatusResponse`)
+- Services extended: `frontend/src/business/businessService.ts` (`initPayment`, `checkPaymentStatus`)
+- Pages modified:
+  - `frontend/src/pages/Billing.tsx` (integrated payment initiation, Midtrans Snap script load / token injection, and polling status check)
+- Test files created/modified:
+  - `frontend/src/test/billingPaymentService.test.ts`
+  - `frontend/src/test/billingPaymentPage.test.tsx`
+
+### B. ENDPOINT CONTRACT
+- `POST /api/v1/businesses/<business_id>/payment/initiate/` (Initiate Midtrans payment session, returns client_key, snap_token, order_id, redirect_url)
+- `GET /api/v1/businesses/<business_id>/payment/status/` (Check current business subscription/payment status)
+
+### C. MIDTRANS BOUNDARY & FRONTEND INTEGRATION
+- Dynamically loads Midtrans Snap JS script (`https://app.sandbox.midtrans.com/snap/snap.js` or configurable client key).
+- Triggers `window.snap.pay(snapToken, { onSuccess, onPending, onError, onClose })`.
+- Handles user payment completion feedback and polls status update.
+- Strictly tenant-isolated via `businessId` derived from `useBusiness().currentBusinessId`.
+
+### D. SECURITY AUDIT
+- Authentication: **PASS** (routes under `ProtectedRoute → BusinessRoute → AppLayout`)
+- Business/Tenant Isolation: **PASS** (`businessId` strictly scoped)
+- IDOR / Object Access: **PASS**
+- Midtrans Client Key & Token Isolation: **PASS** (No secret keys exposed on frontend; backend securely interacts with Midtrans Core API / Snap)
+- Security findings: **CRITICAL 0 / HIGH 0 / MEDIUM 0 / LOW 0**
+
+### E. FORBIDDEN-FILE AUDIT
+- No modifications made to backend code.
+- No modifications to locked frontend modules outside PART 21 scope.
+- Only billing service, types, page, and PART 21 test files created/modified.
+
+---
+
 END OF MASTER BLUEPRINT / DOMAIN ROADMAP
 ==================================================
