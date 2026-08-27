@@ -1,7 +1,6 @@
 from datetime import datetime, time
 from decimal import Decimal
 from django.db.models import Count, F, Sum
-from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 from rest_framework.exceptions import ValidationError
@@ -9,7 +8,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.business.models import Business
 from apps.customer.models import Customer
 from apps.employee.models import Employee
 from apps.finance.models import Expense, Journal, JournalEntry
@@ -17,12 +15,6 @@ from apps.product.models import Product, Variant
 from apps.purchasing.models import PurchaseOrder, PurchaseOrderLine
 from apps.sales.models import Sale, SaleLine
 from apps.authentication.permissions import BusinessAccessMixin
-
-
-def get_owned_business(request, business_id):
-    return get_object_or_404(
-        Business.objects.filter(owner=request.user), pk=business_id
-    )
 
 
 def parse_date_params(request):

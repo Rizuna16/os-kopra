@@ -12,6 +12,7 @@ from apps.inventory.models import Stock
 
 # Reuse PART 18 Reports aggregation (read-only) for revenue metrics.
 from apps.reports.views import sales_metrics
+from apps.authentication.permissions import filter_visible_businesses
 
 
 class ProviderError(Exception):
@@ -75,11 +76,17 @@ def gather_facts(user):
         prev_month = 12
         prev_year -= 1
 
+    # Resolve candidate businesses using canonical visibility helper
+    visible_businesses = filter_visible_businesses(Business.objects.all(), user)
+    # Apply AI-specific owner-only logic in Python (no inline database visibility query)
+    owned_businesses = [b for b in visible_businesses if b.owner_id == user.id]
+    owned_business_ids = [b.id for b in owned_businesses]
+
     # Revenue = summed PART 18 sales_metrics across all owned businesses.
     # Uses existing Reports aggregation; purely derived/aggregate data.
     revenue_this = Decimal("0")
     revenue_prev = Decimal("0")
-    for business in Business.objects.filter(owner=user):
+    for business in owned_businesses:
         cur = sales_metrics(business, *_month_window(now.year, now.month, now))
         revenue_this += Decimal(cur["revenue"])
         prev = sales_metrics(business, *_month_window(prev_year, prev_month, now))
@@ -88,7 +95,7 @@ def gather_facts(user):
     # Best-selling products (aggregate quantity only).
     best = list(
         SaleLine.objects.filter(
-            sale__business__owner=user, sale__status=Sale.Status.COMPLETED
+            sale__business_id__in=owned_business_ids, sale__status=Sale.Status.COMPLETED
         )
         .values("variant__product__name")
         .annotate(q=Sum("quantity"))
@@ -98,7 +105,7 @@ def gather_facts(user):
     # Low / near-out-of-stock products (aggregate quantity only).
     low = list(
         Stock.objects.filter(
-            location__business__owner=user, quantity__lte=Decimal("5")
+            location__business_id__in=owned_business_ids, quantity__lte=Decimal("5")
         )
         .values("variant__product__name")
         .annotate(q=Sum("quantity"))
