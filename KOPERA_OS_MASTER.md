@@ -6932,5 +6932,89 @@ PART 22 Online Store Frontend V1 dinyatakan **SELESAI & LOCKED** setelah Regress
 
 ---
 
+## 41. BACKEND AUTHORIZATION ENGINE CONSOLIDATION — CONTRACT LOCK #6
+
+### STATUS
+🟢 SELESAI & LOCKED
+- Contract: **BACKEND AUTHORIZATION ENGINE CONSOLIDATION — LOCKED**
+- Discovery: **COMPLETE**
+- RED: **COMPLETE — 3 test files (20 tests)**
+- GREEN: **COMPLETE — 3 test files (20 tests)**
+- Regression: **COMPLETE — 1172/1172 PASS**
+- Security/Tenant Audit: **PASS**
+- Lock Boundary: **LOCKED**
+
+### A. AUTHORIZATION FOUNDATION
+Exactly ONE authorization engine controls all tenant operations:
+- `BusinessAccessMixin` (view/request helper for Business resolution)
+- `resolve_business_role(user, business)` (resolves OWNER, ADMIN, KASIR, or None)
+- `ROLE_PERMISSIONS` (single authoritative role-domain-action mapping)
+- `has_business_permission(user, business, domain, action)` (evaluates role vs matrix, with platform superuser bypass)
+- `require_business_permission(domain, action)` (resolves and validates via URL context)
+- `require_object_permission(business, domain, action)` (centralized object-level authorization)
+- `filter_visible_businesses(queryset, user)` (single reusable visibility query helper)
+
+No inline owner/membership/superuser authorization logic is permitted outside this canonical foundation.
+
+### B. SUPER ADMIN CONTRACT
+- `is_superuser` / `IsSuperAdmin` constitutes PLATFORM authority.
+- Platform bypass is enforced in `has_business_permission()` and `require_object_permission()`.
+- Super Admin is NEVER represented as a `BusinessMembership` row or assigned `BusinessMembership.role = "OWNER"`.
+- Access to tenant resources is allowed without mutating membership or ownership tables.
+
+### C. OBJECT-LEVEL AUTHORIZATION CONTRACT
+- `require_object_permission(business, domain, action)` raises:
+  - `NotFound` (404) for non-member or wrong business.
+  - `PermissionDenied` (403) for authorized members with denied roles/actions.
+- Scoping resolves through the server-side object graph:
+  - Stock → Location → Business
+  - Batch → Location → Business
+  - SerialNumber → Batch → Location → Business
+  - OnlineOrder → Business
+- Resource IDs alone cannot bypass business validation.
+
+### D. BUSINESS VISIBILITY CONTRACT
+- `filter_visible_businesses(queryset, user)` filters querysets to businesses owned or membered by the user (distinct).
+- Superusers see all businesses.
+- Used in serializers and listing queries to avoid duplicating Q-filters.
+
+### E. 404 / 403 CONTRACT
+- Cross-business / non-member mismatch → **404 Not Found**
+- Member with insufficient permissions → **403 Forbidden**
+- The distinction is strictly preserved and never collapsed.
+
+### F. TENANT ISOLATION CONTRACT
+- Cross-tenant requests are blocked.
+- Authorization derives from URL parameters or server-side graph, never from client payloads.
+- Client payload tampering (e.g. attempting to assign foreign location/batch/variants) is rejected via serializer validation utilizing `filter_visible_businesses()`.
+
+### G. SECURITY INVARIANTS
+- **INV-AUTH-16**: Exactly one authorization engine exists.
+- **INV-AUTH-17**: All role decisions flow through ROLE_PERMISSIONS.
+- **INV-AUTH-18**: Super Admin bypass is platform-level only.
+- **INV-AUTH-19**: Object-level authorization uses require_object_permission().
+- **INV-AUTH-20**: Business visibility uses filter_visible_businesses().
+- **INV-AUTH-21**: Cross-business mismatch returns 404.
+- **INV-AUTH-22**: Role-denied returns 403.
+- **INV-AUTH-23**: Client payload cannot determine authorization.
+
+### H. IMPLEMENTATION RECORD
+- Production files modified:
+  - `apps/authentication/permissions.py`
+  - `apps/inventory/views.py`
+  - `apps/inventory/serializers.py`
+  - `apps/onlinestore/views.py`
+  - `apps/business/views.py`
+- Test files created:
+  - `apps/inventory/tests/test_contract_lock_6_red.py`
+  - `apps/onlinestore/tests/test_contract_lock_6_red.py`
+- Outcome:
+  - Duplicate authorization logic removed.
+  - Object-level security centralized.
+  - Serializer visibility queries unified.
+  - Platform superuser bypass aligned.
+
+---
+
 END OF MASTER BLUEPRINT / DOMAIN ROADMAP
 ==================================================

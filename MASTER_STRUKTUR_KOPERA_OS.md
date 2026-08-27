@@ -602,4 +602,9 @@ PART 15 PROMOTION & LOYALTY: 🟢 SELESAI & LOCKED.
 - Finance (PART 16) tetap blueprint masa depan.
 - Kontrak v1 + Amendment v1 + implementation: LOCKED.
 
+PART 26 AMENDMENT / CONTRACT LOCK #6 AUTHORIZATION ENGINE CONSOLIDATION: 🟢 SELESAI & LOCKED.
+- Konsolidasi total logic otorisasi menjadi satu engine tunggal.
+- Integrasi `BusinessAccessMixin`, `require_object_permission`, `filter_visible_businesses`, dan platform superuser bypass.
+- Invariant keamanan dikunci: INV-AUTH-16 s/d INV-AUTH-23.
+
 ============================================================

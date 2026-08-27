@@ -206,7 +206,7 @@ class CheckoutView(APIView):
         )
 
 
-class OnlineOrderViewSet(viewsets.ViewSet):
+class OnlineOrderViewSet(BusinessAccessMixin, viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
     def _get_store_by_slug(self, slug):
@@ -214,13 +214,8 @@ class OnlineOrderViewSet(viewsets.ViewSet):
 
     def _get_business(self, request, store):
         business = store.business
-        # Check overall access
-        if not request.user.is_superuser:
-            if business.owner_id != request.user.id and not business.memberships.filter(user=request.user).exists():
-                raise NotFound()
         # Default action for list is "view"
-        if not has_business_permission(request.user, business, "onlinestore", "view"):
-            raise PermissionDenied("You do not have permission to perform this action.")
+        self.require_object_permission(business, "onlinestore", "view")
         return business
 
     def list(self, request, slug=None):
@@ -264,24 +259,16 @@ def _create_sale_for_order(order):
     return sale
 
 
-class OnlineOrderStatusView(APIView):
+class OnlineOrderStatusView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def _get_business_and_order(self, request, business_id, order_id):
-        business = get_object_or_404(
-            Business.objects.filter(
-                Q(owner=request.user) | Q(memberships__user=request.user)
-            ).distinct(),
-            pk=business_id
-        )
+        business = self.get_business()
+        self.require_business_permission("onlinestore", "update")
         order = get_object_or_404(
             OnlineOrder.objects.filter(online_store__business=business),
             pk=order_id,
         )
-        # Check permission to update order status
-        if not request.user.is_superuser:
-            if not has_business_permission(request.user, business, "onlinestore", "update"):
-                raise PermissionDenied("You do not have permission to perform this action.")
         return business, order
 
     def patch(self, request, business_id, order_id):

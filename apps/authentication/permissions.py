@@ -71,6 +71,30 @@ class BusinessAccessMixin:
             )
         return business
 
+    def require_object_permission(self, business, domain, action):
+        """
+        Object-level authorization for a business already resolved from the
+        resource graph (e.g. stock.location.business).
+
+        - Superuser: platform bypass, always allowed.
+        - Non-member / business mismatch: raises NotFound (HTTP 404).
+        - Member with denied role/action: raises PermissionDenied (HTTP 403).
+        - Allowed member: returns the business.
+        """
+        from rest_framework.exceptions import NotFound, PermissionDenied
+
+        user = self.request.user
+        if user.is_superuser:
+            return business
+        role = resolve_business_role(user, business)
+        if role is None:
+            raise NotFound()
+        if not has_business_permission(user, business, domain, action):
+            raise PermissionDenied(
+                "You do not have permission to perform this action."
+            )
+        return business
+
 
 def resolve_business_role(user, business):
     """
@@ -90,6 +114,24 @@ def resolve_business_role(user, business):
     if membership is None:
         return None
     return membership.role
+
+
+def filter_visible_businesses(queryset, user):
+    """
+    Centralized business visibility filter for a Business queryset.
+
+    Returns only businesses where the user is the owner or a
+    BusinessMembership member (distinct). Superusers see all businesses.
+
+    This is the single canonical owner-OR-membership resolver; views and
+    serializers must use it instead of encoding Q(owner=user) |
+    Q(memberships__user=user) inline.
+    """
+    if user.is_superuser:
+        return queryset
+    return queryset.filter(
+        Q(owner=user) | Q(memberships__user=user)
+    ).distinct()
 
 
 # Role permission matrix.
@@ -158,6 +200,10 @@ ROLE_PERMISSIONS = {
     ("ADMIN", "security", "view"): False,
     ("ADMIN", "security", "update"): False,
     ("ADMIN", "backup", "view"): False,
+    ("ADMIN", "location", "view"): True,
+    ("ADMIN", "location", "create"): True,
+    ("ADMIN", "location", "update"): True,
+    ("ADMIN", "location", "delete"): True,
     ("ADMIN", "integration", "view"): False,
 
     # KASIR — transaction executor
@@ -173,6 +219,10 @@ ROLE_PERMISSIONS = {
     ("KASIR", "notification", "view"): True,
     ("KASIR", "onlinestore", "view"): True,
     ("KASIR", "transaction_history", "view"): True,
+    ("KASIR", "location", "view"): False,
+    ("KASIR", "location", "create"): False,
+    ("KASIR", "location", "update"): False,
+    ("KASIR", "location", "delete"): False,
     # Kasir denials
     ("KASIR", "product", "view"): False,
     ("KASIR", "product", "create"): False,
@@ -227,7 +277,11 @@ def has_business_permission(user, business, domain, action):
 
     Owners always pass. Members are checked against ROLE_PERMISSIONS for their
     effective role (resolved from BusinessMembership within this business).
+    Superusers (platform admins) are granted a platform-level bypass without
+    any BusinessMembership or OWNER mutation.
     """
+    if user.is_superuser:
+        return True
     role = resolve_business_role(user, business)
     if role is None:
         return False

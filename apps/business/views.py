@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.authentication.permissions import BusinessAccessMixin, has_business_permission
 from apps.business.models import Business, BusinessMembership, Location, Subscription
 from apps.business.serializers import (
     BusinessCreateSerializer,
@@ -33,21 +34,21 @@ class BusinessCreateView(APIView):
         )
 
 
-class LocationCreateView(APIView):
+class LocationCreateView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, business_id):
-        business = get_object_or_404(
-            Business.objects.filter(owner=request.user), pk=business_id
-        )
+        business = self.get_business()
+        if not has_business_permission(request.user, business, "location", "view"):
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
         locations = Location.objects.filter(business=business)
         serializer = LocationSerializer(locations, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, business_id):
-        business = get_object_or_404(
-            Business.objects.filter(owner=request.user), pk=business_id
-        )
+        business = self.get_business()
+        if not has_business_permission(request.user, business, "location", "create"):
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
         serializer = LocationCreateSerializer(
             data=request.data, context={"business": business}
         )
@@ -59,23 +60,25 @@ class LocationCreateView(APIView):
         )
 
 
-class LocationDetailView(APIView):
+class LocationDetailView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, business_id, id):
+        business = self.get_business()
+        if not has_business_permission(request.user, business, "location", "view"):
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
         location = get_object_or_404(
-            Location.objects.filter(business__owner=request.user),
-            business_id=business_id,
-            pk=id,
+            Location.objects.filter(business=business, pk=id)
         )
         serializer = LocationSerializer(location)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def patch(self, request, business_id, id):
+        business = self.get_business()
+        if not has_business_permission(request.user, business, "location", "update"):
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
         location = get_object_or_404(
-            Location.objects.filter(business__owner=request.user),
-            business_id=business_id,
-            pk=id,
+            Location.objects.filter(business=business, pk=id)
         )
         serializer = LocationSerializer(location, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
@@ -83,10 +86,11 @@ class LocationDetailView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def delete(self, request, business_id, id):
+        business = self.get_business()
+        if not has_business_permission(request.user, business, "location", "delete"):
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
         location = get_object_or_404(
-            Location.objects.filter(business__owner=request.user),
-            business_id=business_id,
-            pk=id,
+            Location.objects.filter(business=business, pk=id)
         )
         location.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

@@ -20,13 +20,15 @@ from apps.inventory.serializers import (
     StockSerializer,
     StockTransferSerializer,
 )
-from apps.authentication.permissions import BusinessAccessMixin, has_business_permission
+from apps.authentication.permissions import (
+    BusinessAccessMixin,
+    has_business_permission,
+    filter_visible_businesses,
+)
 
 
 def get_user_allowed_businesses(user, domain, action):
-    if user.is_superuser:
-        return Business.objects.all()
-    businesses = Business.objects.filter(Q(owner=user) | Q(memberships__user=user)).distinct()
+    businesses = filter_visible_businesses(Business.objects.all(), user)
     return [b for b in businesses if has_business_permission(user, b, domain, action)]
 
 
@@ -65,17 +67,13 @@ class StockCreateView(BusinessAccessMixin, APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class StockDetailView(APIView):
+class StockDetailView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def _get_stock(self, request, id, action):
         stock = get_object_or_404(Stock, pk=id)
         business = stock.location.business
-        if not request.user.is_superuser:
-            if business.owner_id != request.user.id and not business.memberships.filter(user=request.user).exists():
-                raise NotFound()
-        if not has_business_permission(request.user, business, "inventory", action):
-            raise PermissionDenied("You do not have permission to perform this action.")
+        self.require_object_permission(business, "inventory", action)
         return stock
 
     def get(self, request, id):
@@ -96,7 +94,7 @@ class StockDetailView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class StockTransferView(APIView):
+class StockTransferView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -107,11 +105,7 @@ class StockTransferView(APIView):
         # Verify permission on the resolved source location's business
         source_loc = serializer.validated_data["source_location"]
         business = source_loc.business
-        if not request.user.is_superuser:
-            if business.owner_id != request.user.id and not business.memberships.filter(user=request.user).exists():
-                raise NotFound()
-        if not has_business_permission(request.user, business, "inventory", "create"):
-            raise PermissionDenied("You do not have permission to perform this action.")
+        self.require_object_permission(business, "inventory", "create")
 
         result = serializer.save()
         return Response(
@@ -126,7 +120,7 @@ class StockTransferView(APIView):
         )
 
 
-class StockAdjustmentView(APIView):
+class StockAdjustmentView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -136,11 +130,7 @@ class StockAdjustmentView(APIView):
         serializer.is_valid(raise_exception=True)
         location = serializer.validated_data["location"]
         business = location.business
-        if not request.user.is_superuser:
-            if business.owner_id != request.user.id and not business.memberships.filter(user=request.user).exists():
-                raise NotFound()
-        if not has_business_permission(request.user, business, "inventory", "update"):
-            raise PermissionDenied("You do not have permission to perform this action.")
+        self.require_object_permission(business, "inventory", "update")
 
         stock = serializer.save()
         return Response(
@@ -148,7 +138,7 @@ class StockAdjustmentView(APIView):
         )
 
 
-class StockOpnameView(APIView):
+class StockOpnameView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -158,11 +148,7 @@ class StockOpnameView(APIView):
         serializer.is_valid(raise_exception=True)
         location = serializer.validated_data["location"]
         business = location.business
-        if not request.user.is_superuser:
-            if business.owner_id != request.user.id and not business.memberships.filter(user=request.user).exists():
-                raise NotFound()
-        if not has_business_permission(request.user, business, "inventory", "update"):
-            raise PermissionDenied("You do not have permission to perform this action.")
+        self.require_object_permission(business, "inventory", "update")
 
         stock = serializer.create(serializer.validated_data)
         if stock is None:
@@ -175,7 +161,7 @@ class StockOpnameView(APIView):
         )
 
 
-class BatchCreateView(APIView):
+class BatchCreateView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -191,11 +177,7 @@ class BatchCreateView(APIView):
         serializer.is_valid(raise_exception=True)
         location = serializer.validated_data["location"]
         business = location.business
-        if not request.user.is_superuser:
-            if business.owner_id != request.user.id and not business.memberships.filter(user=request.user).exists():
-                raise NotFound()
-        if not has_business_permission(request.user, business, "inventory", "create"):
-            raise PermissionDenied("You do not have permission to perform this action.")
+        self.require_object_permission(business, "inventory", "create")
 
         batch = serializer.save()
         return Response(
@@ -203,17 +185,14 @@ class BatchCreateView(APIView):
         )
 
 
-class BatchDetailView(APIView):
+class BatchDetailView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def _get_batch(self, request, id, action):
         batch = get_object_or_404(Batch, pk=id)
         business = batch.location.business
-        if not request.user.is_superuser:
-            if business.owner_id != request.user.id and not business.memberships.filter(user=request.user).exists():
-                raise NotFound()
-        if not has_business_permission(request.user, business, "inventory", action):
-            raise PermissionDenied("You do not have permission to perform this action.")
+        self.require_object_permission(business, "inventory", action)
+        return batch
         return batch
 
     def get(self, request, id):
@@ -234,7 +213,7 @@ class BatchDetailView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class SerialNumberCreateView(APIView):
+class SerialNumberCreateView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -252,11 +231,7 @@ class SerialNumberCreateView(APIView):
         serializer.is_valid(raise_exception=True)
         batch = serializer.validated_data["batch"]
         business = batch.location.business
-        if not request.user.is_superuser:
-            if business.owner_id != request.user.id and not business.memberships.filter(user=request.user).exists():
-                raise NotFound()
-        if not has_business_permission(request.user, business, "inventory", "create"):
-            raise PermissionDenied("You do not have permission to perform this action.")
+        self.require_object_permission(business, "inventory", "create")
 
         serial = serializer.save()
         return Response(
@@ -264,17 +239,13 @@ class SerialNumberCreateView(APIView):
         )
 
 
-class SerialNumberDetailView(APIView):
+class SerialNumberDetailView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def _get_serial(self, request, id, action):
         serial = get_object_or_404(SerialNumber, pk=id)
         business = serial.batch.location.business
-        if not request.user.is_superuser:
-            if business.owner_id != request.user.id and not business.memberships.filter(user=request.user).exists():
-                raise NotFound()
-        if not has_business_permission(request.user, business, "inventory", action):
-            raise PermissionDenied("You do not have permission to perform this action.")
+        self.require_object_permission(business, "inventory", action)
         return serial
 
     def get(self, request, id):

@@ -5,7 +5,8 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from apps.business.models import Location
+from apps.authentication.permissions import filter_visible_businesses
+from apps.business.models import Business, Location
 from apps.inventory.models import Batch, SerialNumber, Stock
 from apps.product.models import Variant
 
@@ -94,14 +95,14 @@ class StockTransferSerializer(serializers.Serializer):
 
         source_location = get_object_or_404(
             Location.objects.filter(
-                Q(business__owner=request.user) | Q(business__memberships__user=request.user)
-            ).distinct(),
+                business__in=filter_visible_businesses(Business.objects.all(), request.user)
+            ),
             pk=source_id
         )
         dest_location = get_object_or_404(
             Location.objects.filter(
-                Q(business__owner=request.user) | Q(business__memberships__user=request.user)
-            ).distinct(),
+                business__in=filter_visible_businesses(Business.objects.all(), request.user)
+            ),
             pk=dest_id
         )
 
@@ -187,8 +188,8 @@ class StockAdjustmentSerializer(serializers.Serializer):
 
         location = get_object_or_404(
             Location.objects.filter(
-                Q(business__owner=request.user) | Q(business__memberships__user=request.user)
-            ).distinct(),
+                business__in=filter_visible_businesses(Business.objects.all(), request.user)
+            ),
             pk=location_id
         )
         variant = get_object_or_404(
@@ -301,7 +302,10 @@ class BatchCreateSerializer(serializers.Serializer):
     def validate(self, data):
         request = self.context["request"]
         location = get_object_or_404(
-            Location.objects.filter(business__owner=request.user), pk=data["location"]
+            Location.objects.filter(
+                business__in=filter_visible_businesses(Business.objects.all(), request.user)
+            ),
+            pk=data["location"]
         )
         variant = get_object_or_404(
             Variant.objects.filter(product__business=location.business), pk=data["variant"]
@@ -378,8 +382,8 @@ class SerialNumberCreateSerializer(serializers.Serializer):
         request = self.context["request"]
         batch = get_object_or_404(
             Batch.objects.filter(
-                Q(location__business__owner=request.user) | Q(location__business__memberships__user=request.user)
-            ).distinct(),
+                location__business__in=filter_visible_businesses(Business.objects.all(), request.user)
+            ),
             pk=data["batch"],
         )
         if SerialNumber.objects.filter(serial_number=data["serial_number"]).exists():
@@ -415,8 +419,8 @@ class StockOpnameSerializer(serializers.Serializer):
 
         location = get_object_or_404(
             Location.objects.filter(
-                Q(business__owner=request.user) | Q(business__memberships__user=request.user)
-            ).distinct(),
+                business__in=filter_visible_businesses(Business.objects.all(), request.user)
+            ),
             pk=location_id
         )
         variant = get_object_or_404(
