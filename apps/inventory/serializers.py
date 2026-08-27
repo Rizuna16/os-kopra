@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django.db import transaction
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
@@ -92,10 +93,16 @@ class StockTransferSerializer(serializers.Serializer):
             )
 
         source_location = get_object_or_404(
-            Location.objects.filter(business__owner=request.user), pk=source_id
+            Location.objects.filter(
+                Q(business__owner=request.user) | Q(business__memberships__user=request.user)
+            ).distinct(),
+            pk=source_id
         )
         dest_location = get_object_or_404(
-            Location.objects.filter(business__owner=request.user), pk=dest_id
+            Location.objects.filter(
+                Q(business__owner=request.user) | Q(business__memberships__user=request.user)
+            ).distinct(),
+            pk=dest_id
         )
 
         if source_location.business_id != dest_location.business_id:
@@ -179,7 +186,10 @@ class StockAdjustmentSerializer(serializers.Serializer):
         quantity = data["quantity"]
 
         location = get_object_or_404(
-            Location.objects.filter(business__owner=request.user), pk=location_id
+            Location.objects.filter(
+                Q(business__owner=request.user) | Q(business__memberships__user=request.user)
+            ).distinct(),
+            pk=location_id
         )
         variant = get_object_or_404(
             Variant.objects.filter(product__business=location.business), pk=variant_id
@@ -367,7 +377,9 @@ class SerialNumberCreateSerializer(serializers.Serializer):
     def validate(self, data):
         request = self.context["request"]
         batch = get_object_or_404(
-            Batch.objects.filter(location__business__owner=request.user),
+            Batch.objects.filter(
+                Q(location__business__owner=request.user) | Q(location__business__memberships__user=request.user)
+            ).distinct(),
             pk=data["batch"],
         )
         if SerialNumber.objects.filter(serial_number=data["serial_number"]).exists():
@@ -402,7 +414,10 @@ class StockOpnameSerializer(serializers.Serializer):
         variant_id = data["variant"]
 
         location = get_object_or_404(
-            Location.objects.filter(business__owner=request.user), pk=location_id
+            Location.objects.filter(
+                Q(business__owner=request.user) | Q(business__memberships__user=request.user)
+            ).distinct(),
+            pk=location_id
         )
         variant = get_object_or_404(
             Variant.objects.filter(product__business=location.business), pk=variant_id

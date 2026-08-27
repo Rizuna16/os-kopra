@@ -102,6 +102,11 @@ class Subscription(models.Model):
 
 
 class BusinessMembership(models.Model):
+    class Role(models.TextChoices):
+        OWNER = "OWNER", "Owner"
+        ADMIN = "ADMIN", "Admin"
+        KASIR = "KASIR", "Kasir"
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     business = models.ForeignKey(
         Business,
@@ -112,6 +117,11 @@ class BusinessMembership(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="business_memberships",
+    )
+    role = models.CharField(
+        max_length=20,
+        choices=Role.choices,
+        default=Role.KASIR,
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

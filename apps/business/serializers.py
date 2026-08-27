@@ -63,6 +63,7 @@ class SubscriptionCreateSerializer(serializers.ModelSerializer):
 
 class MemberCreateSerializer(serializers.Serializer):
     user_id = serializers.UUIDField()
+    role = serializers.ChoiceField(choices=BusinessMembership.Role.choices, default=BusinessMembership.Role.KASIR)
 
     def validate_user_id(self, value):
         business = self.context["business"]
@@ -84,6 +85,7 @@ class MemberCreateSerializer(serializers.Serializer):
         return BusinessMembership.objects.create(
             business=self.context["business"],
             user=validated_data["user_id"],
+            role=validated_data.get("role", BusinessMembership.Role.KASIR),
         )
 
 
@@ -99,5 +101,5 @@ class MemberSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BusinessMembership
-        fields = ["id", "business", "user", "created_at", "updated_at"]
+        fields = ["id", "business", "user", "role", "created_at", "updated_at"]
         read_only_fields = ["id", "business", "user", "created_at", "updated_at"]

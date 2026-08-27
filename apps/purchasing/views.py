@@ -11,23 +11,20 @@ from apps.purchasing.serializers import (
     PurchaseOrderSerializer,
     PurchaseOrderUpdateSerializer,
 )
+from apps.authentication.permissions import BusinessAccessMixin
 
 
-class PurchaseOrderListView(APIView):
+class PurchaseOrderListView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, business_id):
-        business = get_object_or_404(
-            Business.objects.filter(owner=request.user), pk=business_id
-        )
+        business = self.require_business_permission("purchasing", "view")
         purchase_orders = PurchaseOrder.objects.filter(business=business)
         serializer = PurchaseOrderSerializer(purchase_orders, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, business_id):
-        business = get_object_or_404(
-            Business.objects.filter(owner=request.user), pk=business_id
-        )
+        business = self.require_business_permission("purchasing", "create")
         serializer = PurchaseOrderCreateSerializer(
             data=request.data, context={"business": business, "request": request}
         )
@@ -39,20 +36,22 @@ class PurchaseOrderListView(APIView):
         )
 
 
-class PurchaseOrderDetailView(APIView):
+class PurchaseOrderDetailView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, business_id, id):
+        business = self.require_business_permission("purchasing", "view")
         purchase_order = get_object_or_404(
-            PurchaseOrder.objects.filter(business__owner=request.user), pk=id
+            PurchaseOrder.objects.filter(business=business), pk=id
         )
         return Response(
             PurchaseOrderSerializer(purchase_order).data, status=status.HTTP_200_OK
         )
 
     def patch(self, request, business_id, id):
+        business = self.require_business_permission("purchasing", "update")
         purchase_order = get_object_or_404(
-            PurchaseOrder.objects.filter(business__owner=request.user), pk=id
+            PurchaseOrder.objects.filter(business=business), pk=id
         )
         serializer = PurchaseOrderUpdateSerializer(
             purchase_order,
@@ -67,8 +66,9 @@ class PurchaseOrderDetailView(APIView):
         )
 
     def delete(self, request, business_id, id):
+        business = self.require_business_permission("purchasing", "delete")
         purchase_order = get_object_or_404(
-            PurchaseOrder.objects.filter(business__owner=request.user), pk=id
+            PurchaseOrder.objects.filter(business=business), pk=id
         )
         purchase_order.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

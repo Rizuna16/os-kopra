@@ -2,11 +2,13 @@ from decimal import Decimal
 
 from django.db import transaction
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 from rest_framework import status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.exceptions import PermissionDenied, NotFound
 
 from apps.business.models import Business, Location
 from apps.customer.models import Customer
@@ -35,23 +37,19 @@ from apps.onlinestore.serializers import (
 )
 from apps.product.models import Product, Variant
 from apps.sales.models import Sale
+from apps.authentication.permissions import BusinessAccessMixin, has_business_permission
 
 
-class OnlineStoreViewSet(viewsets.ViewSet):
+class OnlineStoreViewSet(BusinessAccessMixin, viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
-    def _get_business(self, request, business_id):
-        return get_object_or_404(
-            Business.objects.filter(owner=request.user), pk=business_id
-        )
-
     def list(self, request, business_id=None):
-        business = self._get_business(request, business_id)
+        business = self.require_business_permission("onlinestore", "view")
         stores = OnlineStore.objects.filter(business=business)
         return Response(OnlineStoreSerializer(stores, many=True).data)
 
     def create(self, request, business_id=None):
-        business = self._get_business(request, business_id)
+        business = self.require_business_permission("onlinestore", "create")
         serializer = OnlineStoreCreateSerializer(
             data=request.data, context={"business": business, "request": request}
         )
@@ -62,14 +60,14 @@ class OnlineStoreViewSet(viewsets.ViewSet):
         )
 
     def retrieve(self, request, business_id=None, pk=None):
-        business = self._get_business(request, business_id)
+        business = self.require_business_permission("onlinestore", "view")
         store = get_object_or_404(
             OnlineStore.objects.filter(business=business), pk=pk
         )
         return Response(OnlineStoreSerializer(store).data)
 
     def partial_update(self, request, business_id=None, pk=None):
-        business = self._get_business(request, business_id)
+        business = self.require_business_permission("onlinestore", "update")
         store = get_object_or_404(
             OnlineStore.objects.filter(business=business), pk=pk
         )
@@ -81,7 +79,7 @@ class OnlineStoreViewSet(viewsets.ViewSet):
         return Response(OnlineStoreSerializer(store).data)
 
     def destroy(self, request, business_id=None, pk=None):
-        business = self._get_business(request, business_id)
+        business = self.require_business_permission("onlinestore", "delete")
         store = get_object_or_404(
             OnlineStore.objects.filter(business=business), pk=pk
         )
@@ -89,13 +87,11 @@ class OnlineStoreViewSet(viewsets.ViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class OnlineStoreProductViewSet(viewsets.ViewSet):
+class OnlineStoreProductViewSet(BusinessAccessMixin, viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
     def _get_store(self, request, business_id, store_id):
-        business = get_object_or_404(
-            Business.objects.filter(owner=request.user), pk=business_id
-        )
+        business = self.require_business_permission("onlinestore", "update")
         return get_object_or_404(
             OnlineStore.objects.filter(business=business), pk=store_id
         )
@@ -217,9 +213,15 @@ class OnlineOrderViewSet(viewsets.ViewSet):
         return get_object_or_404(OnlineStore.objects.all(), slug=slug)
 
     def _get_business(self, request, store):
-        return get_object_or_404(
-            Business.objects.filter(owner=request.user), pk=store.business_id
-        )
+        business = store.business
+        # Check overall access
+        if not request.user.is_superuser:
+            if business.owner_id != request.user.id and not business.memberships.filter(user=request.user).exists():
+                raise NotFound()
+        # Default action for list is "view"
+        if not has_business_permission(request.user, business, "onlinestore", "view"):
+            raise PermissionDenied("You do not have permission to perform this action.")
+        return business
 
     def list(self, request, slug=None):
         store = self._get_store_by_slug(slug)
@@ -267,12 +269,19 @@ class OnlineOrderStatusView(APIView):
 
     def _get_business_and_order(self, request, business_id, order_id):
         business = get_object_or_404(
-            Business.objects.filter(owner=request.user), pk=business_id
+            Business.objects.filter(
+                Q(owner=request.user) | Q(memberships__user=request.user)
+            ).distinct(),
+            pk=business_id
         )
         order = get_object_or_404(
             OnlineOrder.objects.filter(online_store__business=business),
             pk=order_id,
         )
+        # Check permission to update order status
+        if not request.user.is_superuser:
+            if not has_business_permission(request.user, business, "onlinestore", "update"):
+                raise PermissionDenied("You do not have permission to perform this action.")
         return business, order
 
     def patch(self, request, business_id, order_id):

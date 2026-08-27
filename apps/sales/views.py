@@ -11,23 +11,20 @@ from apps.sales.serializers import (
     SaleSerializer,
     SaleUpdateSerializer,
 )
+from apps.authentication.permissions import BusinessAccessMixin
 
 
-class SaleListView(APIView):
+class SaleListView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, business_id):
-        business = get_object_or_404(
-            Business.objects.filter(owner=request.user), pk=business_id
-        )
+        business = self.require_business_permission("sales", "view")
         sales = Sale.objects.filter(business=business)
         serializer = SaleSerializer(sales, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, business_id):
-        business = get_object_or_404(
-            Business.objects.filter(owner=request.user), pk=business_id
-        )
+        business = self.require_business_permission("sales", "create")
         serializer = SaleCreateSerializer(
             data=request.data, context={"business": business, "request": request}
         )
@@ -38,18 +35,20 @@ class SaleListView(APIView):
         )
 
 
-class SaleDetailView(APIView):
+class SaleDetailView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, business_id, id):
+        business = self.require_business_permission("sales", "view")
         sale = get_object_or_404(
-            Sale.objects.filter(business__owner=request.user), pk=id
+            Sale.objects.filter(business=business), pk=id
         )
         return Response(SaleSerializer(sale).data, status=status.HTTP_200_OK)
 
     def patch(self, request, business_id, id):
+        business = self.require_business_permission("sales", "update")
         sale = get_object_or_404(
-            Sale.objects.filter(business__owner=request.user), pk=id
+            Sale.objects.filter(business=business), pk=id
         )
         serializer = SaleUpdateSerializer(
             sale,
@@ -62,8 +61,9 @@ class SaleDetailView(APIView):
         return Response(SaleSerializer(sale).data, status=status.HTTP_200_OK)
 
     def delete(self, request, business_id, id):
+        business = self.require_business_permission("sales", "delete")
         sale = get_object_or_404(
-            Sale.objects.filter(business__owner=request.user), pk=id
+            Sale.objects.filter(business=business), pk=id
         )
         sale.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

@@ -1,7 +1,5 @@
 from datetime import datetime, time
-
 from decimal import Decimal
-
 from django.db.models import Count, F, Sum
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -18,6 +16,7 @@ from apps.finance.models import Expense, Journal, JournalEntry
 from apps.product.models import Product, Variant
 from apps.purchasing.models import PurchaseOrder, PurchaseOrderLine
 from apps.sales.models import Sale, SaleLine
+from apps.authentication.permissions import BusinessAccessMixin
 
 
 def get_owned_business(request, business_id):
@@ -67,6 +66,7 @@ def to_money(value):
 def sales_metrics(business, dt_from, dt_to):
     sale_filter = date_filters(dt_from, dt_to, "created_at__")
     base = Sale.objects.filter(business=business, **sale_filter)
+
     total = base.count()
     draft = base.filter(status=Sale.Status.DRAFT).count()
     completed = base.filter(status=Sale.Status.COMPLETED).count()
@@ -169,9 +169,7 @@ def counts_metrics(business):
     products = Product.objects.filter(business=business).count()
     variants = Variant.objects.filter(product__business=business).count()
     employees = Employee.objects.filter(business=business).count()
-    employees_active = Employee.objects.filter(
-        business=business, active=True
-    ).count()
+    employees_active = Employee.objects.filter(business=business, active=True).count()
     return {
         "customers": customers,
         "products": products,
@@ -181,11 +179,11 @@ def counts_metrics(business):
     }
 
 
-class OverviewView(APIView):
+class OverviewView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, business_id):
-        business = get_owned_business(request, business_id)
+        business = self.require_business_permission("reports", "view")
         dt_from, dt_to = parse_date_params(request)
         return Response(
             {
@@ -198,28 +196,28 @@ class OverviewView(APIView):
         )
 
 
-class SalesReportView(APIView):
+class SalesReportView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, business_id):
-        business = get_owned_business(request, business_id)
+        business = self.require_business_permission("reports", "view")
         dt_from, dt_to = parse_date_params(request)
         return Response(sales_metrics(business, dt_from, dt_to), status=200)
 
 
-class PurchasingReportView(APIView):
+class PurchasingReportView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, business_id):
-        business = get_owned_business(request, business_id)
+        business = self.require_business_permission("reports", "view")
         dt_from, dt_to = parse_date_params(request)
         return Response(purchasing_metrics(business, dt_from, dt_to), status=200)
 
 
-class FinanceReportView(APIView):
+class FinanceReportView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, business_id):
-        business = get_owned_business(request, business_id)
+        business = self.require_business_permission("reports", "view")
         dt_from, dt_to = parse_date_params(request)
         return Response(finance_metrics(business, dt_from, dt_to), status=200)

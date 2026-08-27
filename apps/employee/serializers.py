@@ -9,6 +9,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "business",
+            "user",
             "name",
             "code",
             "hire_date",
@@ -16,7 +17,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
-        read_only_fields = ["business", "created_at", "updated_at"]
+        read_only_fields = ["business", "user", "created_at", "updated_at"]
 
     def validate_code(self, value):
         if value:

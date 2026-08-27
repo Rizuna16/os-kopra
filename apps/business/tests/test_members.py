@@ -47,13 +47,14 @@ class TestMemberCreateView:
     def test_owner_can_add_member(self, auth_client, business, other_user):
         response = auth_client.post(
             f"/api/v1/businesses/{business.id}/members/",
-            {"user_id": str(other_user.id)},
+            {"user_id": str(other_user.id), "role": "ADMIN"},
             content_type="application/json",
         )
         assert response.status_code == 201
         assert "id" in response.data
         assert response.data["business"] == str(business.id)
         assert response.data["user"]["id"] == str(other_user.id)
+        assert response.data["role"] == "ADMIN"
 
     def test_added_member_connected_to_business(self, auth_client, business, other_user):
         auth_client.post(

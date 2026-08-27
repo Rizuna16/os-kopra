@@ -1,5 +1,6 @@
 import uuid
 
+from django.conf import settings
 from django.db import models
 
 from apps.business.models import Business
@@ -11,6 +12,13 @@ class Employee(models.Model):
         Business,
         on_delete=models.CASCADE,
         related_name="employees",
+    )
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="employee_profile",
     )
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=50, null=True, blank=True)

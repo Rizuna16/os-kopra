@@ -93,6 +93,220 @@ Business
 
 > Jangan membuat endpoint Dashboard dari dokumentasi ini.
 
+---
+
+## 5.1. CORE BUSINESS ARCHITECTURE (PRINSIP ARSITEKTUR INTI — SOURCE OF TRUTH)
+
+> Section ini adalah **source-of-truth wajib** untuk seluruh implementasi frontend/backend
+> KOPERA OS. Section ini **menormalisasi dan memperluas** §4 STRUKTUR BISNIS, §5 OWNER, dan
+> §9 ROLE. Kontrak yang sudah ada di master ini **tetap valid** dan tidak dihapus.
+>
+> Pemetaan terminologi (konsisten dengan §4 / §9):
+> - **OWNER** = pemilik Account (akun pemilik bisnis).
+> - **USAHA** = **Business** (business context tersendiri).
+> - **PEGAWAI** = **User** yang ditugaskan ke sebuah USAHA (Admin / Kasir / Gudang / dst).
+> - **LOKASI** = **Location** (cabang dalam satu USAHA, lihat §4).
+
+### 5.1.0. PRINSIP FUNDAMENTAL
+
+**KOPERA bukan POS saja.**
+
+KOPERA adalah **Retail Operating System** untuk mengelola keseluruhan operasional bisnis
+retail Indonesia. POS / transaksi hanyalah salah satu domain, bukan keseluruhan produk.
+
+```
+KOPERA
+│
+├── OWNER
+│   │
+│   ├── USAHA 1
+│   │   ├── Brand
+│   │   ├── Produk
+│   │   ├── Inventory
+│   │   ├── Penjualan
+│   │   ├── Customer
+│   │   ├── Supplier
+│   │   ├── Keuangan
+│   │   │
+│   │   └── PEGAWAI
+│   │       ├── Admin
+│   │       ├── Kasir
+│   │       └── Gudang
+│   │
+│   ├── USAHA 2
+│   │   ├── Brand
+│   │   ├── Produk
+│   │   ├── Inventory
+│   │   ├── Penjualan
+│   │   ├── Customer
+│   │   ├── Supplier
+│   │   ├── Keuangan
+│   │   │
+│   │   └── PEGAWAI
+│   │       ├── Admin
+│   │       └── Mekanik
+│   │
+│   └── USAHA 3
+│       ├── Brand
+│       ├── Produk
+│       ├── Inventory
+│       ├── Penjualan
+│       ├── Customer
+│       ├── Supplier
+│       ├── Keuangan
+│       │
+│       └── PEGAWAI
+│           ├── Admin
+│           └── Kasir
+```
+
+### 5.1.1. ONE OWNER → MANY USAHA
+
+Satu OWNER dapat memiliki beberapa USAHA.
+
+```
+OWNER
+├── Usaha A
+├── Usaha B
+└── Usaha C
+```
+
+Setiap USAHA merupakan **business context** tersendiri (setara dengan `Business` di §4).
+
+### 5.1.2. USAHA ADALAH BUSINESS CONTEXT
+
+Setiap USAHA memiliki data dan operasionalnya sendiri:
+
+- Identitas usaha
+- Brand
+- Logo
+- Warna brand
+- Lokasi
+- Produk
+- Kategori
+- Varian
+- Harga
+- Barcode
+- Inventory
+- Stok
+- Penjualan
+- Pembelian
+- Customer
+- Supplier
+- Keuangan
+- Online Store
+- Pegawai
+- Role
+- Permission
+- Pengaturan
+
+### 5.1.3. PEGAWAI BERADA DI BAWAH USAHA
+
+Pegawai **bukan** entitas operasional global yang otomatis berlaku ke seluruh usaha.
+
+```
+OWNER
+↓
+USAHA
+↓
+PEGAWAI
+↓
+ROLE / PERMISSION
+```
+
+Contoh:
+
+```
+Usaha A: Admin, Kasir, Gudang
+Usaha B: Admin, Mekanik
+Usaha C: Admin, Kasir
+```
+
+Role pegawai dapat berbeda antar-USAHA sesuai kebutuhan bisnis. (Sesuai §9, role dasar
+meliputi Owner / Manager / Supervisor / Kasir / Gudang; section ini menambahkan konteks
+bahwa penugasan pegawai bersifat per-USAHA.)
+
+### 5.1.4. DATA USAHA HARUS TERISOLASI
+
+Data dari satu USAHA **tidak boleh** bocor atau tercampur dengan USAHA lain.
+
+```
+USAHA A: Produk A, Stok A, Customer A, Supplier A, Transaksi A, Pegawai A
+USAHA B: Produk B, Stok B, Customer B, Supplier B, Transaksi B, Pegawai B
+```
+
+- Produk A tidak boleh muncul sebagai produk Usaha B.
+- Customer A tidak boleh muncul sebagai customer Usaha B.
+- Stok A tidak boleh dihitung sebagai stok Usaha B.
+- Pegawai A tidak otomatis menjadi pegawai Usaha B.
+
+Cross-business aggregation **hanya boleh** dilakukan jika secara eksplisit didefinisikan
+oleh contract / product requirement (lihat §5 OWNER DASHBOARD — scope multi-business
+saat ini masih DEFERRED).
+
+### 5.1.5. ROLE DISTINCTION
+
+- **OWNER** → Mengendalikan bisnis. Mengelola satu atau beberapa USAHA sesuai subscription
+  dan permission system. Melihat/mengelola business context yang dipilih.
+- **ADMIN** → Mengelola operasional USAHA. Bekerja dalam business context tertentu dan
+  **tidak** otomatis memperoleh akses ke USAHA lain milik OWNER.
+- **KASIR** → Melakukan transaksi. Bekerja dalam USAHA yang ditugaskan, dengan permission
+  sesuai role.
+- **KOPERA SUPER ADMIN** → Mengelola **PLATFORM KOPERA**. Berbeda dengan OWNER: OWNER
+  mengelola bisnisnya, SUPER ADMIN mengelola platform KOPERA.
+
+### 5.1.6. KOPERA ADALAH RETAIL OPERATING SYSTEM (BUKAN POS SAJA)
+
+Domain utama mencakup:
+
+- Business Management
+- Product Management
+- Inventory
+- Sales
+- Purchasing
+- Customer
+- Supplier
+- Finance
+- Employee
+- Reports
+- Online Store
+- Notification
+- Subscription & Billing
+- Platform Administration
+- Security
+- Monitoring
+- Backup
+- AI / intelligent business capabilities
+
+Implementasi frontend **tidak** boleh dibangun dengan paradigma "aplikasi kasir dengan
+beberapa menu tambahan", melainkan paradigma "Operating System untuk menjalankan bisnis
+retail."
+
+### 5.1.7. IMPLEMENTATION RULE (WAJIB UNTUK SETIAP FITUR BARU)
+
+Sebelum membuat UI atau route baru, verifikasi rantai:
+
+```
+OWNER → USAHA → BUSINESS CONTEXT → MODULE → PEGAWAI / ROLE / PERMISSION
+```
+
+Checklist wajib:
+
+1. Siapa role yang menggunakan fitur?
+2. USAHA mana yang menjadi context?
+3. Data milik usaha mana?
+4. Apakah fitur berlaku untuk satu usaha atau beberapa usaha?
+5. Apakah employee role memiliki akses?
+6. Apakah permission diperlukan?
+7. Apakah data harus terisolasi?
+8. Apakah backend contract sudah tersedia?
+9. Apakah fitur merupakan bagian V1 atau future scope?
+
+> Jangan membuat UI berdasarkan asumsi. Pastikan backend contract (lihat status modul di
+> §18.x) sudah LOCKED sebelum membangun fitur.
+
+---
+
 ==================================================
 OWNER DASHBOARD — RETAIL OS (POST-V1 / DISCOVERY)
 ==================================================

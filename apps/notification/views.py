@@ -5,12 +5,7 @@ from rest_framework.views import APIView
 
 from apps.business.models import Business
 from apps.notification.models import Notification
-
-
-def get_owned_business(request, business_id):
-    return get_object_or_404(
-        Business.objects.filter(owner=request.user), pk=business_id
-    )
+from apps.authentication.permissions import BusinessAccessMixin
 
 
 def serialize_notification(notification):
@@ -24,11 +19,11 @@ def serialize_notification(notification):
     }
 
 
-class NotificationListView(APIView):
+class NotificationListView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, business_id):
-        business = get_owned_business(request, business_id)
+        business = self.require_business_permission("notification", "view")
         notifications = Notification.objects.filter(
             business=business, recipient=request.user
         ).order_by("-created_at")
@@ -37,11 +32,11 @@ class NotificationListView(APIView):
         )
 
 
-class NotificationDetailView(APIView):
+class NotificationDetailView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, business_id, notification_id):
-        business = get_owned_business(request, business_id)
+        business = self.require_business_permission("notification", "view")
         notification = get_object_or_404(
             Notification,
             business=business,
@@ -51,11 +46,11 @@ class NotificationDetailView(APIView):
         return Response(serialize_notification(notification), status=200)
 
 
-class NotificationReadView(APIView):
+class NotificationReadView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def patch(self, request, business_id, notification_id):
-        business = get_owned_business(request, business_id)
+        business = self.require_business_permission("notification", "view")
         notification = get_object_or_404(
             Notification,
             business=business,

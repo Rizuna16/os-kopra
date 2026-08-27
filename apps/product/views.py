@@ -13,15 +13,14 @@ from apps.product.serializers import (
     VariantCreateSerializer,
     VariantSerializer,
 )
+from apps.authentication.permissions import BusinessAccessMixin
 
 
-class ProductCreateView(APIView):
+class ProductCreateView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, business_id):
-        business = get_object_or_404(
-            Business.objects.filter(owner=request.user), pk=business_id
-        )
+        business = self.require_business_permission("product", "create")
         serializer = ProductCreateSerializer(
             data=request.data, context={"business": business}
         )
@@ -33,21 +32,17 @@ class ProductCreateView(APIView):
         )
 
     def get(self, request, business_id):
-        business = get_object_or_404(
-            Business.objects.filter(owner=request.user), pk=business_id
-        )
+        business = self.require_business_permission("product", "view")
         products = Product.objects.filter(business=business)
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class ProductDetailView(APIView):
+class ProductDetailView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, business_id, product_id):
-        business = get_object_or_404(
-            Business.objects.filter(owner=request.user), pk=business_id
-        )
+        business = self.require_business_permission("product", "view")
         product = get_object_or_404(
             Product.objects.filter(business=business), pk=product_id
         )
@@ -55,9 +50,7 @@ class ProductDetailView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def patch(self, request, business_id, product_id):
-        business = get_object_or_404(
-            Business.objects.filter(owner=request.user), pk=business_id
-        )
+        business = self.require_business_permission("product", "update")
         product = get_object_or_404(
             Product.objects.filter(business=business), pk=product_id
         )
@@ -71,9 +64,7 @@ class ProductDetailView(APIView):
         )
 
     def delete(self, request, business_id, product_id):
-        business = get_object_or_404(
-            Business.objects.filter(owner=request.user), pk=business_id
-        )
+        business = self.require_business_permission("product", "delete")
         product = get_object_or_404(
             Product.objects.filter(business=business), pk=product_id
         )
@@ -81,13 +72,11 @@ class ProductDetailView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class VariantDetailView(APIView):
+class VariantDetailView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, business_id, product_id, variant_id):
-        business = get_object_or_404(
-            Business.objects.filter(owner=request.user), pk=business_id
-        )
+        business = self.require_business_permission("product", "view")
         product = get_object_or_404(
             Product.objects.filter(business=business), pk=product_id
         )
@@ -98,9 +87,7 @@ class VariantDetailView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def patch(self, request, business_id, product_id, variant_id):
-        business = get_object_or_404(
-            Business.objects.filter(owner=request.user), pk=business_id
-        )
+        business = self.require_business_permission("product", "update")
         product = get_object_or_404(
             Product.objects.filter(business=business), pk=product_id
         )
@@ -117,9 +104,7 @@ class VariantDetailView(APIView):
         )
 
     def delete(self, request, business_id, product_id, variant_id):
-        business = get_object_or_404(
-            Business.objects.filter(owner=request.user), pk=business_id
-        )
+        business = self.require_business_permission("product", "delete")
         product = get_object_or_404(
             Product.objects.filter(business=business), pk=product_id
         )
@@ -130,13 +115,11 @@ class VariantDetailView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class VariantCreateView(APIView):
+class VariantCreateView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, business_id, product_id):
-        business = get_object_or_404(
-            Business.objects.filter(owner=request.user), pk=business_id
-        )
+        business = self.require_business_permission("product", "view")
         product = get_object_or_404(
             Product.objects.filter(business=business), pk=product_id
         )
@@ -145,9 +128,7 @@ class VariantCreateView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, business_id, product_id):
-        business = get_object_or_404(
-            Business.objects.filter(owner=request.user), pk=business_id
-        )
+        business = self.require_business_permission("product", "create")
         product = get_object_or_404(
             Product.objects.filter(business=business), pk=product_id
         )

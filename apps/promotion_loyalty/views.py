@@ -18,15 +18,21 @@ from .serializers import (
     PromotionSerializer,
     PromotionUpdateSerializer,
 )
+from apps.authentication.permissions import BusinessAccessMixin
 
 
-class PromotionListView(APIView):
+def _get_loyalty_program(view_instance, request, business_id, program_id):
+    business = view_instance.require_business_permission("promotion", "view")
+    return get_object_or_404(
+        LoyaltyProgram.objects.filter(business=business), pk=program_id
+    )
+
+
+class PromotionListView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, business_id):
-        business = get_object_or_404(
-            Business.objects.filter(owner=request.user), pk=business_id
-        )
+        business = self.require_business_permission("promotion", "view")
         promotions = Promotion.objects.filter(business=business)
         return Response(
             PromotionSerializer(promotions, many=True).data,
@@ -34,9 +40,7 @@ class PromotionListView(APIView):
         )
 
     def post(self, request, business_id):
-        business = get_object_or_404(
-            Business.objects.filter(owner=request.user), pk=business_id
-        )
+        business = self.require_business_permission("promotion", "create")
         serializer = PromotionCreateSerializer(
             data=request.data, context={"business": business, "request": request}
         )
@@ -47,23 +51,22 @@ class PromotionListView(APIView):
         )
 
 
-class PromotionDetailView(APIView):
+class PromotionDetailView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, business_id, id):
+        business = self.require_business_permission("promotion", "view")
         promotion = get_object_or_404(
-            Promotion.objects.filter(business__owner=request.user), pk=id
+            Promotion.objects.filter(business=business), pk=id
         )
         return Response(
             PromotionSerializer(promotion).data, status=status.HTTP_200_OK
         )
 
     def patch(self, request, business_id, id):
+        business = self.require_business_permission("promotion", "update")
         promotion = get_object_or_404(
-            Promotion.objects.filter(business__owner=request.user), pk=id
-        )
-        business = get_object_or_404(
-            Business.objects.filter(owner=request.user), pk=business_id
+            Promotion.objects.filter(business=business), pk=id
         )
         serializer = PromotionUpdateSerializer(
             promotion,
@@ -78,20 +81,19 @@ class PromotionDetailView(APIView):
         )
 
     def delete(self, request, business_id, id):
+        business = self.require_business_permission("promotion", "delete")
         promotion = get_object_or_404(
-            Promotion.objects.filter(business__owner=request.user), pk=id
+            Promotion.objects.filter(business=business), pk=id
         )
         promotion.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class LoyaltyProgramListView(APIView):
+class LoyaltyProgramListView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, business_id):
-        business = get_object_or_404(
-            Business.objects.filter(owner=request.user), pk=business_id
-        )
+        business = self.require_business_permission("promotion", "view")
         programs = LoyaltyProgram.objects.filter(business=business)
         return Response(
             LoyaltyProgramSerializer(programs, many=True).data,
@@ -99,9 +101,7 @@ class LoyaltyProgramListView(APIView):
         )
 
     def post(self, request, business_id):
-        business = get_object_or_404(
-            Business.objects.filter(owner=request.user), pk=business_id
-        )
+        business = self.require_business_permission("promotion", "create")
         serializer = LoyaltyProgramCreateSerializer(
             data=request.data, context={"business": business, "request": request}
         )
@@ -112,23 +112,25 @@ class LoyaltyProgramListView(APIView):
         )
 
 
-class LoyaltyProgramDetailView(APIView):
+class LoyaltyProgramDetailView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, business_id, id):
+        business = self.require_business_permission("promotion", "view")
         program = get_object_or_404(
-            LoyaltyProgram.objects.filter(business__owner=request.user), pk=id
+            LoyaltyProgram.objects.filter(business=business), pk=id
         )
         return Response(
             LoyaltyProgramSerializer(program).data, status=status.HTTP_200_OK
         )
 
     def patch(self, request, business_id, id):
+        business = self.require_business_permission("promotion", "update")
         program = get_object_or_404(
-            LoyaltyProgram.objects.filter(business__owner=request.user), pk=id
+            LoyaltyProgram.objects.filter(business=business), pk=id
         )
         serializer = LoyaltyProgramUpdateSerializer(
-            program, data=request.data, partial=True
+            program, data=request.data, partial=True, context={"request": request}
         )
         serializer.is_valid(raise_exception=True)
         program = serializer.save()
@@ -137,9 +139,11 @@ class LoyaltyProgramDetailView(APIView):
         )
 
     def delete(self, request, business_id, id):
+        business = self.require_business_permission("promotion", "delete")
         program = get_object_or_404(
-            LoyaltyProgram.objects.filter(business__owner=request.user), pk=id
+            LoyaltyProgram.objects.filter(business=business), pk=id
         )
+        # Original check: prevent deletion if customer records exist
         if CustomerLoyaltyRecord.objects.filter(program=program).exists():
             return Response(
                 {
@@ -151,17 +155,11 @@ class LoyaltyProgramDetailView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class CustomerLoyaltyRecordListView(APIView):
+class CustomerLoyaltyRecordListView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
-    def _get_program(self, request, business_id, program_id):
-        return get_object_or_404(
-            LoyaltyProgram.objects.filter(business__owner=request.user),
-            pk=program_id,
-        )
-
     def get(self, request, business_id, program_id):
-        program = self._get_program(request, business_id, program_id)
+        program = _get_loyalty_program(self, request, business_id, program_id)
         records = CustomerLoyaltyRecord.objects.filter(program=program)
         return Response(
             CustomerLoyaltyRecordSerializer(records, many=True).data,
@@ -169,7 +167,7 @@ class CustomerLoyaltyRecordListView(APIView):
         )
 
     def post(self, request, business_id, program_id):
-        program = self._get_program(request, business_id, program_id)
+        program = _get_loyalty_program(self, request, business_id, program_id)
         serializer = CustomerLoyaltyRecordCreateSerializer(
             data=request.data, context={"program": program, "request": request}
         )
@@ -181,27 +179,25 @@ class CustomerLoyaltyRecordListView(APIView):
         )
 
 
-class CustomerLoyaltyRecordDetailView(APIView):
+class CustomerLoyaltyRecordDetailView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
-    def _get_record(self, request, program_id, id):
+    def _get_record(self, request, business_id, program_id, id):
+        program = _get_loyalty_program(self, request, business_id, program_id)
         return get_object_or_404(
-            CustomerLoyaltyRecord.objects.filter(
-                program__business__owner=request.user, program__id=program_id
-            ),
-            pk=id,
+            CustomerLoyaltyRecord.objects.filter(program=program), pk=id
         )
 
     def get(self, request, business_id, program_id, id):
-        record = self._get_record(request, program_id, id)
+        record = self._get_record(request, business_id, program_id, id)
         return Response(
             CustomerLoyaltyRecordSerializer(record).data, status=status.HTTP_200_OK
         )
 
     def patch(self, request, business_id, program_id, id):
-        record = self._get_record(request, program_id, id)
+        record = self._get_record(request, business_id, program_id, id)
         serializer = CustomerLoyaltyRecordUpdateSerializer(
-            record, data=request.data, partial=True
+            record, data=request.data, partial=True, context={"request": request}
         )
         serializer.is_valid(raise_exception=True)
         record = serializer.save()
@@ -210,6 +206,6 @@ class CustomerLoyaltyRecordDetailView(APIView):
         )
 
     def delete(self, request, business_id, program_id, id):
-        record = self._get_record(request, program_id, id)
+        record = self._get_record(request, business_id, program_id, id)
         record.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

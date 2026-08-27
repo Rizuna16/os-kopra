@@ -11,23 +11,20 @@ from apps.customer.serializers import (
     CustomerSerializer,
     CustomerUpdateSerializer,
 )
+from apps.authentication.permissions import BusinessAccessMixin
 
 
-class CustomerListView(APIView):
+class CustomerListView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, business_id):
-        business = get_object_or_404(
-            Business.objects.filter(owner=request.user), pk=business_id
-        )
+        business = self.require_business_permission("customer", "view")
         customers = Customer.objects.filter(business=business)
         serializer = CustomerSerializer(customers, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, business_id):
-        business = get_object_or_404(
-            Business.objects.filter(owner=request.user), pk=business_id
-        )
+        business = self.require_business_permission("customer", "create")
         serializer = CustomerCreateSerializer(
             data=request.data, context={"business": business, "request": request}
         )
@@ -38,20 +35,22 @@ class CustomerListView(APIView):
         )
 
 
-class CustomerDetailView(APIView):
+class CustomerDetailView(BusinessAccessMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, business_id, id):
+        business = self.require_business_permission("customer", "view")
         customer = get_object_or_404(
-            Customer.objects.filter(business__owner=request.user), pk=id
+            Customer.objects.filter(business=business), pk=id
         )
         return Response(
             CustomerSerializer(customer).data, status=status.HTTP_200_OK
         )
 
     def patch(self, request, business_id, id):
+        business = self.require_business_permission("customer", "update")
         customer = get_object_or_404(
-            Customer.objects.filter(business__owner=request.user), pk=id
+            Customer.objects.filter(business=business), pk=id
         )
         serializer = CustomerUpdateSerializer(
             customer, data=request.data, partial=True
@@ -63,8 +62,9 @@ class CustomerDetailView(APIView):
         )
 
     def delete(self, request, business_id, id):
+        business = self.require_business_permission("customer", "delete")
         customer = get_object_or_404(
-            Customer.objects.filter(business__owner=request.user), pk=id
+            Customer.objects.filter(business=business), pk=id
         )
         customer.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
