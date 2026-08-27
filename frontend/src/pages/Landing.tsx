@@ -19,6 +19,7 @@ export function Landing() {
             </span>
           </div>
           <nav className="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-600">
+            <Link to="/tentang" className="hover:text-blue-600 transition-colors">Tentang</Link>
             <a href="#features" className="hover:text-blue-600 transition-colors">Fitur Utama</a>
             <a href="#values" className="hover:text-blue-600 transition-colors">Keunggulan</a>
           </nav>
@@ -177,6 +178,7 @@ export function Landing() {
             <span>© {new Date().getFullYear()} KOPERA. Seluruh hak cipta dilindungi.</span>
           </div>
           <div className="flex items-center space-x-6">
+            <Link to="/tentang" className="hover:text-blue-600 transition-colors">Tentang</Link>
             <Link to="/login" className="hover:text-blue-600 transition-colors">Masuk</Link>
             <Link to="/register" className="hover:text-blue-600 transition-colors">Daftar</Link>
           </div>

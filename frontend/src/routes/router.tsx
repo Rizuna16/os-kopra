@@ -5,6 +5,7 @@ import { PublicRoute } from "./PublicRoute";
 import { AdminRoute } from "./AdminRoute";
 import { BusinessProvider, useBusiness } from "../business/BusinessContext";
 import { Landing } from "../pages/Landing";
+import { Tentang } from "../pages/Tentang";
 import { Login } from "../pages/Login";
 import { Register } from "../pages/Register";
 import { VerifyEmail } from "../pages/VerifyEmail";
@@ -101,6 +102,7 @@ export function AppRoutes() {
     <BusinessProvider>
       <Routes>
         <Route path="/" element={<Landing />} />
+        <Route path="/tentang" element={<Tentang />} />
 
         <Route
           path="/login"
