@@ -7016,5 +7016,61 @@ No inline owner/membership/superuser authorization logic is permitted outside th
 
 ---
 
+## 42. ANALYTICS / REPORTING / AI BUSINESS-VISIBILITY CONSOLIDATION — CONTRACT LOCK #7
+
+### STATUS
+🟢 SELESAI & LOCKED
+- Contract: **ANALYTICS / REPORTING / AI BUSINESS-VISIBILITY CONSOLIDATION — LOCKED**
+- Discovery: **COMPLETE**
+- RED: **COMPLETE — 2 test files (12 tests)**
+- GREEN: **COMPLETE — 2 test files (12 tests)**
+- Regression: **COMPLETE — 1179/1179 PASS**
+- Security/Tenant Audit: **PASS**
+- Lock Boundary: **LOCKED**
+
+### A. AI BUSINESS VISIBILITY CONTRACT
+- `gather_facts(user)` uses the canonical `filter_visible_businesses(Business.objects.all(), user)` for business visibility resolution.
+- AI remains strictly **OWNER-ONLY**.
+- ADMIN, KASIR, and non-owning Super Admin receive **no AI facts/access**.
+- Owner-only filtering occurs **after** canonical visibility:
+  ```python
+  owned_businesses = [
+      b for b in visible_businesses
+      if b.owner_id == user.id
+  ]
+  ```
+- No "ai" entry is added to `ROLE_PERMISSIONS` — AI access is not a permission-domain action.
+
+### B. REPORTS BUSINESS VISIBILITY CONTRACT
+- Orphaned `get_owned_business()` helper removed from `apps/reports/views.py`.
+- All four report views continue using `BusinessAccessMixin` + `require_business_permission("reports", "view")`.
+- Behavior preserved:
+  - OWNER → allowed
+  - ADMIN → allowed
+  - KASIR → 403
+  - non-member → 404
+
+### C. SECURITY INVARIANTS (NEW)
+- **INV-AUTH-24**: Analytics/AI business visibility uses `filter_visible_businesses()`.
+- **INV-AUTH-25**: AI insight feature remains OWNER-only; ADMIN/KASIR and non-owning Super Admin receive no AI access.
+- **INV-AUTH-26**: No duplicate business-resolution logic exists outside the canonical engine in analytics.
+- **INV-AUTH-27**: Owner-only Membership/Subscription/Billing management endpoints remain permitted exceptions and are untouched.
+
+### D. IMPLEMENTATION RECORD
+- Production files modified:
+  - `apps/ai/services.py`
+  - `apps/reports/views.py`
+- Test files created:
+  - `apps/ai/tests/test_contract_lock_7_red.py`
+  - `apps/reports/tests/test_contract_lock_7_red.py`
+- Outcome:
+  - Canonical visibility (`filter_visible_businesses()`) enforced in AI.
+  - AI remains OWNER-scoped with no implicit ADMIN/KASIR/Super Admin access.
+  - Dead code (`get_owned_business()`) removed from Reports.
+  - No second authorization engine introduced.
+  - No schema, migration, frontend, route redesign, new role, new permission matrix, or second authorization engine introduced.
+
+---
+
 END OF MASTER BLUEPRINT / DOMAIN ROADMAP
 ==================================================

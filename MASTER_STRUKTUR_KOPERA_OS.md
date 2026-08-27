@@ -607,4 +607,14 @@ PART 26 AMENDMENT / CONTRACT LOCK #6 AUTHORIZATION ENGINE CONSOLIDATION: 🟢 SE
 - Integrasi `BusinessAccessMixin`, `require_object_permission`, `filter_visible_businesses`, dan platform superuser bypass.
 - Invariant keamanan dikunci: INV-AUTH-16 s/d INV-AUTH-23.
 
+CONTRACT LOCK #7 / GREEN #7 — ANALYTICS / REPORTING / AI BUSINESS-VISIBILITY CONSOLIDATION: 🟢 SELESAI & LOCKED.
+- Analytics/Reporting/AI business-visibility consolidation completed.
+- `gather_facts(user)` uses canonical `filter_visible_businesses(Business.objects.all(), user)`.
+- AI remains strictly OWNER-ONLY; ADMIN, KASIR, and non-owning Super Admin receive no AI facts/access.
+- Owner-only filtering occurs after canonical visibility (`owned_businesses = [b for b in visible_businesses if b.owner_id == user.id]`).
+- No "ai" entry added to `ROLE_PERMISSIONS`.
+- `apps/reports/views.py` orphaned `get_owned_business()` removed.
+- Report views continue using `BusinessAccessMixin` + `require_business_permission("reports", "view")`.
+- Invariants keamanan baru dikunci: INV-AUTH-24 s/d INV-AUTH-27.
+
 ============================================================
