@@ -617,4 +617,13 @@ CONTRACT LOCK #7 / GREEN #7 — ANALYTICS / REPORTING / AI BUSINESS-VISIBILITY C
 - Report views continue using `BusinessAccessMixin` + `require_business_permission("reports", "view")`.
 - Invariants keamanan baru dikunci: INV-AUTH-24 s/d INV-AUTH-27.
 
+CONTRACT LOCK #8 / RED #8 — NOTIFICATION BUSINESS-SCOPED + RECIPIENT-SCOPED ACCESS CONTRACT: 🟢 SELESAI & LOCKED.
+- Notifikasi di-lock pada akses business-scoped + recipient-scoped.
+- Semua akses via BusinessAccessMixin + require_business_permission(notification, view) (owner OR ADMIN/KASIR member).
+- Notification.recipient == request.user; cross-user / cross-business → 404.
+- Hanya mutasi klien yang didukung: PATCH .../notifications/{id}/read/ (is_read False→True, idempoten).
+- RED #8: NO RED REQUIRED — existing 17 tests already encode semua invariants; tidak ada production gap.
+- Invariant keamanan dikunci: INV-NOTIF-1 s/d INV-NOTIF-4.
+- Non-goals eksplisit: Event Store / Event Bus / Celery / Redis / WebSocket / SSE / Push / webhook / async processing / auto cross-domain event→notification. Istilah Event Architecture tidak didokumentasikan sebagai terimplementasi.
+
 ============================================================

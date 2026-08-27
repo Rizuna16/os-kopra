@@ -1554,12 +1554,12 @@ Notification:
   - `GET /api/v1/businesses/<uuid:business_id>/notifications/`
   - `GET /api/v1/businesses/<uuid:business_id>/notifications/<uuid:notification_id>/`
   - `PATCH /api/v1/businesses/<uuid:business_id>/notifications/<uuid:notification_id>/read/`
-- Authorization: **IsAuthenticated + Owner-scoped** (`Business.objects.filter(owner=request.user)`, `recipient=request.user`)
+- Authorization: **IsAuthenticated + BusinessAccessMixin** (`require_business_permission("notification", "view")` — owner OR `BusinessMembership` member) + `recipient=request.user`
 - Read-state mutation: **is_read only, hard-set True server-side (PATCH); no client input**
 - In-app only: **YES** (no push / email / SMS / event bus / scheduler / queue)
 - Persistent model: **YES** (`Notification` — UUID pk, business FK, recipient FK, type, title, message, is_read, created_at)
 - Recipient / user isolation: **ENFORCED** (every queryset filters `recipient=request.user`)
-- Business isolation: **ENFORCED** (business resolved via owner-scoped filter; cross-business → 404)
+- Business isolation: **ENFORCED** (business resolved via `BusinessAccessMixin` owner/member resolution; cross-business → 404)
 - No cross-PART notification producers: **YES** (no PART creates/sends notifications; PART 19 is consumer/reader only)
 - Contract scope enforced:
   - No push / email / SMS
@@ -7069,6 +7069,86 @@ No inline owner/membership/superuser authorization logic is permitted outside th
   - Dead code (`get_owned_business()`) removed from Reports.
   - No second authorization engine introduced.
   - No schema, migration, frontend, route redesign, new role, new permission matrix, or second authorization engine introduced.
+
+---
+
+## 43. NOTIFICATION BUSINESS-SCOPED + RECIPIENT-SCOPED ACCESS CONTRACT — CONTRACT LOCK #8
+
+### STATUS
+🟢 SELESAI & LOCKED
+- Contract: **NOTIFICATION BUSINESS-SCOPED + RECIPIENT-SCOPED ACCESS CONTRACT — LOCKED**
+- Discovery: **COMPLETE**
+- RED: **NO RED REQUIRED — 0 new tests (existing 17 tests already encode all invariants)**
+- GREEN: **COMPLETE — existing 17/17 notification tests PASS (no production change)**
+- Regression: **COMPLETE — existing full regression PASS**
+- Security/Tenant Audit: **PASS**
+- Lock Boundary: **LOCKED**
+
+### A. CANONICAL SUBSYSTEM & BOUNDARY
+- Canonical subsystem: `apps/notification/`
+- Canonical boundary: **Business Scope + Recipient Scope**
+- Authorization source: `apps/authentication/permissions.py`
+- Notification permission: `notification:view`
+
+### B. AUTHORIZATION CONTRACT (INV-NOTIF-2)
+- All three views (`NotificationListView`, `NotificationDetailView`, `NotificationReadView`) inherit `BusinessAccessMixin`.
+- Every access calls `require_business_permission("notification", "view")`.
+- `require_business_permission` resolves the Business from URL `business_id` via `BusinessAccessMixin.get_business()` (owner OR `BusinessMembership` member), then evaluates `has_business_permission(user, business, "notification", "view")` against `ROLE_PERMISSIONS`.
+- Non-member / wrong business → `NotFound` (404).
+- Member with denied role/action → `PermissionDenied` (403).
+
+### C. RECIPIENT & BUSINESS ISOLATION CONTRACT (INV-NOTIF-1, INV-NOTIF-3)
+- `Notification` model: required `business` FK (CASCADE) and `recipient` User FK (CASCADE) — INV-NOTIF-1.
+- Every queryset is scoped: `Notification.objects.filter(business=business, recipient=request.user, pk=notification_id)`.
+- Cross-user access → 404 (even within same business).
+- Cross-business access → 404 (even with known `notification_id`).
+- Consistent with KOPERA tenant isolation semantics (404/403 contract).
+
+### D. READ-STATE INTEGRITY CONTRACT (INV-NOTIF-4)
+- Only mutation: `PATCH .../read/` → server-side `notification.is_read = True; save(update_fields=["is_read"])`.
+- No request-body parsing; client cannot set `is_read`, `title`, `message`, `business`, or `recipient`.
+- Idempotent: repeated `PATCH /read/` returns 200 and leaves `is_read=True`.
+
+### E. CLIENT TRUST BOUNDARY
+Client CANNOT:
+- create arbitrary `Notification` (no POST/PUT/create endpoint)
+- assign/change `business` (resolved server-side from URL)
+- assign/change `recipient` (queryset-scoped to `request.user`)
+- modify notification content (`type`, `title`, `message`)
+- modify arbitrary notification state
+- delete `Notification` (no DELETE endpoint)
+Only supported client mutation: `PATCH /read/`.
+
+### F. API SURFACE
+- `GET /api/v1/businesses/{business_id}/notifications/`
+- `GET /api/v1/businesses/{business_id}/notifications/{notification_id}/`
+- `PATCH /api/v1/businesses/{business_id}/notifications/{notification_id}/read/`
+
+### G. EXPLICIT NON-GOALS
+NOT locked or implemented:
+- Event Store
+- Event Bus
+- Celery
+- Redis
+- WebSocket
+- SSE
+- Push notification
+- webhook dispatch
+- asynchronous event processing
+- automatic cross-domain event→notification dispatch
+The term "Event Architecture" is NOT documented as implemented; no repository evidence exists for such an architecture.
+
+### H. SECURITY INVARIANTS
+- **INV-NOTIF-1**: Every Notification belongs to a valid Business and recipient User.
+- **INV-NOTIF-2**: Notification access requires authorized Business access plus `notification:view` permission.
+- **INV-NOTIF-3**: `notification.recipient == request.user`; cross-user/cross-business access → 404.
+- **INV-NOTIF-4**: `PATCH /read/` sets `is_read` False→True and is idempotent.
+
+### I. IMPLEMENTATION RECORD
+- No production files modified (documentation-only lock).
+- Test files: existing `apps/notification/tests/test_notification.py` (17 tests) retained and passing.
+- Temporary RED probes (real-notification cross-user/business isolation, unauthorized role, read payload immutability, PATCH-on-detail rejection) all passed and were discarded.
+- Outcome: Contract #8 invariants already fully satisfied by the existing implementation; no production gap.
 
 ---
 
