@@ -1,67 +1,47 @@
 # KOPERA OS — LOCK REPORT
-## PART 12 SALES EXTENSION — KASIR
+## H. KASIR FRONTEND V1 — FINAL LOCK REPORT
 
-Milestone: DOCUMENTATION & LOCK ONLY
+Milestone: DOCUMENTATION, COMMIT, PUSH & REMOTE VERIFICATION
 
 ---
 
-### A. Implementation Gates (All Passed)
+### A. Implementation Gates & Audit Results (All Passed)
 - Discovery: PASS
 - Contract Lock: LOCKED
 - RED: PASS
 - GREEN: PASS
-- Forensic Audit: PASS
-- Sales Regression: 76/76
-- Online Store: 96/96
-- Full Regression: 1188/1188
+- Regression: PASS
 - Security Audit: PASS
+- Structural A–Z Alignment: PASS
+- Backend pytest: 1193/1193 PASS
+- KASIR frontend (`kasir.test.tsx`): 10/10 PASS
+- TypeScript (`tsc --noEmit`): PASS
+- Production Build (`npm run build`): PASS
 
 ---
 
-### B. Contract Lock
-- Contract Lock completed.
-- All contract invariants for PART 12 SALES EXTENSION — KASIR are locked.
-
-### C. RED Verified
-- RED verified. The expected missing capabilities were confirmed absent before GREEN, and the RED test suite (`apps/sales/tests/test_kasir_pos_red.py`) now passes (9/9) after GREEN implementation.
-
-### D. GREEN Completed
-- GREEN completed. All Kasir extension behaviors implemented and verified by passing tests.
-
-### E. Forensic Audit
-- Forensic audit passed. No production code, test, migration, or unrelated module was altered during documentation & lock. Only documentation artifacts were updated.
-
-### F. Regression
-- Regression passed.
-  - Sales Regression: 76/76
-  - Online Store: 96/96
-  - Full Regression: 1188/1188
-
-### G. Security Audit
-- Security audit passed.
-- Findings: CRITICAL 0 / HIGH 0 / MEDIUM 0 / LOW 0
-- Authorization boundary, tenant/location isolation, active-shift requirement, HELD ownership protection, and payment_method handling all verified.
-
-### H. Known Blockers
-- No known blockers.
+### B. Structural & Architectural Compliance
+- **Structural A–Z Alignment:**
+  - H = KASIR (`/kasir`)
+  - K = PENJUALAN (`/sales`)
+  - KASIR does not take over K. PENJUALAN.
+- **Shared Transactional Engine:**
+  - KASIR uses `Sale` / `SaleLine` from `apps/sales` as a legitimate cross-domain reference.
+  - `CashierShift`, `HELD` status, and `payment_method` remain in `apps/sales` (no `apps/kasir` backend package created).
+- **Role Isolation:**
+  - `SUPER_ADMIN` remains platform-level (`IsSuperAdmin`) and is strictly separated from tenant roles.
+  - `GUDANG` remains deferred.
 
 ---
 
-### I. Source-of-Truth Updates
-- `MASTER_STRUKTUR_KOPERA_OS.md`: Added `PART 12 SALES EXTENSION — KASIR / STATUS: LOCKED` entry under IMPLEMENTASI HISTORIS.
-- `KOPERA_OS_MASTER.md`: Added `PART 12 SALES EXTENSION — KASIR / STATUS: LOCKED` section with full feature status.
-
-### J. Final Contract Summary
-- **CashierShift**: model `apps/sales/models.CashierShift` (OPEN/CLOSED).
-- **Shift open/list/close**: endpoints under `/shifts/`.
-- **Cash reconciliation**: `modal_awal` + cash sales vs `uang_tunai_aktual` → `selisih_kas`.
-- **payment_method**: `Sale.payment_method` (CASH, QRIS, TRANSFER).
-- **HELD operational state**: serializer-layer status for Tahan Transaksi / Lanjutkan Transaksi; excluded from canonical `Sale.Status` to preserve PART 12 / PART 22 contracts.
-- **Explicit active-shift requirement**: enforced for KASIR transactions.
-- **HELD ownership protection**: resume restricted to shift.cashier (PermissionDenied for others).
-- **Tenant/location isolation**: BusinessAccessMixin + server-side business/location validation.
-- **Authorization boundary**: KASIR role RBAC; denied finance/product/purchasing/reports/etc.
+### C. Technical Summary
+- **Repository Baseline:** Clean working tree post-commit.
+- **Route:** `/kasir` wrapped under `ProtectedRoute` $\rightarrow$ `BusinessRoute` $\rightarrow$ `AppLayout`.
+- **Shift Lifecycle:** Open shift (`modal_awal`), list shifts, close shift with actual cash counting (`uang_tunai_aktual`) and server-side cash variance reconciliation (`selisih_kas`).
+- **Transaction Lifecycle:** POS cart interaction, variant lookup, quantity adjustment, payment method selection (`CASH`, `QRIS`, `TRANSFER`), `COMPLETED` sale creation with atomic stock reduction, and `HELD` transaction hold & backend-authorized resume.
+- **RBAC & Tenant Isolation:** Server-side authorization via `BusinessAccessMixin` and `ROLE_PERMISSIONS`. `business_id` exclusively sourced from `BusinessContext`.
 
 ---
 
-STOP. NO COMMIT. NO PUSH.
+### D. Final Verdict
+**H. KASIR FRONTEND V1 — LOCKED**

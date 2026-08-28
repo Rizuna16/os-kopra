@@ -16,6 +16,7 @@ import { AppLayout } from "../layouts/AppLayout";
 import { AppHome } from "../pages/AppHome";
 import { OwnerDashboard } from "../pages/OwnerDashboard";
 import { RolePermissionList } from "../pages/RolePermissionList";
+import { KasirDashboard } from "../pages/KasirDashboard";
 import { Admin } from "../pages/Admin";
 import { Storefront } from "../pages/Storefront";
 import { Forbidden } from "../pages/Forbidden";
@@ -172,6 +173,19 @@ export function AppRoutes() {
               <BusinessRoute>
                 <AppLayout>
                   <RolePermissionList />
+                </AppLayout>
+              </BusinessRoute>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/kasir"
+          element={
+            <ProtectedRoute>
+              <BusinessRoute>
+                <AppLayout>
+                  <KasirDashboard />
                 </AppLayout>
               </BusinessRoute>
             </ProtectedRoute>
