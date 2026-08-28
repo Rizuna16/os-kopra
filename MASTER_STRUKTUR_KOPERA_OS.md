@@ -607,6 +607,16 @@ PART 26 AMENDMENT / CONTRACT LOCK #6 AUTHORIZATION ENGINE CONSOLIDATION: 🟢 SE
 - Integrasi `BusinessAccessMixin`, `require_object_permission`, `filter_visible_businesses`, dan platform superuser bypass.
 - Invariant keamanan dikunci: INV-AUTH-16 s/d INV-AUTH-23.
 
+PART 12 SALES EXTENSION — KASIR
+STATUS: LOCKED
+- Modul KASIR sebagai ekstensi dari PART 12 SALES (`apps.sales`).
+- Termasuk CashierShift (buka shift, daftar shift, tutup shift, rekonsiliasi kas modal awal + penjualan tunai aktual vs selisih kas).
+- Transaksi Penjualan dengan `payment_method` (CASH, QRIS, TRANSFER) dan status operasional HELD (Tahan Transaksi / Lanjutkan Transaksi).
+- Active-shift requirement eksplisit untuk peran KASIR.
+- HELD ownership protection & security boundary.
+- Tenant & location isolation yang ketat (BusinessAccessMixin, business__owner).
+- Authorization boundary: KASIR memiliki hak akses terbatas sesuai matriks RBAC.
+
 CONTRACT LOCK #7 / GREEN #7 — ANALYTICS / REPORTING / AI BUSINESS-VISIBILITY CONSOLIDATION: 🟢 SELESAI & LOCKED.
 - Analytics/Reporting/AI business-visibility consolidation completed.
 - `gather_facts(user)` uses canonical `filter_visible_businesses(Business.objects.all(), user)`.

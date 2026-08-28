@@ -41,6 +41,10 @@ urlpatterns = [
         include("apps.sales.urls"),
     ),
     path(
+        "api/v1/businesses/<uuid:business_id>/shifts/",
+        include("apps.sales.shift_urls"),
+    ),
+    path(
         "api/v1/businesses/<uuid:business_id>/customers/",
         include("apps.customer.urls"),
     ),

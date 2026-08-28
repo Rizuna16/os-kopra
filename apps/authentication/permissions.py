@@ -205,6 +205,10 @@ ROLE_PERMISSIONS = {
     ("ADMIN", "location", "update"): True,
     ("ADMIN", "location", "delete"): True,
     ("ADMIN", "integration", "view"): False,
+    ("ADMIN", "shifts", "view"): True,
+    ("ADMIN", "shifts", "create"): True,
+    ("ADMIN", "shifts", "update"): True,
+    ("ADMIN", "shifts", "delete"): True,
 
     # KASIR — transaction executor
     ("KASIR", "dashboard", "view"): True,
@@ -223,6 +227,10 @@ ROLE_PERMISSIONS = {
     ("KASIR", "location", "create"): False,
     ("KASIR", "location", "update"): False,
     ("KASIR", "location", "delete"): False,
+    ("KASIR", "shifts", "view"): True,
+    ("KASIR", "shifts", "create"): True,
+    ("KASIR", "shifts", "update"): True,
+    ("KASIR", "shifts", "delete"): True,
     # Kasir denials
     ("KASIR", "product", "view"): False,
     ("KASIR", "product", "create"): False,

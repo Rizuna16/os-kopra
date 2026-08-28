@@ -1233,6 +1233,40 @@ SALES:
 
 ---
 
+## PART 12 SALES EXTENSION — KASIR
+STATUS: LOCKED
+
+Legend:
+- 🟢 = selesai dan sudah melewati regression + security audit
+
+Kasir Extension Features:
+- 🟢 CashierShift Model & Management
+- 🟢 Shift Open (`POST /api/v1/businesses/<uuid:business_id>/shifts/`)
+- 🟢 Shift List (`GET /api/v1/businesses/<uuid:business_id>/shifts/`)
+- 🟢 Shift Close & Cash Reconciliation (`POST /api/v1/businesses/<uuid:business_id>/shifts/<uuid:shift_id>/close/`)
+- 🟢 Payment Method on Sale (`payment_method`: CASH, QRIS, TRANSFER)
+- 🟢 HELD Operational State (Tahan Transaksi / Lanjutkan Transaksi)
+- 🟢 Explicit Active-Shift Requirement for Cashier transactions
+- 🟢 HELD Ownership Protection & Resume Security
+- 🟢 Tenant & Location Isolation (`BusinessAccessMixin`, server-side validation)
+- 🟢 Authorization Boundary (`KASIR` role RBAC enforcement)
+
+### CashierShift Status Detail
+- Contract: **LOCKED**
+- Implementation: **COMPLETE**
+- Endpoints:
+  - `POST /api/v1/businesses/<uuid:business_id>/shifts/` (Open Shift)
+  - `GET /api/v1/businesses/<uuid:business_id>/shifts/` (List Shifts)
+  - `POST /api/v1/businesses/<uuid:business_id>/shifts/<uuid:shift_id>/close/` (Close Shift & Cash Reconciliation)
+- Authorization: **Business-scoped** (`KASIR`, `ADMIN`, `OWNER` via `BusinessAccessMixin`)
+- Validation: One active shift per cashier per location enforced; opening cash (`modal_awal`) required; cash reconciliation calculates expected cash (`modal_awal` + cash sales) vs actual cash (`uang_tunai_aktual`) to yield `selisih_kas`.
+- Tests: **9 passed** (TestCashierShiftRed / TestPOSSalesRed / TestHoldResumeRed / TestCashierAuthorizationRed)
+- Full regression: **1188 passed**
+- Security Audit: **PASS**
+- Security findings: **CRITICAL 0 / HIGH 0 / MEDIUM 0 / LOW 0**
+
+---
+
 ## 18.5. CURRENT PRODUCT STATUS — PART 14 CUSTOMER
 
 **PART 14 — Customer**
