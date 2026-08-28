@@ -7302,5 +7302,74 @@ Tidak ada modifikasi backend diperlukan.
 
 ---
 
+## 45. 17 ROLE & PERMISSION (FRONTEND MANAGEMENT UI) — LOCKED
+
+### STATUS
+🟢 SELESAI & LOCKED
+- Module: **17. ROLE & PERMISSION (FRONTEND MANAGEMENT UI)**
+- Discovery: **COMPLETE**
+- Contract Lock: **COMPLETE — LOCKED**
+- RED: **VERIFIED**
+- GREEN: **VERIFIED**
+- Regression: **COMPLETE**
+- TypeScript: **PASS (`npx tsc --noEmit`)**
+- Build: **PASS (`npm run build`)**
+- Security/Tenant Audit: **PASS**
+- Structural Audit: **PASS**
+- Contract Audit: **PASS**
+- Lock Boundary: **LOCKED**
+
+### A. STRUCTURAL POSITION
+- Node `17. ROLE & PERMISSION` dalam sistem penomoran struktural 00–23 (Business-scoped).
+- Terikat dengan `BusinessContext` dan `AppLayout`, diakses melalui route tenant `/roles`.
+- Tidak terafiliasi dengan platform boundary `/platform-admin` atau tenant `/admin` routing.
+
+### B. CONTRACT SUMMARY
+- **Business-scoped Role & Permission**: Otorisasi data mutasi anggota tim berada dalam kontrol context bisnis yang aktif.
+- **READ-ONLY Permission Matrix**: Menampilkan pemetaan izin peran ADMIN dan KASIR secara visual tanpa opsi kustomisasi/editing dari frontend (backend sebagai source of truth).
+- **Assignable Roles**: Hanya mendukung mutasi peran ke `ADMIN` dan `KASIR`.
+- **OWNER Immutability**: Role Owner terproteksi secara mutlak dan tidak dapat dimodifikasi/dihapus via API ini.
+- **SUPER_ADMIN Forbidden**: Peran Super Admin terpisah secara mutlak dari matrix `BusinessMembership.Role`.
+- **GUDANG = DEFERRED**: Peran GUDANG didefer ke amandemen masa depan, sehingga tidak didefinisikan dalam enum backend, tidak muncul di UI dropdown, dan tidak terdaftar di `ROLE_PERMISSIONS`.
+
+### C. ROLE UPDATE API
+- **Endpoint**: `PATCH /api/v1/businesses/<uuid:business_id>/members/<uuid:user_id>/`
+- **Behavior Contract**:
+  - Owner request + valid role (`ADMIN` / `KASIR`) → `200 OK`
+  - Non-owner request → `404 Not Found`
+  - Lintas bisnis (Cross-business target) → `404 Not Found`
+  - Nonexistent member / business → `404 Not Found`
+  - Modifikasi target Owner → `404 Not Found`
+  - Invalid role (e.g. `OWNER`, `GUDANG`, `SUPER_ADMIN`, dll) → `400 Bad Request`
+  - Unauthenticated request → `401 Unauthorized`
+
+### D. FRONTEND ROUTES & LAYOUT
+- Route: `/roles`
+- Shell: `AppLayout`
+- Context: `BusinessContext`
+- Component: `RolePermissionList` (`frontend/src/pages/RolePermissionList.tsx`)
+
+### E. TESTING SUMMARY
+- **RED Verification**: 5 test case pada backend `apps/business/tests/test_member_role_patch.py` (4 genuine failures + 1 pass) & frontend unit/integration test `frontend/src/test/rolePermission.test.tsx` (import error pada pre-implementation phase).
+- **GREEN Verification**:
+  - Backend views & urls patch logic: 5/5 PASS
+  - Business suite: 162/162 PASS
+  - Frontend focused tests: 11/11 PASS
+  - Full backend regression: 1193/1193 PASS
+  - Full frontend regression: 906/906 PASS
+  - TypeScript compilation: PASS
+  - Production build command: PASS
+
+### F. SECURITY INVARIANTS
+- **Authentication**: Seluruh API dan view di-guard dengan `IsAuthenticated` dan `ProtectedRoute`.
+- **Authorization**: Memvalidasi hak akses eksekutor sebagai owner sah dari `business_id` terkait.
+- **Tenant Isolation**: Memastikan isolasi data antar tenant (user tidak dapat mengakses/memodifikasi member di bisnis lain).
+- **IDOR Prevention**: Pencarian membership terikat dengan object business milik owner bersangkutan.
+- **GUDANG Protection**: Perlindungan terhadap role deferred agar tidak dapat dimanipulasi atau disisipkan.
+- **KASIR Protection**: Pembatasan wewenang role Kasir agar tidak dapat mengakses fitur manajemen role & permission.
+- **Zero Findings**: Audit keamanan dan regresi bersih tanpa isu temuan.
+
+---
+
 END OF MASTER BLUEPRINT / DOMAIN ROADMAP
 ==================================================

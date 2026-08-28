@@ -4,7 +4,7 @@ from apps.business.views import (
     BusinessCreateView,
     LocationCreateView,
     LocationDetailView,
-    MemberDeleteView,
+    MemberDetailView,
     MemberListCreateView,
     SubscriptionCreateView,
 )
@@ -33,7 +33,7 @@ urlpatterns = [
     ),
     path(
         "<uuid:business_id>/members/<uuid:user_id>/",
-        MemberDeleteView.as_view(),
-        name="member-delete",
+        MemberDetailView.as_view(),
+        name="member-detail",
     ),
 ]

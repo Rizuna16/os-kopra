@@ -15,6 +15,7 @@ import { Onboarding } from "../pages/Onboarding";
 import { AppLayout } from "../layouts/AppLayout";
 import { AppHome } from "../pages/AppHome";
 import { OwnerDashboard } from "../pages/OwnerDashboard";
+import { RolePermissionList } from "../pages/RolePermissionList";
 import { Admin } from "../pages/Admin";
 import { Storefront } from "../pages/Storefront";
 import { Forbidden } from "../pages/Forbidden";
@@ -158,6 +159,19 @@ export function AppRoutes() {
               <BusinessRoute>
                 <AppLayout>
                   <OwnerDashboard />
+                </AppLayout>
+              </BusinessRoute>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/roles"
+          element={
+            <ProtectedRoute>
+              <BusinessRoute>
+                <AppLayout>
+                  <RolePermissionList />
                 </AppLayout>
               </BusinessRoute>
             </ProtectedRoute>

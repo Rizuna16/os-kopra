@@ -165,8 +165,38 @@ class MemberListCreateView(APIView):
         )
 
 
-class MemberDeleteView(APIView):
+class MemberDetailView(APIView):
     permission_classes = [IsAuthenticated]
+
+    def patch(self, request, business_id, user_id):
+        business = get_object_or_404(
+            Business.objects.filter(owner=request.user), pk=business_id
+        )
+        membership = BusinessMembership.objects.filter(
+            business=business, user_id=user_id
+        ).first()
+        if membership is None:
+            return Response(
+                {"error": "Member not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        if business.owner_id == membership.user_id:
+            return Response(
+                {"error": "Owner role cannot be modified."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        role = request.data.get("role")
+        if role not in ["ADMIN", "KASIR"]:
+            return Response(
+                {"error": "Invalid role."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        membership.role = role
+        membership.save()
+        return Response(
+            MemberSerializer(membership).data,
+            status=status.HTTP_200_OK,
+        )
 
     def delete(self, request, business_id, user_id):
         business = get_object_or_404(

@@ -648,4 +648,21 @@ CONTRACT LOCK #8 / RED #8 — NOTIFICATION BUSINESS-SCOPED + RECIPIENT-SCOPED AC
 - Tidak didukung (eksplisit tidak diimplementasikan): platform revenue/financials, plans & pricing, billing transactions, support tickets, platform configuration/settings.
 - Contract/Regression/Security/Structural: PASS. Tidak ada modifikasi backend diperlukan.
 
+17 ROLE & PERMISSION (FRONTEND MANAGEMENT UI): 🟢 SELESAI & LOCKED.
+- Halaman UI khusus `/roles` diimplementasikan di bawah BusinessContext & AppLayout tenant.
+- Matriks izin akses ditampilkan secara read-only (tidak ada custom editor atau custom toggles di frontend).
+- Pengguna dengan hak Owner dapat menugaskan anggota baru dan memperbarui peran anggota secara langsung via form / selector.
+- Peran yang dapat ditugaskan dibatasi hanya ADMIN dan KASIR.
+- GUDANG: DEFERRED. Peran GUDANG tidak didukung sebagai pilihan assignable role di frontend, tidak ada di BusinessMembership.Role di backend, dan tidak dimasukkan dalam matriks izin operasional V1.
+- Endpoint Role Update API backend: PATCH `/api/v1/businesses/<uuid:business_id>/members/<uuid:user_id>/` dengan aturan ketat:
+  - Owner + ADMIN/KASIR -> 200
+  - Non-owner -> 404
+  - Cross-business -> 404
+  - Nonexistent target/business -> 404
+  - Owner target -> 404
+  - Invalid role -> 400
+  - Unauthenticated -> 401
+- Keamanan & Otorisasi: tenant isolation, IDOR protection, owner immutability, Super Admin separation, GUDANG protection, KASIR protection, Platform protection.
+- Contract/Regression/Security/Structural: PASS. Zero findings.
+
 ============================================================
