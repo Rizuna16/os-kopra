@@ -84,6 +84,13 @@ import { OnlineStoreOrders } from "../pages/OnlineStoreOrders";
 import { StorefrontCart } from "../pages/StorefrontCart";
 import { StorefrontCheckout } from "../pages/StorefrontCheckout";
 
+import { PlatformLayout } from "../components/PlatformLayout";
+import { SuperAdminDashboard } from "../pages/SuperAdminDashboard";
+import { SuperAdminBusinesses } from "../pages/SuperAdminBusinesses";
+import { SuperAdminBusinessDetail } from "../pages/SuperAdminBusinessDetail";
+import { SuperAdminAuditLogs } from "../pages/SuperAdminAuditLogs";
+import { SuperAdminBackups } from "../pages/SuperAdminBackups";
+
 function BusinessRoute({ children }: { children: ReactNode }) {
   const { currentBusinessId, currentBusiness } = useBusiness();
   const ready =
@@ -893,6 +900,68 @@ export function AppRoutes() {
         <Route path="/store/:slug/cart" element={<StorefrontCart />} />
         <Route path="/store/:slug/checkout" element={<StorefrontCheckout />} />
         <Route path="/store/:slug/*" element={<Storefront />} />
+
+        {/* Platform Admin Routes (00. KOPERA PLATFORM / SUPER ADMIN) */}
+        <Route
+          path="/platform-admin"
+          element={
+            <ProtectedRoute>
+              <PlatformLayout>
+                <SuperAdminDashboard />
+              </PlatformLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/platform-admin/dashboard"
+          element={
+            <ProtectedRoute>
+              <PlatformLayout>
+                <SuperAdminDashboard />
+              </PlatformLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/platform-admin/businesses"
+          element={
+            <ProtectedRoute>
+              <PlatformLayout>
+                <SuperAdminBusinesses />
+              </PlatformLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/platform-admin/businesses/:businessId"
+          element={
+            <ProtectedRoute>
+              <PlatformLayout>
+                <SuperAdminBusinessDetail />
+              </PlatformLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/platform-admin/audit-logs"
+          element={
+            <ProtectedRoute>
+              <PlatformLayout>
+                <SuperAdminAuditLogs />
+              </PlatformLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/platform-admin/backups"
+          element={
+            <ProtectedRoute>
+              <PlatformLayout>
+                <SuperAdminBackups />
+              </PlatformLayout>
+            </ProtectedRoute>
+          }
+        />
 
         <Route path="/forbidden" element={<Forbidden />} />
         <Route path="*" element={<NotFound />} />

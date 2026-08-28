@@ -7186,5 +7186,121 @@ The term "Event Architecture" is NOT documented as implemented; no repository ev
 
 ---
 
+## 44. 00 KOPERA PLATFORM / SUPER ADMIN — FRONTEND — LOCKED
+
+### STATUS
+🟢 SELESAI & LOCKED
+- Module: **00. KOPERA PLATFORM / SUPER ADMIN (FRONTEND)**
+- Discovery: **COMPLETE**
+- Contract Lock: **COMPLETE — LOCKED**
+- RED: **VERIFIED**
+- GREEN: **VERIFIED**
+- Regression: **COMPLETE — 1,190+ PASS / 0 FAIL / 0 SKIP**
+- TypeScript: **PASS (`npx tsc --noEmit`)**
+- Build: **PASS (`npm run build`)**
+- Security/Tenant Audit: **PASS**
+- Structural Audit: **PASS**
+- Contract Audit: **PASS**
+- Lock Boundary: **LOCKED**
+
+### A. STRUCTURAL POSITION
+- Structural node `0. KOPERA PLATFORM / SUPER ADMIN` (sistem penomoran struktural 00–23, terpisah dari penomoran PART historis).
+- PLATFORM-LEVEL dan tetap terpisah secara mutlak dari: CUSTOMER/TENANT, OWNER, ADMIN, KASIR, BusinessContext, BusinessSelector, LocationSelector, dan tenant business_id routing.
+- Historical PART 25 (Admin KOPERA) tetap utuh sebagai blueprint; tidak diinterpretasikan sebagai structural node 25.
+
+### B. CONTRACT SUMMARY
+- Super Admin authority: `request.user.is_superuser == True`.
+- Backend authority: `IsSuperAdmin`.
+- Frontend route boundary: `/platform-admin`.
+- Dedicated shell: `PlatformLayout`.
+- Identity: `"KOPERA PLATFORM / SUPER ADMIN"`.
+- Navigation: Platform Dashboard, Usaha Management, Audit Logs, Backup & Restore.
+
+### C. ROUTES
+- `/platform-admin`
+- `/platform-admin/dashboard`
+- `/platform-admin/businesses`
+- `/platform-admin/businesses/:businessId`
+- `/platform-admin/audit-logs`
+- `/platform-admin/backups`
+- Semua route tidak berada di `/app/*`, tidak menggunakan `/admin/*` sebagai platform boundary, dan tidak menggunakan `BusinessRoute`.
+
+### D. PLATFORM LAYOUT
+- `PlatformLayout` adalah shell khusus, bukan `AppLayout` tenant.
+- Menampilkan identity "KOPERA PLATFORM / SUPER ADMIN".
+- Navigation: Platform Dashboard, Usaha Management, Audit Logs, Backup & Restore.
+- Logout tersedia; tidak ada BusinessSelector/LocationSelector.
+
+### E. DASHBOARD (Platform Dashboard)
+- API: `GET /api/v1/admin/monitoring/`, `GET /api/v1/admin/businesses/`.
+- Metrics: Total Owner (unique owner_id), Total Usaha, Total Subscription, Subscription Aktif, Subscription Expired.
+- Loading/error/forbidden states ditangani.
+- Platform revenue/financials: **belum tersedia di backend**, tidak dimock/dibuat.
+
+### F. USAHA MANAGEMENT
+- API: `GET /api/v1/admin/businesses/`, `GET /api/v1/admin/businesses/<uuid>/`.
+- Read-only visibility; rendering aman; tidak ada tenant leakage.
+
+### G. AUDIT LOGS
+- API: `GET /api/v1/admin/audit-logs/`, `GET /api/v1/admin/audit-logs/<uuid>/`.
+- Read-only inspection; tidak ada mutation path.
+
+### H. BACKUP & RESTORE
+- API: `GET /api/v1/admin/backups/`, `POST /api/v1/admin/backups/trigger/`, `POST /api/v1/admin/backups/<id>/restore/`.
+- Restore memerlukan confirmation eksplisit (`window.confirm`); button disable saat `actionLoading` untuk cegah double-click.
+- Backend `IsSuperAdmin` tetap otoritas; confirmation dialog bukan security boundary.
+
+### I. AUTHENTICATION BOUNDARY
+- Anonymous → `ProtectedRoute` redirect ke `/login`.
+- Tidak ada client-side superuser trust; `/auth/me/` tidak expose `is_superuser`.
+- AuthContext tidak diubah.
+
+### J. AUTHORIZATION BOUNDARY
+- OWNER, ADMIN, KASIR → `403 Forbidden` dari backend `/api/v1/admin/*` → render `<Forbidden />`.
+- Backend `IsSuperAdmin` tetap source of truth.
+
+### K. TENANT ISOLATION
+- Tidak ada dependensi `business_id` di platform route.
+- `BusinessContext` tidak di-inject ke platform request.
+- Tenant user tidak dapat memperoleh platform data (403).
+
+### L. EXPLICIT NON-GOALS (tidak diimplementasikan)
+- Platform revenue / financials
+- Plans & pricing management
+- Billing transactions
+- Support tickets
+- Platform configuration / settings
+- Tidak ada fake/mock backend functionality yang didokumentasikan sebagai terimplementasi.
+
+### M. EXACT IMPLEMENTATION FILES
+Created:
+- `frontend/src/components/PlatformLayout.tsx`
+- `frontend/src/pages/SuperAdminDashboard.tsx`
+- `frontend/src/pages/SuperAdminBusinesses.tsx`
+- `frontend/src/pages/SuperAdminBusinessDetail.tsx`
+- `frontend/src/pages/SuperAdminAuditLogs.tsx`
+- `frontend/src/pages/SuperAdminBackups.tsx`
+- `frontend/src/test/superAdmin.test.tsx`
+
+Modified:
+- `frontend/src/routes/router.tsx`
+- `frontend/src/test/testUtils.tsx`
+
+Tidak ada modifikasi backend diperlukan.
+
+### N. SECURITY EVIDENCE
+- Focused: 11/11 PASS
+- Full regression: 1,190+ PASS
+- Security Audit: PASS (zero CRITICAL/HIGH/MEDIUM/LOW findings)
+- Tenant isolation: PASS
+- `/admin` tenant Admin boundary: unchanged
+
+### O. HISTORICAL PART PRESERVATION
+- PART 25 Admin KOPERA blueprint tetap utuh.
+- Tidak ada renumbering PART; tidak ada PART baru yang diintroduce.
+- Structural 00–23 dan historical PART numbering tetap sistem terpisah.
+
+---
+
 END OF MASTER BLUEPRINT / DOMAIN ROADMAP
 ==================================================

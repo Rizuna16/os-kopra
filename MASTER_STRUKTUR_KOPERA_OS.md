@@ -636,4 +636,16 @@ CONTRACT LOCK #8 / RED #8 — NOTIFICATION BUSINESS-SCOPED + RECIPIENT-SCOPED AC
 - Invariant keamanan dikunci: INV-NOTIF-1 s/d INV-NOTIF-4.
 - Non-goals eksplisit: Event Store / Event Bus / Celery / Redis / WebSocket / SSE / Push / webhook / async processing / auto cross-domain event→notification. Istilah Event Architecture tidak didokumentasikan sebagai terimplementasi.
 
+00 KOPERA PLATFORM / SUPER ADMIN — FRONTEND: 🟢 SELESAI & LOCKED.
+- Platform-level admin dashboard diimplementasikan di frontend (React + TypeScript).
+- Boundary route khusus `/platform-admin` (terpisah dari tenant `/admin`).
+- Shell khusus `PlatformLayout` dengan identitas "KOPERA PLATFORM / SUPER ADMIN".
+- Otoritas tunggal tetap server-side `IsSuperAdmin` (`request.user.is_superuser == True`).
+- Tanpa BusinessContext, tanpa BusinessSelector, tanpa LocationSelector, tanpa dependensi tenant business_id.
+- Tanpa role BusinessMembership baru, tanpa polusi hierarchy, tanpa apps/superadmin.
+- Route frontend: /platform-admin, /platform-admin/dashboard, /platform-admin/businesses, /platform-admin/businesses/:businessId, /platform-admin/audit-logs, /platform-admin/backups.
+- Backend API: GET /api/v1/admin/monitoring/, GET /api/v1/admin/businesses/, GET /api/v1/admin/businesses/<uuid>/, GET /api/v1/admin/audit-logs/, GET /api/v1/admin/audit-logs/<uuid>/, GET /api/v1/admin/backups/, POST /api/v1/admin/backups/trigger/, POST /api/v1/admin/backups/<id>/restore/.
+- Tidak didukung (eksplisit tidak diimplementasikan): platform revenue/financials, plans & pricing, billing transactions, support tickets, platform configuration/settings.
+- Contract/Regression/Security/Structural: PASS. Tidak ada modifikasi backend diperlukan.
+
 ============================================================
