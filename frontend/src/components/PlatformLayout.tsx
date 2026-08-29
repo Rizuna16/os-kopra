@@ -6,8 +6,12 @@ import { ApiError } from "../auth/types";
 import { Forbidden } from "../pages/Forbidden";
 
 const NAV_ITEMS = [
-  { to: "/platform-admin/dashboard", label: "Platform Dashboard" },
+  { to: "/platform-admin/dashboard", label: "Dashboard" },
   { to: "/platform-admin/businesses", label: "Usaha Management" },
+  { to: "/platform-admin/accounts", label: "Accounts" },
+  { to: "/platform-admin/owners", label: "Owners" },
+  { to: "/platform-admin/users", label: "Users" },
+  { to: "/platform-admin/admins", label: "Admins" },
   { to: "/platform-admin/audit-logs", label: "Audit Logs" },
   { to: "/platform-admin/backups", label: "Backup & Restore" },
 ];

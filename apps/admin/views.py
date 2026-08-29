@@ -2,7 +2,14 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.admin.permissions import IsSuperAdmin
-from apps.business.models import Business, Subscription
+from apps.authentication.models import User
+from apps.business.models import Business, Subscription, BusinessMembership
+from apps.employee.models import Employee
+from apps.audit.models import AuditLog
+
+
+def _audit(actor, action, **kwargs):
+    AuditLog.objects.create(actor=actor, action=action, **kwargs)
 
 
 def _serialize_business(business):
@@ -16,6 +23,20 @@ def _serialize_business(business):
     }
 
 
+def _serialize_user(user):
+    return {
+        "id": str(user.id),
+        "email": user.email,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "is_active": user.is_active,
+        "is_staff": user.is_staff,
+        "is_superuser": user.is_superuser,
+        "is_email_verified": user.is_email_verified,
+        "created_at": user.created_at.isoformat() if user.created_at else None,
+    }
+
+
 class AdminBusinessListView(APIView):
     permission_classes = [IsSuperAdmin]
 
@@ -23,6 +44,7 @@ class AdminBusinessListView(APIView):
         # Platform-wide scope: admin reads across ALL Businesses.
         # Intentionally NOT filtered by business__owner=request.user.
         businesses = Business.objects.all().order_by("-created_at")
+        _audit(request.user, "BUSINESS_LIST_VIEWED", event_type="business")
         return Response([_serialize_business(b) for b in businesses])
 
 
@@ -33,4 +55,243 @@ class AdminBusinessDetailView(APIView):
         business = Business.objects.filter(id=business_id).first()
         if business is None:
             return Response({"detail": "Not found."}, status=404)
+        _audit(
+            request.user,
+            "BUSINESS_DETAIL_VIEWED",
+            event_type="business",
+            business=business,
+        )
         return Response(_serialize_business(business))
+
+
+class AdminAccountListView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def get(self, request):
+        owners = User.objects.filter(businesses__isnull=False).distinct()
+        accounts = []
+        for owner in owners:
+            businesses = Business.objects.filter(owner=owner)
+            subscriptions = Subscription.objects.filter(business__in=businesses)
+            user_ids = BusinessMembership.objects.filter(
+                business__in=businesses
+            ).values_list("user", flat=True).distinct()
+            accounts.append(
+                {
+                    "owner_id": str(owner.id),
+                    "owner_email": owner.email,
+                    "owner_name": f"{owner.first_name} {owner.last_name}".strip(),
+                    "business_count": businesses.count(),
+                    "businesses": [_serialize_business(b) for b in businesses],
+                    "user_count": user_ids.count(),
+                    "subscription_summary": {
+                        "total": subscriptions.count(),
+                        "active": subscriptions.filter(status="ACTIVE").count(),
+                        "expired": subscriptions.exclude(status="ACTIVE").count(),
+                    },
+                }
+            )
+        _audit(request.user, "ACCOUNT_LIST_VIEWED", event_type="account")
+        return Response(accounts)
+
+
+class AdminAccountDetailView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def get(self, request, owner_user_id):
+        owner = User.objects.filter(id=owner_user_id).first()
+        if owner is None:
+            return Response({"detail": "Not found."}, status=404)
+        businesses = Business.objects.filter(owner=owner)
+        if not businesses.exists():
+            return Response({"detail": "Not found."}, status=404)
+        subscriptions = Subscription.objects.filter(business__in=businesses)
+        user_ids = BusinessMembership.objects.filter(
+            business__in=businesses
+        ).values_list("user", flat=True).distinct()
+        _audit(
+            request.user,
+            "ACCOUNT_DETAIL_VIEWED",
+            event_type="account",
+            target=str(owner.id),
+        )
+        return Response(
+            {
+                "owner_id": str(owner.id),
+                "owner_email": owner.email,
+                "owner_name": f"{owner.first_name} {owner.last_name}".strip(),
+                "business_count": businesses.count(),
+                "businesses": [_serialize_business(b) for b in businesses],
+                "user_count": user_ids.count(),
+                "subscription_summary": {
+                    "total": subscriptions.count(),
+                    "active": subscriptions.filter(status="ACTIVE").count(),
+                    "expired": subscriptions.exclude(status="ACTIVE").count(),
+                },
+            }
+        )
+
+
+class AdminOwnerListView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def get(self, request):
+        owners = User.objects.filter(businesses__isnull=False).distinct()
+        result = []
+        for owner in owners:
+            businesses = Business.objects.filter(owner=owner)
+            subscriptions = Subscription.objects.filter(business__in=businesses)
+            result.append(
+                {
+                    "id": str(owner.id),
+                    "email": owner.email,
+                    "first_name": owner.first_name,
+                    "last_name": owner.last_name,
+                    "is_active": owner.is_active,
+                    "is_email_verified": owner.is_email_verified,
+                    "business_count": businesses.count(),
+                    "businesses": [_serialize_business(b) for b in businesses],
+                    "subscription_summary": {
+                        "total": subscriptions.count(),
+                        "active": subscriptions.filter(status="ACTIVE").count(),
+                    },
+                }
+            )
+        _audit(request.user, "OWNER_LIST_VIEWED", event_type="owner")
+        return Response(result)
+
+
+class AdminOwnerDetailView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def get(self, request, owner_id):
+        owner = User.objects.filter(id=owner_id).first()
+        if owner is None:
+            return Response({"detail": "Not found."}, status=404)
+        businesses = Business.objects.filter(owner=owner)
+        if not businesses.exists():
+            return Response({"detail": "Not found."}, status=404)
+        subscriptions = Subscription.objects.filter(business__in=businesses)
+        _audit(
+            request.user,
+            "OWNER_DETAIL_VIEWED",
+            event_type="owner",
+            target=str(owner.id),
+        )
+        return Response(
+            {
+                "id": str(owner.id),
+                "email": owner.email,
+                "first_name": owner.first_name,
+                "last_name": owner.last_name,
+                "is_active": owner.is_active,
+                "is_email_verified": owner.is_email_verified,
+                "business_count": businesses.count(),
+                "businesses": [_serialize_business(b) for b in businesses],
+                "subscription_summary": {
+                    "total": subscriptions.count(),
+                    "active": subscriptions.filter(status="ACTIVE").count(),
+                    "expired": subscriptions.exclude(status="ACTIVE").count(),
+                },
+            }
+        )
+
+
+class AdminUserListView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def get(self, request):
+        users = User.objects.all().order_by("-created_at")
+        result = [_serialize_user(u) for u in users]
+        _audit(request.user, "USER_LIST_VIEWED", event_type="user")
+        return Response(result)
+
+
+class AdminUserDetailView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def get(self, request, user_id):
+        user = User.objects.filter(id=user_id).first()
+        if user is None:
+            return Response({"detail": "Not found."}, status=404)
+        memberships = BusinessMembership.objects.filter(user=user)
+        employees = Employee.objects.filter(user=user)
+        accessible_businesses = Business.objects.filter(memberships__user=user).distinct()
+        _audit(
+            request.user,
+            "USER_DETAIL_VIEWED",
+            event_type="user",
+            target=str(user.id),
+        )
+        return Response(
+            {
+                **_serialize_user(user),
+                "accessible_businesses": [
+                    _serialize_business(b) for b in accessible_businesses
+                ],
+                "memberships": [
+                    {
+                        "business_id": str(m.business_id),
+                        "role": m.role,
+                    }
+                    for m in memberships
+                ],
+                "employee_info": [
+                    {
+                        "business_id": str(e.business_id),
+                        "name": e.name,
+                        "code": e.code,
+                        "active": e.active,
+                    }
+                    for e in employees
+                ],
+            }
+        )
+
+
+class AdminAdminListView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def get(self, request):
+        # Internal KOPERA platform administrative users.
+        admins = User.objects.filter(is_staff=True).order_by("-created_at")
+        result = [
+            {
+                "id": str(a.id),
+                "email": a.email,
+                "first_name": a.first_name,
+                "last_name": a.last_name,
+                "is_staff": a.is_staff,
+                "is_superuser": a.is_superuser,
+                "is_active": a.is_active,
+            }
+            for a in admins
+        ]
+        _audit(request.user, "ADMIN_LIST_VIEWED", event_type="admin")
+        return Response(result)
+
+
+class AdminAdminDetailView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def get(self, request, admin_id):
+        admin = User.objects.filter(id=admin_id, is_staff=True).first()
+        if admin is None:
+            return Response({"detail": "Not found."}, status=404)
+        _audit(
+            request.user,
+            "ADMIN_DETAIL_VIEWED",
+            event_type="admin",
+            target=str(admin.id),
+        )
+        return Response(
+            {
+                "id": str(admin.id),
+                "email": admin.email,
+                "first_name": admin.first_name,
+                "last_name": admin.last_name,
+                "is_staff": admin.is_staff,
+                "is_superuser": admin.is_superuser,
+                "is_active": admin.is_active,
+            }
+        )

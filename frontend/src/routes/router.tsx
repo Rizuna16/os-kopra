@@ -91,6 +91,14 @@ import { PlatformLayout } from "../components/PlatformLayout";
 import { SuperAdminDashboard } from "../pages/SuperAdminDashboard";
 import { SuperAdminBusinesses } from "../pages/SuperAdminBusinesses";
 import { SuperAdminBusinessDetail } from "../pages/SuperAdminBusinessDetail";
+import { SuperAdminAccounts } from "../pages/SuperAdminAccounts";
+import { SuperAdminAccountDetail } from "../pages/SuperAdminAccountDetail";
+import { SuperAdminOwners } from "../pages/SuperAdminOwners";
+import { SuperAdminOwnerDetail } from "../pages/SuperAdminOwnerDetail";
+import { SuperAdminUsers } from "../pages/SuperAdminUsers";
+import { SuperAdminUserDetail } from "../pages/SuperAdminUserDetail";
+import { SuperAdminAdmins } from "../pages/SuperAdminAdmins";
+import { SuperAdminAdminDetail } from "../pages/SuperAdminAdminDetail";
 import { SuperAdminAuditLogs } from "../pages/SuperAdminAuditLogs";
 import { SuperAdminBackups } from "../pages/SuperAdminBackups";
 
@@ -999,6 +1007,87 @@ export function AppRoutes() {
             <ProtectedRoute>
               <PlatformLayout>
                 <SuperAdminBackups />
+              </PlatformLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/platform-admin/accounts"
+          element={
+            <ProtectedRoute>
+              <PlatformLayout>
+                <SuperAdminAccounts />
+              </PlatformLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/platform-admin/accounts/:ownerUserId"
+          element={
+            <ProtectedRoute>
+              <PlatformLayout>
+                <SuperAdminAccountDetail />
+              </PlatformLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/platform-admin/owners"
+          element={
+            <ProtectedRoute>
+              <PlatformLayout>
+                <SuperAdminOwners />
+              </PlatformLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/platform-admin/owners/:ownerId"
+          element={
+            <ProtectedRoute>
+              <PlatformLayout>
+                <SuperAdminOwnerDetail />
+              </PlatformLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/platform-admin/users"
+          element={
+            <ProtectedRoute>
+              <PlatformLayout>
+                <SuperAdminUsers />
+              </PlatformLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/platform-admin/users/:userId"
+          element={
+            <ProtectedRoute>
+              <PlatformLayout>
+                <SuperAdminUserDetail />
+              </PlatformLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/platform-admin/admins"
+          element={
+            <ProtectedRoute>
+              <PlatformLayout>
+                <SuperAdminAdmins />
+              </PlatformLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/platform-admin/admins/:adminId"
+          element={
+            <ProtectedRoute>
+              <PlatformLayout>
+                <SuperAdminAdminDetail />
               </PlatformLayout>
             </ProtectedRoute>
           }
