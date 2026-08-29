@@ -42,6 +42,56 @@ def _audit(actor, action, **kwargs):
 # =====================================================================
 
 
+class AdminPlatformFeatureListView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def get(self, request):
+        features = Feature.objects.select_related("module").all().order_by("-created_at")
+        return Response(FeatureSerializer(features, many=True).data)
+
+
+class AdminPlatformFeatureDetailView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def get_object(self, feature_id):
+        return Feature.objects.filter(id=feature_id).first()
+
+    def get(self, request, feature_id):
+        feature = self.get_object(feature_id)
+        if feature is None:
+            return Response({"detail": "Not found."}, status=404)
+        return Response(FeatureSerializer(feature).data)
+
+
+class AdminPlatformFeatureEnableView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def post(self, request, feature_id):
+        feature = Feature.objects.filter(id=feature_id).first()
+        if feature is None:
+            return Response({"detail": "Not found."}, status=404)
+        feature.is_active = True
+        feature.save(update_fields=["is_active", "updated_at"])
+        return Response(FeatureSerializer(feature).data)
+
+
+class AdminPlatformFeatureDisableView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def post(self, request, feature_id):
+        feature = Feature.objects.filter(id=feature_id).first()
+        if feature is None:
+            return Response({"detail": "Not found."}, status=404)
+        feature.is_active = False
+        feature.save(update_fields=["is_active", "updated_at"])
+        return Response(FeatureSerializer(feature).data)
+
+
+# =====================================================================
+# DOMAIN 10 — FEATURE & MODULE MANAGEMENT
+# =====================================================================
+
+
 class AdminModuleListView(APIView):
     permission_classes = [IsSuperAdmin]
 
