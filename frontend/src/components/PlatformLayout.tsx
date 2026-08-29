@@ -14,6 +14,8 @@ const NAV_ITEMS = [
   { to: "/platform-admin/admins", label: "Admins" },
   { to: "/platform-admin/audit-logs", label: "Audit Logs" },
   { to: "/platform-admin/backups", label: "Backup & Restore" },
+  { to: "/platform-admin/subscriptions", label: "Subscriptions" },
+  { to: "/platform-admin/plans", label: "Plans" },
 ];
 
 export function PlatformLayout({ children }: { children: ReactNode }) {

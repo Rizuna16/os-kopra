@@ -11,6 +11,12 @@ from apps.admin.views import (
     AdminUserDetailView,
     AdminAdminListView,
     AdminAdminDetailView,
+    AdminSubscriptionListView,
+    AdminSubscriptionDetailView,
+    AdminPlanListCreateView,
+    AdminPlanDetailUpdateView,
+    AdminPlanEnableView,
+    AdminPlanDisableView,
 )
 
 app_name = "koperaadmin"
@@ -45,5 +51,27 @@ urlpatterns = [
         "admins/<uuid:admin_id>/",
         AdminAdminDetailView.as_view(),
         name="admin-detail",
+    ),
+    path("subscriptions/", AdminSubscriptionListView.as_view(), name="subscription-list"),
+    path(
+        "subscriptions/<uuid:subscription_id>/",
+        AdminSubscriptionDetailView.as_view(),
+        name="subscription-detail",
+    ),
+    path("plans/", AdminPlanListCreateView.as_view(), name="plan-list-create"),
+    path(
+        "plans/<uuid:plan_id>/",
+        AdminPlanDetailUpdateView.as_view(),
+        name="plan-detail-update",
+    ),
+    path(
+        "plans/<uuid:plan_id>/enable/",
+        AdminPlanEnableView.as_view(),
+        name="plan-enable",
+    ),
+    path(
+        "plans/<uuid:plan_id>/disable/",
+        AdminPlanDisableView.as_view(),
+        name="plan-disable",
     ),
 ]

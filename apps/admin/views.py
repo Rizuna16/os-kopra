@@ -6,6 +6,7 @@ from apps.authentication.models import User
 from apps.business.models import Business, Subscription, BusinessMembership
 from apps.employee.models import Employee
 from apps.audit.models import AuditLog
+from apps.billing.models import Plan
 
 
 def _audit(actor, action, **kwargs):
@@ -295,3 +296,174 @@ class AdminAdminDetailView(APIView):
                 "is_active": admin.is_active,
             }
         )
+
+
+def _serialize_subscription(sub):
+    business = sub.business
+    owner = business.owner if business else None
+    return {
+        "id": str(sub.id),
+        "business_id": str(business.id) if business else None,
+        "business_name": business.name if business else None,
+        "owner_id": str(owner.id) if owner else None,
+        "owner_email": owner.email if owner else None,
+        "status": sub.status,
+        "created_at": sub.created_at.isoformat() if sub.created_at else None,
+        "updated_at": sub.updated_at.isoformat() if sub.updated_at else None,
+    }
+
+
+def _serialize_plan(plan):
+    return {
+        "id": str(plan.id),
+        "name": plan.name,
+        "code": plan.code,
+        "amount": str(plan.amount),
+        "currency": plan.currency,
+        "billing_interval": plan.billing_interval,
+        "is_active": plan.is_active,
+        "created_at": plan.created_at.isoformat() if plan.created_at else None,
+        "updated_at": plan.updated_at.isoformat() if plan.updated_at else None,
+    }
+
+
+class AdminSubscriptionListView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def get(self, request):
+        subscriptions = Subscription.objects.all().order_by("-created_at")
+        _audit(request.user, "SUBSCRIPTION_LIST_VIEWED", event_type="subscription")
+        return Response([_serialize_subscription(s) for s in subscriptions])
+
+
+class AdminSubscriptionDetailView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def get(self, request, subscription_id):
+        sub = Subscription.objects.filter(id=subscription_id).first()
+        if sub is None:
+            return Response({"detail": "Not found."}, status=404)
+        _audit(
+            request.user,
+            "SUBSCRIPTION_DETAIL_VIEWED",
+            event_type="subscription",
+            target=str(sub.id),
+        )
+        return Response(_serialize_subscription(sub))
+
+
+class AdminPlanListCreateView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def get(self, request):
+        plans = Plan.objects.all().order_by("-created_at")
+        _audit(request.user, "PLAN_LIST_VIEWED", event_type="plan")
+        return Response([_serialize_plan(p) for p in plans])
+
+    def post(self, request):
+        data = request.data
+        name = data.get("name")
+        code = data.get("code")
+        amount = data.get("amount")
+        billing_interval = data.get("billing_interval", Plan.BillingInterval.MONTHLY)
+        is_active = data.get("is_active", True)
+        currency = data.get("currency", "IDR")
+
+        if not name or not code or amount is None:
+            return Response({"detail": "Missing required fields (name, code, amount)."}, status=400)
+
+        if Plan.objects.filter(code=code).exists():
+            return Response({"detail": "Plan with this code already exists."}, status=400)
+
+        plan = Plan.objects.create(
+            name=name,
+            code=code,
+            amount=amount,
+            billing_interval=billing_interval,
+            is_active=is_active,
+            currency=currency,
+        )
+        _audit(request.user, "PLAN_CREATED", event_type="plan", target=str(plan.id))
+        return Response(_serialize_plan(plan), status=201)
+
+
+class AdminPlanDetailUpdateView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def get(self, request, plan_id):
+        plan = Plan.objects.filter(id=plan_id).first()
+        if plan is None:
+            return Response({"detail": "Not found."}, status=404)
+        _audit(
+            request.user,
+            "PLAN_DETAIL_VIEWED",
+            event_type="plan",
+            target=str(plan.id),
+        )
+        return Response(_serialize_plan(plan))
+
+    def patch(self, request, plan_id):
+        plan = Plan.objects.filter(id=plan_id).first()
+        if plan is None:
+            return Response({"detail": "Not found."}, status=404)
+        
+        data = request.data
+        if "name" in data:
+            plan.name = data["name"]
+        if "code" in data:
+            if Plan.objects.filter(code=data["code"]).exclude(id=plan.id).exists():
+                return Response({"detail": "Plan with this code already exists."}, status=400)
+            plan.code = data["code"]
+        if "amount" in data:
+            plan.amount = data["amount"]
+        if "billing_interval" in data:
+            plan.billing_interval = data["billing_interval"]
+        if "is_active" in data:
+            plan.is_active = data["is_active"]
+        if "currency" in data:
+            plan.currency = data["currency"]
+        plan.save()
+
+        _audit(
+            request.user,
+            "PLAN_UPDATED",
+            event_type="plan",
+            target=str(plan.id),
+        )
+        return Response(_serialize_plan(plan))
+
+
+class AdminPlanEnableView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def post(self, request, plan_id):
+        plan = Plan.objects.filter(id=plan_id).first()
+        if plan is None:
+            return Response({"detail": "Not found."}, status=404)
+        plan.is_active = True
+        plan.save()
+        _audit(
+            request.user,
+            "PLAN_ENABLED",
+            event_type="plan",
+            target=str(plan.id),
+        )
+        return Response(_serialize_plan(plan), status=200)
+
+
+class AdminPlanDisableView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def post(self, request, plan_id):
+        plan = Plan.objects.filter(id=plan_id).first()
+        if plan is None:
+            return Response({"detail": "Not found."}, status=404)
+        plan.is_active = False
+        plan.save()
+        _audit(
+            request.user,
+            "PLAN_DISABLED",
+            event_type="plan",
+            target=str(plan.id),
+        )
+        return Response(_serialize_plan(plan), status=200)

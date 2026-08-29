@@ -79,7 +79,12 @@ export async function bootAuthCapture(
         // Superuser: return sane payloads per endpoint + method.
         if (
           String(url).includes("/businesses/") ||
-          String(url).includes("/audit-logs/")
+          String(url).includes("/audit-logs/") ||
+          String(url).includes("/accounts/") ||
+          String(url).includes("/owners/") ||
+          String(url).includes("/admin/users/") ||
+          String(url).includes("/admin/admins/") ||
+          String(url).includes("/users/")
         ) {
           return new Response("[]", {
             status: 200,
@@ -104,6 +109,121 @@ export async function bootAuthCapture(
           );
         }
         // POST trigger/restore or GET monitoring
+        if (
+          String(url).includes("/subscriptions/") ||
+          String(url).includes("/plans/")
+        ) {
+          if (method === "POST" && String(url).endsWith("/enable/")) {
+            return new Response(
+              JSON.stringify({
+                id: "plan-1",
+                name: "Plan",
+                code: "plan",
+                amount: "100000.00",
+                currency: "IDR",
+                billing_interval: "MONTHLY",
+                is_active: true,
+                created_at: null,
+                updated_at: null,
+              }),
+              { status: 200, headers: { "Content-Type": "application/json" } },
+            );
+          }
+          if (method === "POST" && String(url).endsWith("/disable/")) {
+            return new Response(
+              JSON.stringify({
+                id: "plan-1",
+                name: "Plan",
+                code: "plan",
+                amount: "100000.00",
+                currency: "IDR",
+                billing_interval: "MONTHLY",
+                is_active: false,
+                created_at: null,
+                updated_at: null,
+              }),
+              { status: 200, headers: { "Content-Type": "application/json" } },
+            );
+          }
+          if (method === "POST") {
+            return new Response(
+              JSON.stringify({
+                id: "plan-1",
+                name: "Plan",
+                code: "plan",
+                amount: "100000.00",
+                currency: "IDR",
+                billing_interval: "MONTHLY",
+                is_active: true,
+                created_at: null,
+                updated_at: null,
+              }),
+              { status: 201, headers: { "Content-Type": "application/json" } },
+            );
+          }
+          if (method === "PATCH") {
+            return new Response(
+              JSON.stringify({
+                id: "plan-1",
+                name: "Plan",
+                code: "plan",
+                amount: "100000.00",
+                currency: "IDR",
+                billing_interval: "MONTHLY",
+                is_active: true,
+                created_at: null,
+                updated_at: null,
+              }),
+              { status: 200, headers: { "Content-Type": "application/json" } },
+            );
+          }
+          // GET list or detail
+          if (String(url).includes("/subscriptions/")) {
+            const isDetail = !String(url).endsWith("/subscriptions/");
+            if (isDetail) {
+              return new Response(
+                JSON.stringify({
+                  id: "sub-1",
+                  business_id: "biz-1",
+                  business_name: "Biz",
+                  owner_id: "owner-1",
+                  owner_email: "o@b.com",
+                  status: "ACTIVE",
+                  created_at: "2024-01-01T00:00:00Z",
+                  updated_at: "2024-01-01T00:00:00Z",
+                }),
+                { status: 200, headers: { "Content-Type": "application/json" } },
+              );
+            }
+            return new Response("[]", {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            });
+          }
+          if (String(url).includes("/plans/")) {
+            const isDetail = !String(url).endsWith("/plans/");
+            if (isDetail) {
+              return new Response(
+                JSON.stringify({
+                  id: "plan-1",
+                  name: "Plan",
+                  code: "plan",
+                  amount: "100000.00",
+                  currency: "IDR",
+                  billing_interval: "MONTHLY",
+                  is_active: true,
+                  created_at: null,
+                  updated_at: null,
+                }),
+                { status: 200, headers: { "Content-Type": "application/json" } },
+              );
+            }
+            return new Response("[]", {
+              status: 200,
+              headers: { "Content-Type": "application/json" },
+            });
+          }
+        }
         return new Response("{}", {
           status: 200,
           headers: { "Content-Type": "application/json" },

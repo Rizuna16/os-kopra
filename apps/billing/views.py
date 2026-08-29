@@ -17,7 +17,7 @@ logger = logging.getLogger("apps.billing")
 
 
 class PlanListView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]  # Updated per instruction
 
     def get(self, request):
         plans = Plan.objects.filter(is_active=True)

@@ -101,6 +101,10 @@ import { SuperAdminAdmins } from "../pages/SuperAdminAdmins";
 import { SuperAdminAdminDetail } from "../pages/SuperAdminAdminDetail";
 import { SuperAdminAuditLogs } from "../pages/SuperAdminAuditLogs";
 import { SuperAdminBackups } from "../pages/SuperAdminBackups";
+import { SuperAdminSubscriptions } from "../pages/SuperAdminSubscriptions";
+import { SuperAdminSubscriptionDetail } from "../pages/SuperAdminSubscriptionDetail";
+import { SuperAdminPlans } from "../pages/SuperAdminPlans";
+import { SuperAdminPlanDetail } from "../pages/SuperAdminPlanDetail";
 
 function BusinessRoute({ children }: { children: ReactNode }) {
   const { currentBusinessId, currentBusiness } = useBusiness();
@@ -1088,6 +1092,58 @@ export function AppRoutes() {
             <ProtectedRoute>
               <PlatformLayout>
                 <SuperAdminAdminDetail />
+              </PlatformLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Domain 06 — Subscription & Plan Governance */}
+        <Route
+          path="/platform-admin/subscriptions"
+          element={
+            <ProtectedRoute>
+              <PlatformLayout>
+                <SuperAdminSubscriptions />
+              </PlatformLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/platform-admin/subscriptions/:subscriptionId"
+          element={
+            <ProtectedRoute>
+              <PlatformLayout>
+                <SuperAdminSubscriptionDetail />
+              </PlatformLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/platform-admin/plans"
+          element={
+            <ProtectedRoute>
+              <PlatformLayout>
+                <SuperAdminPlans />
+              </PlatformLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/platform-admin/plans/new"
+          element={
+            <ProtectedRoute>
+              <PlatformLayout>
+                <SuperAdminPlanDetail />
+              </PlatformLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/platform-admin/plans/:planId"
+          element={
+            <ProtectedRoute>
+              <PlatformLayout>
+                <SuperAdminPlanDetail />
               </PlatformLayout>
             </ProtectedRoute>
           }
