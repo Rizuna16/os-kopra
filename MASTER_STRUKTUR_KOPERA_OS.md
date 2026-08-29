@@ -679,7 +679,15 @@ PLATFORM KOPERA � STRUKTUR SUPER ADMIN (P1 COMMERCIAL FOUNDATION):
       |   +-- read-only (tidak ada mutasi POST/PUT/PATCH/DELETE)
       |   +-- audit event server-generated: DASHBOARD_VIEWED
       |   +-- platform aggregation hanya untuk Super Admin
-      +-- 02. ACCOUNT MANAGEMENT
+      +-- 02. ACCOUNT MANAGEMENT (Domain 02 - LOCKED)
+      |   +-- account list (GET /api/v1/admin/accounts/)
+      |   +-- account detail (GET /api/v1/admin/accounts/<uuid:owner_user_id>/)
+      |   +-- logical Account = owner User yang memiliki businesses
+      |   +-- owner identity summary, business aggregation, user aggregation, subscription summary
+      |   +-- read-only (tidak ada mutasi POST/PUT/PATCH/DELETE)
+      |   +-- audit event server-generated: ACCOUNT_LIST_VIEWED, ACCOUNT_DETAIL_VIEWED
+      |   +-- platform aggregation hanya untuk Super Admin
+      |   +-- TIDAK membuat physical Account model
       +-- 03. OWNER MANAGEMENT
       +-- 04. BUSINESS / USAHA MANAGEMENT
       +-- 05. USER / EMPLOYEE MANAGEMENT
@@ -699,6 +707,15 @@ PLATFORM KOPERA � STRUKTUR SUPER ADMIN (P1 COMMERCIAL FOUNDATION):
   - POST/PUT/PATCH/DELETE -> 405/403 (read-only enforcement).
   - Audit event server-generated: DASHBOARD_VIEWED.
   - Tidak ada modifikasi backend lain; frontend route /platform-admin/dashboard.
+- Domain 02 Account Management (PART 29 - P1 Commercial Foundation): LOCKED.
+  - Platform-level account oversight bersifat READ-ONLY (GET /api/v1/admin/accounts/, /{owner_user_id}/).
+  - Logical Account = owner User yang memiliki businesses; TIDAK ada physical Account model.
+  - Owner identity summary, business aggregation, user aggregation, subscription summary.
+  - Anonymous -> 401; Owner/Admin/Kasir/non-superuser staff -> 403; Super Admin -> 200.
+  - POST/PUT/PATCH/DELETE -> 405/403 (read-only enforcement).
+  - Audit event server-generated: ACCOUNT_LIST_VIEWED, ACCOUNT_DETAIL_VIEWED.
+  - Domain 03 Owner, 04 Business, 05 User, 06 Subscription, 07 Payment tetap terpisah; finance.models.Account BUKAN Platform Account.
+  - Frontend route /platform-admin/accounts, /:ownerUserId.
 - Domain 07 Payment & Billing (PART 29 - P1 Commercial Foundation): LOCKED.
   - Payment oversight bersifat READ-ONLY (list / detail).
   - Billing summary menghitung realized revenue HANYA dari status PAID.

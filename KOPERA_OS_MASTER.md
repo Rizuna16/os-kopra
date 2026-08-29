@@ -7538,3 +7538,72 @@ The dashboard endpoint aggregates and returns the following seven metrics:
 ### I. LOCK STATUS
 🔒 **LOCKED**
 Domain 01 Super Admin Dashboard is fully documented and locked.
+
+---
+
+## 48. PART 29 — DOMAIN 02 ACCOUNT MANAGEMENT
+
+### STATUS
+LOCKED (Discovery PASS / Contract Lock PASS / RED PASS / GREEN PASS / Regression PASS / Security Audit PASS / Documentation & Lock PASS)
+
+### A. SCOPE & PLATFORM LEVEL
+- Domain 02 Account Management provides platform-level oversight of customer/tenant accounts across the KOPERA OS platform.
+- Strictly restricted to Super Admin (`is_superuser=True`).
+- Completely orthogonal to tenant roles (`BusinessMembership.role`), tenant permissions (`ROLE_PERMISSIONS`), and tenant data scopes.
+
+### B. ARCHITECTURAL DECISION & LOGICAL ACCOUNT DEFINITION
+- **Logical Account**: Platform Account is logically represented by the owner `User` who owns businesses (`User.objects.filter(businesses__isnull=False)`).
+- **DO NOT create a physical Account model**: Preserved as established in PART 28 P0 governance foundation.
+- **Explicit Domain Boundaries**:
+  - Owner Management → Domain 03
+  - Business Management → Domain 04
+  - User Management → Domain 05
+  - Subscription → Domain 06
+  - Payment & Billing → Domain 07
+  - `apps.finance.models.Account` (Chart of Accounts) is NOT Platform Account Management.
+
+### C. BACKEND API CONTRACT
+- **Endpoints**:
+  - `GET /api/v1/admin/accounts/` — Platform-wide account list (read-only)
+  - `GET /api/v1/admin/accounts/<uuid:owner_user_id>/` — Account detail by owner user id (read-only)
+- **Behavior Contract**:
+  - Super Admin → `200 OK` with JSON payload containing owner summary, business aggregation, user aggregation, and subscription summary.
+  - Anonymous → `401 Unauthorized`
+  - Tenant Owner / Admin / Kasir / non-superuser staff → `403 Forbidden`
+  - POST / PUT / PATCH / DELETE mutations → `405 Method Not Allowed` / `403 Forbidden` (Read-only enforcement).
+
+### D. FRONTEND ROUTES & LAYOUT
+- **Frontend Routes**:
+  - `/platform-admin/accounts`
+  - `/platform-admin/accounts/:ownerUserId`
+- **Layout**: `PlatformLayout` (renders under platform admin navigation, outside tenant business context).
+- **Components**: `SuperAdminAccounts` (`frontend/src/pages/SuperAdminAccounts.tsx`), `SuperAdminAccountDetail` (`frontend/src/pages/SuperAdminAccountDetail.tsx`).
+- **Tests**: `frontend/src/test/superAdminDomain02.test.tsx`.
+
+### E. AUTHORIZATION BOUNDARY
+- Relies on `IsSuperAdmin` permission class (`apps.admin.permissions.IsSuperAdmin`), requiring `request.user.is_authenticated AND request.user.is_superuser`.
+- No tenant membership checks or `BusinessAccessMixin` applied.
+
+### F. AUDIT CONTRACT (`ACCOUNT_LIST_VIEWED`, `ACCOUNT_DETAIL_VIEWED`)
+- Server-generated AuditLog events emitted on successful requests:
+  - `ACCOUNT_LIST_VIEWED`
+  - `ACCOUNT_DETAIL_VIEWED`
+- Actor = `request.user`; event type never accepted from client payload.
+- Audit failure must not break the main request.
+
+### G. TESTING & VERIFICATION SUMMARY
+- **Backend Focused Tests**: 17/17 PASS (`apps/admin/tests/test_part29_domain02_red.py`).
+- **Frontend Tests**: 5/5 PASS (`frontend/src/test/superAdminDomain02.test.tsx`).
+- **Backend Full Regression**: 1298/1298 PASS.
+- **Frontend Full Regression**: 946/946 PASS.
+- **TypeScript Compilation (`tsc --noEmit`)**: PASS.
+- **Production Build (`npm run build`)**: PASS.
+
+### H. SECURITY AUDIT STATUS
+🟢 **PASS**
+- 0 security findings.
+- Strict authorization (`IsSuperAdmin`), read-only enforcement, secure aggregation boundaries, and immutable audit logging verified.
+
+### I. LOCK STATUS
+🔒 **LOCKED**
+Domain 02 Account Management is fully documented and locked.
