@@ -802,6 +802,8 @@ PLATFORM KOPERA � STRUKTUR SUPER ADMIN (P1 COMMERCIAL FOUNDATION):
   - Billing summary menghitung realized revenue HANYA dari status PAID.
   - Tidak ada endpoint POST/PUT/PATCH/DELETE payment.
   - Midtrans webhook tetap satu-satunya sumber kebenaran status payment.
+  - Tenant billing ownership, Midtrans webhook behavior, Domain 06, dan Domain 10 tidak diubah.
+  - Audit event server-generated: PAYMENT_LIST_VIEWED, PAYMENT_DETAIL_VIEWED, BILLING_SUMMARY_VIEWED.
 - Domain 11 Feature & Module Management (PART 29 - P1 Commercial Foundation): LOCKED.
   - Platform-level feature/module toggles bersifat Super Admin only.
   - List platform features (GET /api/v1/admin/platform/features/).
@@ -815,7 +817,6 @@ PLATFORM KOPERA � STRUKTUR SUPER ADMIN (P1 COMMERCIAL FOUNDATION):
   - Invalid/nonexistent feature -> safe 404 behavior.
   - No dependency/configuration engine accidentally exposed.
   - Audit event server-generated: FEATURE_LIST_VIEWED, FEATURE_DETAIL_VIEWED, FEATURE_ENABLED, FEATURE_DISABLED.
-  - Separate from Domain 10: Domain 10 has full CRUD on modules/features with business overrides; Domain 11 is platform-wide toggle only.
+  - Separate from Domain 09 Notification, Domain 10 Content Management, Domain 19 Platform Settings, and Domain 20 Version & Release.
   - Frontend route /platform-admin/platform/features.
-  - Tenant billing ownership, Midtrans webhook behavior, Domain 06, dan Domain 10 tidak diubah.
-  - Audit event server-generated: PAYMENT_LIST_VIEWED, PAYMENT_DETAIL_VIEWED, BILLING_SUMMARY_VIEWED.
+
