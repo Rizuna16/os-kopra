@@ -7675,3 +7675,78 @@ LOCKED (Discovery PASS / Contract Lock PASS / RED PASS / GREEN PASS / Regression
 ### I. LOCK STATUS
 🔒 **LOCKED**
 Domain 03 Owner Management is fully documented and locked.
+
+---
+
+## 50. PART 29 — DOMAIN 04 BUSINESS MANAGEMENT
+
+### STATUS
+LOCKED (Discovery PASS / Contract Lock PASS / RED PASS / GREEN PASS / Regression PASS / Security Audit PASS / Documentation & Lock PASS)
+
+### A. SCOPE & PLATFORM LEVEL
+- Domain 04 Business Management provides platform-level oversight of all businesses across the KOPERA OS platform at the Super Admin level.
+- Strictly restricted to Super Admin (`is_superuser=True`).
+- Completely orthogonal to tenant roles (`BusinessMembership.role`), tenant permissions (`ROLE_PERMISSIONS`), and tenant data scopes.
+- Platform-wide scope: reads across ALL businesses intentionally (NOT filtered by `business__owner=request.user`).
+
+### B. ARCHITECTURAL DECISION & BUSINESS DEFINITION
+- **Business**: the `apps.business.models.Business` entity (`id`, `name`, `owner`, `status`, `created_at`, `updated_at`) with related `Subscription` status.
+- **DO NOT add business creation / update / deletion / activation / suspension / search / filter / pagination** under the platform admin contract: these remain tenant-side (`BusinessCreateView`) or out of scope for this V1/P0 contract.
+- **Explicit Domain Boundaries**:
+  - Domain 02 Account Management → logical account (owner anchor + aggregation)
+  - Domain 03 Owner Management → owner identity/status
+  - Domain 05 User Management → users/memberships/roles
+  - Domain 06 Subscription → subscription entities
+  - Domain 07 Payment & Billing → payments/billing
+
+### C. BACKEND API CONTRACT
+- **Endpoints**:
+  - `GET /api/v1/admin/businesses/` — Platform-wide business list (read-only)
+  - `GET /api/v1/admin/businesses/<uuid:business_id>/` — Business detail (read-only)
+- **Required Business Fields**:
+  - `id` (UUID)
+  - `name`
+  - `status` (`ONBOARDING`, `ACTIVE`, `SUSPENDED`, `CLOSED`)
+  - `owner_id` (UUID of owning `User`)
+  - `subscription_status` (derived from related `Subscription`, or `null`)
+- **Behavior Contract**:
+  - Super Admin → `200 OK` with JSON payload containing required business fields.
+  - Anonymous → `401 Unauthorized`
+  - Tenant Owner / Admin / Kasir / non-superuser staff → `403 Forbidden`
+  - POST / PUT / PATCH / DELETE mutations → `405 Method Not Allowed` / `403 Forbidden` (Read-only enforcement).
+- **Serialization**: via `_serialize_business()` helper in `apps.admin.views` (accepted; no dedicated DRF serializer required for this contract).
+
+### D. FRONTEND ROUTES & LAYOUT
+- **Frontend Routes**:
+  - `/platform-admin/businesses`
+  - `/platform-admin/businesses/:businessId`
+- **Layout**: `PlatformLayout` (renders under platform admin navigation, outside tenant business context).
+- **Components**: `SuperAdminBusinesses` (`frontend/src/pages/SuperAdminBusinesses.tsx`), `SuperAdminBusinessDetail` (`frontend/src/pages/SuperAdminBusinessDetail.tsx`).
+- **Tests**: `frontend/src/test/superAdminDomain04.test.tsx`.
+
+### E. AUTHORIZATION BOUNDARY
+- Relies on `IsSuperAdmin` permission class (`apps.admin.permissions.IsSuperAdmin`), requiring `request.user.is_authenticated AND request.user.is_superuser`.
+- No tenant membership checks or `BusinessAccessMixin` applied.
+
+### F. AUDIT CONTRACT (`BUSINESS_LIST_VIEWED`, `BUSINESS_DETAIL_VIEWED`)
+- Server-generated AuditLog events emitted on successful requests:
+  - `BUSINESS_LIST_VIEWED`
+  - `BUSINESS_DETAIL_VIEWED`
+- Actor = `request.user`; event type never accepted from client payload.
+- Audit failure must not break the main request.
+
+### G. TESTING & VERIFICATION SUMMARY
+- **Backend Focused Tests**: 17/17 PASS (`apps/admin/tests/test_part29_domain04_red.py`).
+- **Frontend Tests**: 3/3 PASS (`frontend/src/test/superAdminDomain04.test.tsx`).
+- **Backend Full Regression**: 152/152 PASS.
+- **TypeScript Compilation (`tsc --noEmit`)**: PASS.
+- **Production Build (`npm run build`)**: PASS.
+
+### H. SECURITY AUDIT STATUS
+🟢 **PASS**
+- 0 security findings.
+- Strict authorization (`IsSuperAdmin`), platform-wide read-only scope, IDOR/BOLA-safe (404 for arbitrary UUID), UUID path validation, minimized data exposure (no password/hash/JWT/refresh token/credentials/secrets), and immutable server-side audit logging verified.
+
+### I. LOCK STATUS
+🔒 **LOCKED**
+Domain 04 Business Management is fully documented and locked.

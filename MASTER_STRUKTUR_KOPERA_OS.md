@@ -699,7 +699,15 @@ PLATFORM KOPERA � STRUKTUR SUPER ADMIN (P1 COMMERCIAL FOUNDATION):
       |   +-- platform aggregation hanya untuk Super Admin
       |   +-- Owner adalah User pemilik usaha (bukan physical model)
       |   +-- Domain 02 Account != Domain 03 Owner; Domain 03 != Domain 04 Business; Domain 03 != Domain 05 User
-      +-- 04. BUSINESS / USAHA MANAGEMENT
+      +-- 04. BUSINESS / USAHA MANAGEMENT (Domain 04 - LOCKED)
+      |   +-- business list (GET /api/v1/admin/businesses/)
+      |   +-- business detail (GET /api/v1/admin/businesses/<uuid:business_id>/)
+      |   +-- required fields: id, name, status, owner_id, subscription_status
+      |   +-- status: ONBOARDING, ACTIVE, SUSPENDED, CLOSED
+      |   +-- read-only (tidak ada mutasi POST/PUT/PATCH/DELETE)
+      |   +-- audit event server-generated: BUSINESS_LIST_VIEWED, BUSINESS_DETAIL_VIEWED
+      |   +-- platform aggregation (Business.objects.all()) hanya untuk Super Admin
+      |   +-- Domain 02 Account != Domain 04 Business; Domain 03 Owner != Domain 04 Business; Domain 04 != Domain 05 User; Domain 04 != Domain 06 Subscription; Domain 04 != Domain 07 Payment
       +-- 05. USER / EMPLOYEE MANAGEMENT
       +-- 06. SUBSCRIPTION & PLAN (Domain 06 - LOCKED)
       +-- 07. PAYMENT & BILLING (Domain 07 - LOCKED)
@@ -735,6 +743,17 @@ PLATFORM KOPERA � STRUKTUR SUPER ADMIN (P1 COMMERCIAL FOUNDATION):
   - Audit event server-generated: OWNER_LIST_VIEWED, OWNER_DETAIL_VIEWED.
   - Domain 02 Account != Domain 03 Owner; Domain 03 != Domain 04 Business; Domain 03 != Domain 05 User.
   - Frontend route /platform-admin/owners, /:ownerId.
+- Domain 04 Business Management (PART 29 - P1 Commercial Foundation): LOCKED.
+  - Platform-level business oversight bersifat READ-ONLY (GET /api/v1/admin/businesses/, /{business_id}/).
+  - Required fields: id, name, status, owner_id, subscription_status (ONBOARDING/ACTIVE/SUSPENDED/CLOSED).
+  - Subscription status diturunkan dari related Subscription.
+  - Platform-wide scope (Business.objects.all()) — TIDAK difilter oleh owner.
+  - Anonymous -> 401; Owner/Admin/Kasir/non-superuser staff -> 403; Super Admin -> 200.
+  - POST/PUT/PATCH/DELETE -> 405/403 (read-only enforcement).
+  - TIDAK ada business creation/update/deletion/suspension/search/filter/pagination pada kontrak platform ini.
+  - Audit event server-generated: BUSINESS_LIST_VIEWED, BUSINESS_DETAIL_VIEWED.
+  - Domain 02 Account != Domain 04 Business; Domain 03 Owner != Domain 04 Business; Domain 04 != Domain 05 User; Domain 04 != Domain 06 Subscription; Domain 04 != Domain 07 Payment.
+  - Frontend route /platform-admin/businesses, /:businessId.
 - Domain 07 Payment & Billing (PART 29 - P1 Commercial Foundation): LOCKED.
   - Payment oversight bersifat READ-ONLY (list / detail).
   - Billing summary menghitung realized revenue HANYA dari status PAID.
