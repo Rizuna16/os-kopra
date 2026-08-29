@@ -2,6 +2,18 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.admin.permissions import IsSuperAdmin
+from apps.admin.models import (
+    Module,
+    Feature,
+    PlanFeature,
+    BusinessFeatureOverride,
+)
+from apps.admin.serializers import (
+    ModuleSerializer,
+    FeatureSerializer,
+    PlanFeatureSerializer,
+    BusinessFeatureOverrideSerializer,
+)
 from apps.authentication.models import User
 from apps.business.models import Business, Subscription, BusinessMembership
 from apps.employee.models import Employee
@@ -11,6 +23,316 @@ from apps.billing.models import Plan, Payment
 
 def _audit(actor, action, **kwargs):
     AuditLog.objects.create(actor=actor, action=action, **kwargs)
+
+
+# =====================================================================
+# DOMAIN 10 — FEATURE & MODULE MANAGEMENT
+# =====================================================================
+
+
+class AdminModuleListView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def get(self, request):
+        modules = Module.objects.all().order_by("-created_at")
+        _audit(request.user, "MODULE_LIST_VIEWED", event_type="module")
+        return Response(ModuleSerializer(modules, many=True).data)
+
+    def post(self, request):
+        serializer = ModuleSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        module = serializer.save()
+        _audit(
+            request.user,
+            "MODULE_CREATED",
+            event_type="module",
+            target=str(module.id),
+        )
+        return Response(ModuleSerializer(module).data, status=201)
+
+
+class AdminModuleDetailView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def get_object(self, module_id):
+        return Module.objects.filter(id=module_id).first()
+
+    def get(self, request, module_id):
+        module = self.get_object(module_id)
+        if module is None:
+            return Response({"detail": "Not found."}, status=404)
+        _audit(
+            request.user,
+            "MODULE_DETAIL_VIEWED",
+            event_type="module",
+            target=str(module.id),
+        )
+        return Response(ModuleSerializer(module).data)
+
+    def patch(self, request, module_id):
+        module = self.get_object(module_id)
+        if module is None:
+            return Response({"detail": "Not found."}, status=404)
+        serializer = ModuleSerializer(module, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        module = serializer.save()
+        _audit(
+            request.user,
+            "MODULE_UPDATED",
+            event_type="module",
+            target=str(module.id),
+        )
+        return Response(ModuleSerializer(module).data)
+
+
+class AdminModuleEnableView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def post(self, request, module_id):
+        module = Module.objects.filter(id=module_id).first()
+        if module is None:
+            return Response({"detail": "Not found."}, status=404)
+        module.is_active = True
+        module.save(update_fields=["is_active", "updated_at"])
+        _audit(
+            request.user,
+            "MODULE_ENABLED",
+            event_type="module",
+            target=str(module.id),
+        )
+        return Response(ModuleSerializer(module).data)
+
+
+class AdminModuleDisableView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def post(self, request, module_id):
+        module = Module.objects.filter(id=module_id).first()
+        if module is None:
+            return Response({"detail": "Not found."}, status=404)
+        module.is_active = False
+        module.save(update_fields=["is_active", "updated_at"])
+        _audit(
+            request.user,
+            "MODULE_DISABLED",
+            event_type="module",
+            target=str(module.id),
+        )
+        return Response(ModuleSerializer(module).data)
+
+
+class AdminFeatureListView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def get(self, request):
+        features = Feature.objects.select_related("module").all().order_by("-created_at")
+        _audit(request.user, "FEATURE_LIST_VIEWED", event_type="feature")
+        return Response(FeatureSerializer(features, many=True).data)
+
+    def post(self, request):
+        serializer = FeatureSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        feature = serializer.save()
+        _audit(
+            request.user,
+            "FEATURE_CREATED",
+            event_type="feature",
+            target=str(feature.id),
+        )
+        return Response(FeatureSerializer(feature).data, status=201)
+
+
+class AdminFeatureDetailView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def get_object(self, feature_id):
+        return Feature.objects.filter(id=feature_id).first()
+
+    def get(self, request, feature_id):
+        feature = self.get_object(feature_id)
+        if feature is None:
+            return Response({"detail": "Not found."}, status=404)
+        _audit(
+            request.user,
+            "FEATURE_DETAIL_VIEWED",
+            event_type="feature",
+            target=str(feature.id),
+        )
+        return Response(FeatureSerializer(feature).data)
+
+    def patch(self, request, feature_id):
+        feature = self.get_object(feature_id)
+        if feature is None:
+            return Response({"detail": "Not found."}, status=404)
+        serializer = FeatureSerializer(feature, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        feature = serializer.save()
+        _audit(
+            request.user,
+            "FEATURE_UPDATED",
+            event_type="feature",
+            target=str(feature.id),
+        )
+        return Response(FeatureSerializer(feature).data)
+
+
+class AdminFeatureEnableView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def post(self, request, feature_id):
+        feature = Feature.objects.filter(id=feature_id).first()
+        if feature is None:
+            return Response({"detail": "Not found."}, status=404)
+        feature.is_active = True
+        feature.save(update_fields=["is_active", "updated_at"])
+        _audit(
+            request.user,
+            "FEATURE_ENABLED",
+            event_type="feature",
+            target=str(feature.id),
+        )
+        return Response(FeatureSerializer(feature).data)
+
+
+class AdminFeatureDisableView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def post(self, request, feature_id):
+        feature = Feature.objects.filter(id=feature_id).first()
+        if feature is None:
+            return Response({"detail": "Not found."}, status=404)
+        feature.is_active = False
+        feature.save(update_fields=["is_active", "updated_at"])
+        _audit(
+            request.user,
+            "FEATURE_DISABLED",
+            event_type="feature",
+            target=str(feature.id),
+        )
+        return Response(FeatureSerializer(feature).data)
+
+
+class AdminPlanFeatureListView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def get(self, request, plan_id):
+        plan = Plan.objects.filter(id=plan_id).first()
+        if plan is None:
+            return Response({"detail": "Not found."}, status=404)
+        plan_features = plan.plan_features.select_related("feature").all().order_by("-created_at")
+        _audit(
+            request.user,
+            "PLAN_FEATURE_LIST_VIEWED",
+            event_type="plan_feature",
+            target=str(plan.id),
+        )
+        return Response(PlanFeatureSerializer(plan_features, many=True).data)
+
+    def post(self, request, plan_id):
+        plan = Plan.objects.filter(id=plan_id).first()
+        if plan is None:
+            return Response({"detail": "Not found."}, status=404)
+
+        feature_id = request.data.get("feature")
+        if not feature_id:
+            return Response({"detail": "feature is required."}, status=400)
+
+        feature = Feature.objects.filter(id=feature_id).first()
+        if feature is None:
+            return Response({"detail": "Feature not found."}, status=404)
+
+        if PlanFeature.objects.filter(plan=plan, feature=feature).exists():
+            return Response(
+                {"detail": "PlanFeature for this plan and feature already exists."},
+                status=400,
+            )
+
+        plan_feature = PlanFeature.objects.create(
+            plan=plan,
+            feature=feature,
+            is_enabled=request.data.get("is_enabled", True),
+        )
+        _audit(
+            request.user,
+            "PLAN_FEATURE_CREATED",
+            event_type="plan_feature",
+            target=str(plan_feature.id),
+        )
+        return Response(PlanFeatureSerializer(plan_feature).data, status=201)
+
+
+class AdminPlanFeatureDeleteView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def delete(self, request, plan_id, feature_id):
+        plan = Plan.objects.filter(id=plan_id).first()
+        if plan is None:
+            return Response({"detail": "Not found."}, status=404)
+
+        plan_feature = PlanFeature.objects.filter(plan=plan, feature=feature_id).first()
+        if plan_feature is None:
+            return Response({"detail": "Not found."}, status=404)
+
+        plan_feature.delete()
+        _audit(
+            request.user,
+            "PLAN_FEATURE_DELETED",
+            event_type="plan_feature",
+            target=str(plan_feature.id),
+        )
+        return Response(status=204)
+
+
+class AdminBusinessFeatureListView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def get(self, request, business_id):
+        business = Business.objects.filter(id=business_id).first()
+        if business is None:
+            return Response({"detail": "Not found."}, status=404)
+
+        overrides = (
+            business.feature_overrides.select_related("feature", "feature__module")
+            .all()
+            .order_by("-created_at")
+        )
+        _audit(
+            request.user,
+            "BUSINESS_FEATURE_LIST_VIEWED",
+            event_type="business_feature",
+            target=str(business.id),
+        )
+        return Response(BusinessFeatureOverrideSerializer(overrides, many=True).data)
+
+    def patch(self, request, business_id, feature_id):
+        business = Business.objects.filter(id=business_id).first()
+        if business is None:
+            return Response({"detail": "Not found."}, status=404)
+
+        feature = Feature.objects.filter(id=feature_id).first()
+        if feature is None:
+            return Response({"detail": "Feature not found."}, status=404)
+
+        state = request.data.get("state")
+        if state not in [s[0] for s in BusinessFeatureOverride.State.choices]:
+            return Response({"detail": "Invalid state."}, status=400)
+
+        override, _ = BusinessFeatureOverride.objects.get_or_create(
+            business=business,
+            feature=feature,
+            defaults={"state": state},
+        )
+        if override.state != state:
+            override.state = state
+            override.save(update_fields=["state", "updated_at"])
+
+        _audit(
+            request.user,
+            "BUSINESS_FEATURE_OVERRIDE_UPDATED",
+            event_type="business_feature",
+            target=str(business.id),
+        )
+        return Response(BusinessFeatureOverrideSerializer(override).data)
 
 
 def _serialize_business(business):

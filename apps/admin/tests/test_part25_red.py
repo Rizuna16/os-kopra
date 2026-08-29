@@ -197,20 +197,46 @@ class TestPart25ApiBoundary:
 
 
 class TestPart25Persistence:
-    def test_h_no_model_file(self):
-        path = os.path.join("apps", "admin", "models.py")
-        assert not os.path.exists(path), "PART 25 must not introduce a model."
-
-    def test_h_no_migrations_dir(self):
-        path = os.path.join("apps", "admin", "migrations")
-        assert not os.path.exists(path), "PART 25 must not introduce migrations."
-
-    def test_h_no_services_or_serializers(self):
-        # Contract V1 minimal read-only API does NOT require services.py /
-        # serializers.py; those must remain absent (no extra abstraction).
-        assert not os.path.exists(os.path.join("apps", "admin", "services.py"))
-        assert not os.path.exists(os.path.join("apps", "admin", "serializers.py"))
-        # Required minimal implementation artifacts MUST exist (contract
-        # explicitly lists views.py / urls.py as expected architecture).
+    def test_h_part25_base_artifacts_preserved(self):
+        # PART 25's own required minimal implementation artifacts MUST still
+        # exist (contract explicitly lists views.py / urls.py as the expected
+        # architecture). Later Domains (e.g. Domain 10) are allowed to add
+        # additive models/migrations/services without violating PART 25 intent.
         assert os.path.exists(os.path.join("apps", "admin", "views.py"))
         assert os.path.exists(os.path.join("apps", "admin", "urls.py"))
+
+    def test_h_domain10_additive_models_present(self):
+        # Reconciled with Domain 10 Contract Lock: the admin app now legitimately
+        # hosts the additive Feature & Module Management models. Verify the
+        # expected additive models exist and no destructive schema replacement
+        # of existing PART 25/P0 governance occurred.
+        from apps.admin import models as admin_models
+
+        expected = {
+            "Module",
+            "Feature",
+            "PlanFeature",
+            "BusinessFeatureOverride",
+        }
+        actual = {m for m in dir(admin_models) if m[0].isupper() and hasattr(getattr(admin_models, m), "_meta")}
+        assert expected.issubset(actual), f"Missing Domain 10 models: {expected - actual}"
+
+    def test_h_domain10_additive_migrations_present(self):
+        # Domain 10 requires an additive migration; the migrations package must
+        # exist and contain at least the Domain 10 initial migration. This is
+        # allowed by PART 25 persistence intent (no destructive replacement).
+        mig_dir = os.path.join("apps", "admin", "migrations")
+        assert os.path.isdir(mig_dir), "Admin migrations package must exist (Domain 10 additive)."
+        files = [
+            f
+            for f in os.listdir(mig_dir)
+            if f.endswith(".py") and f != "__init__.py"
+        ]
+        assert len(files) >= 1, "Expected at least one additive migration file."
+
+    def test_h_domain10_services_serializers_additive(self):
+        # Domain 10 Contract Lock requires a centralized entitlement service and
+        # explicit serializers. Their presence is expected and additive; they do
+        # not replace PART 25's read-only API contract.
+        assert os.path.exists(os.path.join("apps", "admin", "services.py"))
+        assert os.path.exists(os.path.join("apps", "admin", "serializers.py"))

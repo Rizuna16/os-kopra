@@ -106,6 +106,8 @@ import { SuperAdminSubscriptionDetail } from "../pages/SuperAdminSubscriptionDet
 import { SuperAdminPlans } from "../pages/SuperAdminPlans";
 import { SuperAdminPlanDetail } from "../pages/SuperAdminPlanDetail";
 import { SuperAdminPayments } from "../pages/SuperAdminPayments";
+import { SuperAdminModules } from "../pages/SuperAdminModules";
+import { SuperAdminFeatures } from "../pages/SuperAdminFeatures";
 
 function BusinessRoute({ children }: { children: ReactNode }) {
   const { currentBusinessId, currentBusiness } = useBusiness();
@@ -1155,6 +1157,28 @@ export function AppRoutes() {
             <ProtectedRoute>
               <PlatformLayout>
                 <SuperAdminPayments />
+              </PlatformLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Domain 10 — Feature & Module Management */}
+        <Route
+          path="/platform-admin/modules"
+          element={
+            <ProtectedRoute>
+              <PlatformLayout>
+                <SuperAdminModules />
+              </PlatformLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/platform-admin/features"
+          element={
+            <ProtectedRoute>
+              <PlatformLayout>
+                <SuperAdminFeatures />
               </PlatformLayout>
             </ProtectedRoute>
           }

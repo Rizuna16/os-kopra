@@ -20,6 +20,17 @@ from apps.admin.views import (
     AdminPaymentListView,
     AdminPaymentDetailView,
     AdminBillingSummaryView,
+    AdminModuleListView,
+    AdminModuleDetailView,
+    AdminModuleEnableView,
+    AdminModuleDisableView,
+    AdminFeatureListView,
+    AdminFeatureDetailView,
+    AdminFeatureEnableView,
+    AdminFeatureDisableView,
+    AdminPlanFeatureListView,
+    AdminPlanFeatureDeleteView,
+    AdminBusinessFeatureListView,
 )
 
 app_name = "koperaadmin"
@@ -84,4 +95,48 @@ urlpatterns = [
         name="payment-detail",
     ),
     path("billing/summary/", AdminBillingSummaryView.as_view(), name="billing-summary"),
+    path("modules/", AdminModuleListView.as_view(), name="module-list"),
+    path("modules/<uuid:module_id>/", AdminModuleDetailView.as_view(), name="module-detail"),
+    path(
+        "modules/<uuid:module_id>/enable/",
+        AdminModuleEnableView.as_view(),
+        name="module-enable",
+    ),
+    path(
+        "modules/<uuid:module_id>/disable/",
+        AdminModuleDisableView.as_view(),
+        name="module-disable",
+    ),
+    path("features/", AdminFeatureListView.as_view(), name="feature-list"),
+    path("features/<uuid:feature_id>/", AdminFeatureDetailView.as_view(), name="feature-detail"),
+    path(
+        "features/<uuid:feature_id>/enable/",
+        AdminFeatureEnableView.as_view(),
+        name="feature-enable",
+    ),
+    path(
+        "features/<uuid:feature_id>/disable/",
+        AdminFeatureDisableView.as_view(),
+        name="feature-disable",
+    ),
+    path(
+        "plans/<uuid:plan_id>/features/",
+        AdminPlanFeatureListView.as_view(),
+        name="plan-feature-list",
+    ),
+    path(
+        "plans/<uuid:plan_id>/features/<uuid:feature_id>/",
+        AdminPlanFeatureDeleteView.as_view(),
+        name="plan-feature-delete",
+    ),
+    path(
+        "businesses/<uuid:business_id>/features/",
+        AdminBusinessFeatureListView.as_view(),
+        name="business-feature-list",
+    ),
+    path(
+        "businesses/<uuid:business_id>/features/<uuid:feature_id>/",
+        AdminBusinessFeatureListView.as_view(),
+        name="business-feature-update",
+    ),
 ]
