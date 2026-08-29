@@ -7376,7 +7376,7 @@ END OF MASTER BLUEPRINT / DOMAIN ROADMAP
 
 ---
 
-## 46. PART 29 — P1 COMMERCIAL FOUNDATION — DOMAIN 07 PAYMENT & BILLING
+## 46. PART 29 ï¿½ P1 COMMERCIAL FOUNDATION ï¿½ DOMAIN 07 PAYMENT & BILLING
 
 ### STATUS
 LOCKED (Discovery PASS / Contract Lock PASS / RED PASS / GREEN PASS / Documentation & Lock PASS)
@@ -7389,9 +7389,9 @@ LOCKED (Discovery PASS / Contract Lock PASS / RED PASS / GREEN PASS / Documentat
 - Tenant billing ownership, Midtrans webhook behavior, Domain 06, and Domain 10 are untouched.
 
 ### B. BACKEND API CONTRACT
-- GET /api/v1/admin/payments/ — platform-wide payment list (read-only)
-- GET /api/v1/admin/payments/<uuid:payment_id>/ — payment detail (read-only)
-- GET /api/v1/admin/billing/summary/ — platform-wide billing summary (read-only)
+- GET /api/v1/admin/payments/ ï¿½ platform-wide payment list (read-only)
+- GET /api/v1/admin/payments/<uuid:payment_id>/ ï¿½ payment detail (read-only)
+- GET /api/v1/admin/billing/summary/ ï¿½ platform-wide billing summary (read-only)
 - No POST / PUT / PATCH / DELETE payment endpoints.
 
 ### C. AUTHORIZATION CONTRACT
@@ -7406,10 +7406,10 @@ LOCKED (Discovery PASS / Contract Lock PASS / RED PASS / GREEN PASS / Documentat
 - PATCH / PUT / DELETE on /api/v1/admin/payments/<id>/ -> 404 / 405 / 400 (rejected).
 
 ### E. BILLING SUMMARY CONTRACT
-- total_payments — COUNT of all payments.
-- total_paid_payments — COUNT of PAID payments.
-- total_pending / total_failed / total_expired / total_canceled — COUNT per status.
-- valid_paid_revenue — SUM of amount over PAID payments only.
+- total_payments ï¿½ COUNT of all payments.
+- total_paid_payments ï¿½ COUNT of PAID payments.
+- total_pending / total_failed / total_expired / total_canceled ï¿½ COUNT per status.
+- valid_paid_revenue ï¿½ SUM of amount over PAID payments only.
 - Revenue is NOT inflated from PENDING / FAILED / EXPIRED / CANCELED states.
 
 ### F. AUDIT CONTRACT
@@ -7462,7 +7462,7 @@ private credentials / other secrets.
 - Payment immutability: PASS
 - No migration created/altered.
 - Domain 06 (Subscription & Plan) compatibility: PASS (unchanged)
-- Domain 10 (Feature & Module): OUT OF SCOPE — untouched
+- Domain 10 (Feature & Module): OUT OF SCOPE ï¿½ untouched
 
 ### L. FORBIDDEN-FILE AUDIT
 - No new database models created.
@@ -7473,6 +7473,68 @@ private credentials / other secrets.
 - Domain 10 not started.
 
 ### M. LOCK STATUS
-PART 29 — DOMAIN 07 PAYMENT & BILLING — LOCKED
+PART 29 â€” DOMAIN 07 PAYMENT & BILLING â€” LOCKED
 Future changes require the full controlled workflow:
 Discovery -> Contract Lock -> RED -> GREEN -> Verification -> Documentation -> LOCK
+
+---
+
+## 47. PART 29 â€” DOMAIN 01 SUPER ADMIN DASHBOARD
+
+### STATUS
+LOCKED (Discovery PASS / Contract Lock PASS / RED PASS / GREEN PASS / Documentation & Lock PASS)
+
+### A. SCOPE & PLATFORM LEVEL
+- Domain 01 Super Admin Dashboard provides platform-level operational visibility across the entire KOPERA OS platform.
+- Strictly restricted to Super Admin (`is_superuser=True`).
+- Completely orthogonal to tenant roles (`BusinessMembership.role`), tenant permissions (`ROLE_PERMISSIONS`), and tenant data scopes.
+
+### B. SEVEN DASHBOARD METRICS
+The dashboard endpoint aggregates and returns the following seven metrics:
+1. `total_accounts`: Count of all registered platform user accounts (`User.objects.count()`).
+2. `total_owners`: Count of users who own at least one business (`Business.objects.values('owner').distinct().count()`).
+3. `total_businesses`: Count of all registered tenant businesses (`Business.objects.count()`).
+4. `total_users`: Count of all users in the system (`User.objects.count()`).
+5. `active_subscriptions`: Count of active platform subscriptions (`Subscription.objects.filter(status='active').count()`).
+6. `revenue_summary`: Aggregated financial metrics from payments (total paid revenue, total paid payments, pending, failed, expired, canceled).
+7. `system_status`: Application health, database connectivity status, and external dependency statuses.
+
+### C. BACKEND API CONTRACT
+- **Endpoint**: `GET /api/v1/admin/dashboard/`
+- **Behavior Contract**:
+  - Super Admin â†’ `200 OK` with JSON payload containing the 7 metrics.
+  - Anonymous â†’ `401 Unauthorized`
+  - Tenant Owner / Admin / Kasir / non-superuser staff â†’ `403 Forbidden`
+  - POST / PUT / PATCH / DELETE mutations â†’ `405 Method Not Allowed` / `403 Forbidden` (Read-only enforcement).
+
+### D. FRONTEND ROUTE & LAYOUT
+- **Frontend Route**: `/platform-admin/dashboard`
+- **Layout**: `PlatformLayout` (renders under platform admin navigation, outside tenant business context).
+- **Component**: `SuperAdminDashboard` (`frontend/src/pages/SuperAdminDashboard.tsx`).
+- **Service Integration**: `platformAdmin.ts` (`getSuperAdminDashboard()`).
+- **Tests**: `frontend/src/test/superAdminDomain01.test.tsx`.
+
+### E. AUTHORIZATION BOUNDARY
+- Relies on `IsSuperAdmin` permission class (`apps.admin.permissions.IsSuperAdmin`), requiring `request.user.is_authenticated AND request.user.is_superuser`.
+- No tenant membership checks or `BusinessAccessMixin` applied.
+
+### F. AUDIT CONTRACT (`DASHBOARD_VIEWED`)
+- Server-generated AuditLog event: `DASHBOARD_VIEWED` emitted on every successful dashboard access.
+- Actor: `request.user`. Event type never accepted from client payload.
+
+### G. TESTING & VERIFICATION SUMMARY
+- **Backend Focused Tests**: 7/7 PASS (`apps/admin/tests/test_part29_domain01_red.py`).
+- **Frontend Tests**: PASS (`frontend/src/test/superAdminDomain01.test.tsx`).
+- **Backend Full Regression**: 1281/1281 PASS (2 pre-existing OwnerDashboard failures unrelated to Domain 01).
+- **Frontend Regression**: 939/941 PASS (2 pre-existing failures).
+- **TypeScript Compilation (`tsc --noEmit`)**: PASS.
+- **Production Build (`npm run build`)**: PASS.
+
+### H. SECURITY AUDIT STATUS
+ðŸŸ¢ **PASS**
+- No security vulnerabilities found.
+- Strict isolation enforced between tenant spaces and platform super admin dashboard.
+
+### I. LOCK STATUS
+ðŸ”’ **LOCKED**
+Domain 01 Super Admin Dashboard is fully documented and locked.

@@ -867,3 +867,63 @@ class AdminBillingSummaryView(APIView):
             "total_canceled": canceled_count,
             "valid_paid_revenue": str(valid_paid_revenue),
         })
+
+
+# =====================================================================
+# DOMAIN 01 — SUPER ADMIN DASHBOARD (PLATFORM-LEVEL READ-ONLY OVERVIEW)
+# =====================================================================
+
+
+class AdminDashboardView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def get(self, request):
+        from django.db import connection
+
+        owners = User.objects.filter(businesses__isnull=False).distinct()
+        total_accounts = owners.count()
+        total_owners = owners.count()
+        total_businesses = Business.objects.count()
+        total_users = User.objects.count()
+        active_subscriptions = Subscription.objects.filter(status=Subscription.Status.ACTIVE).count()
+
+        paid_payments = Payment.objects.filter(status=Payment.Status.PAID)
+        valid_paid_revenue = sum((p.amount for p in paid_payments), start=0)
+        total_paid_payments = paid_payments.count()
+        total_pending = Payment.objects.filter(status=Payment.Status.PENDING).count()
+        total_failed = Payment.objects.filter(status=Payment.Status.FAILED).count()
+        total_expired = Payment.objects.filter(status=Payment.Status.EXPIRED).count()
+        total_canceled = Payment.objects.filter(status=Payment.Status.CANCELED).count()
+
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT 1")
+                cursor.fetchone()
+            db_status = "ok"
+        except Exception:
+            db_status = "error"
+
+        system_status = {
+            "status": "ok" if db_status == "ok" else "error",
+            "application": {"status": "ok"},
+            "database": {"status": db_status},
+            "dependencies": [{"name": "postgresql", "status": db_status}],
+        }
+
+        _audit(request.user, "DASHBOARD_VIEWED", event_type="dashboard")
+        return Response({
+            "total_accounts": total_accounts,
+            "total_owners": total_owners,
+            "total_businesses": total_businesses,
+            "total_users": total_users,
+            "active_subscriptions": active_subscriptions,
+            "revenue_summary": {
+                "total_paid_revenue": str(valid_paid_revenue),
+                "total_paid_payments": total_paid_payments,
+                "total_pending": total_pending,
+                "total_failed": total_failed,
+                "total_expired": total_expired,
+                "total_canceled": total_canceled,
+            },
+            "system_status": system_status,
+        })

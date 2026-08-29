@@ -20,6 +20,7 @@ from apps.admin.views import (
     AdminPaymentListView,
     AdminPaymentDetailView,
     AdminBillingSummaryView,
+    AdminDashboardView,
     AdminModuleListView,
     AdminModuleDetailView,
     AdminModuleEnableView,
@@ -36,6 +37,7 @@ from apps.admin.views import (
 app_name = "koperaadmin"
 
 urlpatterns = [
+    path("dashboard/", AdminDashboardView.as_view(), name="dashboard"),
     path("accounts/", AdminAccountListView.as_view(), name="account-list"),
     path(
         "accounts/<uuid:owner_user_id>/",

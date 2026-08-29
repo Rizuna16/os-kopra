@@ -667,12 +667,18 @@ CONTRACT LOCK #8 / RED #8 â€” NOTIFICATION BUSINESS-SCOPED + RECIPIENT-SCOPED AC
 
 ============================================================
 
-PLATFORM KOPERA — STRUKTUR SUPER ADMIN (P1 COMMERCIAL FOUNDATION):
+PLATFORM KOPERA ï¿½ STRUKTUR SUPER ADMIN (P1 COMMERCIAL FOUNDATION):
 - PLATFORM KOPERA berada di level sistem (terpisah mutlak dari tenant / OWNER / ADMIN / KASIR).
 - Otoritas: IsSuperAdmin (request.user.is_authenticated == True AND request.user.is_superuser == True).
 - Struktur:
   PLATFORM KOPERA
   +-- SUPER ADMIN
+      +-- 01. SUPER ADMIN DASHBOARD (Domain 01 - LOCKED)
+      |   +-- platform dashboard (GET /api/v1/admin/dashboard/)
+      |   +-- 7 metrik platform (total_accounts, total_owners, total_businesses, total_users, active_subscriptions, revenue_summary, system_status)
+      |   +-- read-only (tidak ada mutasi POST/PUT/PATCH/DELETE)
+      |   +-- audit event server-generated: DASHBOARD_VIEWED
+      |   +-- platform aggregation hanya untuk Super Admin
       +-- 02. ACCOUNT MANAGEMENT
       +-- 03. OWNER MANAGEMENT
       +-- 04. BUSINESS / USAHA MANAGEMENT
@@ -686,6 +692,13 @@ PLATFORM KOPERA — STRUKTUR SUPER ADMIN (P1 COMMERCIAL FOUNDATION):
       |   +-- no manual payment status mutation (Midtrans/webhook = source of truth)
       |   +-- platform aggregation hanya untuk Super Admin
       +-- 18. KOPERA ADMIN MANAGEMENT
+- Domain 01 Super Admin Dashboard (PART 29 - P1 Commercial Foundation): LOCKED.
+  - Platform-level dashboard bersifat READ-ONLY (GET /api/v1/admin/dashboard/).
+  - Menampilkan 7 metrik platform: total_accounts, total_owners, total_businesses, total_users, active_subscriptions, revenue_summary, system_status.
+  - Anonymous -> 401; Owner/Admin/Kasir/non-superuser staff -> 403; Super Admin -> 200.
+  - POST/PUT/PATCH/DELETE -> 405/403 (read-only enforcement).
+  - Audit event server-generated: DASHBOARD_VIEWED.
+  - Tidak ada modifikasi backend lain; frontend route /platform-admin/dashboard.
 - Domain 07 Payment & Billing (PART 29 - P1 Commercial Foundation): LOCKED.
   - Payment oversight bersifat READ-ONLY (list / detail).
   - Billing summary menghitung realized revenue HANYA dari status PAID.
