@@ -17,6 +17,9 @@ from apps.admin.views import (
     AdminPlanDetailUpdateView,
     AdminPlanEnableView,
     AdminPlanDisableView,
+    AdminPaymentListView,
+    AdminPaymentDetailView,
+    AdminBillingSummaryView,
 )
 
 app_name = "koperaadmin"
@@ -74,4 +77,11 @@ urlpatterns = [
         AdminPlanDisableView.as_view(),
         name="plan-disable",
     ),
+    path("payments/", AdminPaymentListView.as_view(), name="payment-list"),
+    path(
+        "payments/<uuid:payment_id>/",
+        AdminPaymentDetailView.as_view(),
+        name="payment-detail",
+    ),
+    path("billing/summary/", AdminBillingSummaryView.as_view(), name="billing-summary"),
 ]

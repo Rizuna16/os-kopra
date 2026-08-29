@@ -16,6 +16,7 @@ const NAV_ITEMS = [
   { to: "/platform-admin/backups", label: "Backup & Restore" },
   { to: "/platform-admin/subscriptions", label: "Subscriptions" },
   { to: "/platform-admin/plans", label: "Plans" },
+  { to: "/platform-admin/payments", label: "Payments" },
 ];
 
 export function PlatformLayout({ children }: { children: ReactNode }) {

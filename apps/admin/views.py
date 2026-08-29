@@ -6,7 +6,7 @@ from apps.authentication.models import User
 from apps.business.models import Business, Subscription, BusinessMembership
 from apps.employee.models import Employee
 from apps.audit.models import AuditLog
-from apps.billing.models import Plan
+from apps.billing.models import Plan, Payment
 
 
 def _audit(actor, action, **kwargs):
@@ -467,3 +467,81 @@ class AdminPlanDisableView(APIView):
             target=str(plan.id),
         )
         return Response(_serialize_plan(plan), status=200)
+
+
+def _serialize_payment(payment):
+    subscription = payment.subscription
+    business = subscription.business if subscription else None
+    owner = business.owner if business else None
+    plan = payment.plan
+    return {
+        "id": str(payment.id),
+        "subscription_id": str(subscription.id) if subscription else None,
+        "business_id": str(business.id) if business else None,
+        "business_name": business.name if business else None,
+        "owner_id": str(owner.id) if owner else None,
+        "owner_email": owner.email if owner else None,
+        "plan": {
+            "id": str(plan.id),
+            "name": plan.name,
+            "code": plan.code,
+            "amount": str(plan.amount),
+            "currency": plan.currency,
+            "billing_interval": plan.billing_interval,
+        } if plan else None,
+        "amount": str(payment.amount),
+        "currency": payment.currency,
+        "status": payment.status,
+        "provider": payment.provider,
+        "provider_reference": payment.provider_reference,
+        "paid_at": payment.paid_at.isoformat() if payment.paid_at else None,
+        "created_at": payment.created_at.isoformat() if payment.created_at else None,
+        "updated_at": payment.updated_at.isoformat() if payment.updated_at else None,
+    }
+
+
+class AdminPaymentListView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def get(self, request):
+        payments = Payment.objects.select_related("subscription__business__owner", "plan").all().order_by("-created_at")
+        _audit(request.user, "PAYMENT_LIST_VIEWED", event_type="payment")
+        return Response([_serialize_payment(p) for p in payments])
+
+
+class AdminPaymentDetailView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def get(self, request, payment_id):
+        payment = Payment.objects.select_related("subscription__business__owner", "plan").filter(id=payment_id).first()
+        if payment is None:
+            return Response({"detail": "Not found."}, status=404)
+        _audit(request.user, "PAYMENT_DETAIL_VIEWED", event_type="payment", target=str(payment.id))
+        return Response(_serialize_payment(payment))
+
+
+class AdminBillingSummaryView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def get(self, request):
+        payments = Payment.objects.all()
+        total_payments = payments.count()
+        paid_payments = payments.filter(status=Payment.Status.PAID)
+        total_paid = paid_payments.count()
+        pending_count = payments.filter(status=Payment.Status.PENDING).count()
+        failed_count = payments.filter(status=Payment.Status.FAILED).count()
+        expired_count = payments.filter(status=Payment.Status.EXPIRED).count()
+        canceled_count = payments.filter(status=Payment.Status.CANCELED).count()
+
+        valid_paid_revenue = sum((p.amount for p in paid_payments), start=0)
+
+        _audit(request.user, "BILLING_SUMMARY_VIEWED", event_type="billing")
+        return Response({
+            "total_payments": total_payments,
+            "total_paid_payments": total_paid,
+            "total_pending": pending_count,
+            "total_failed": failed_count,
+            "total_expired": expired_count,
+            "total_canceled": canceled_count,
+            "valid_paid_revenue": str(valid_paid_revenue),
+        })

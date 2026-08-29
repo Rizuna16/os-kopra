@@ -666,3 +666,30 @@ CONTRACT LOCK #8 / RED #8 â€” NOTIFICATION BUSINESS-SCOPED + RECIPIENT-SCOPED AC
 - Contract/Regression/Security/Structural: PASS. Zero findings.
 
 ============================================================
+
+PLATFORM KOPERA — STRUKTUR SUPER ADMIN (P1 COMMERCIAL FOUNDATION):
+- PLATFORM KOPERA berada di level sistem (terpisah mutlak dari tenant / OWNER / ADMIN / KASIR).
+- Otoritas: IsSuperAdmin (request.user.is_authenticated == True AND request.user.is_superuser == True).
+- Struktur:
+  PLATFORM KOPERA
+  +-- SUPER ADMIN
+      +-- 02. ACCOUNT MANAGEMENT
+      +-- 03. OWNER MANAGEMENT
+      +-- 04. BUSINESS / USAHA MANAGEMENT
+      +-- 05. USER / EMPLOYEE MANAGEMENT
+      +-- 06. SUBSCRIPTION & PLAN (Domain 06 - LOCKED)
+      +-- 07. PAYMENT & BILLING (Domain 07 - LOCKED)
+      |   +-- payment oversight (GET /api/v1/admin/payments/)
+      |   +-- payment detail (GET /api/v1/admin/payments/<id>/)
+      |   +-- billing summary (GET /api/v1/admin/billing/summary/)
+      |   +-- read-only payment inspection (tidak ada mutasi status)
+      |   +-- no manual payment status mutation (Midtrans/webhook = source of truth)
+      |   +-- platform aggregation hanya untuk Super Admin
+      +-- 18. KOPERA ADMIN MANAGEMENT
+- Domain 07 Payment & Billing (PART 29 - P1 Commercial Foundation): LOCKED.
+  - Payment oversight bersifat READ-ONLY (list / detail).
+  - Billing summary menghitung realized revenue HANYA dari status PAID.
+  - Tidak ada endpoint POST/PUT/PATCH/DELETE payment.
+  - Midtrans webhook tetap satu-satunya sumber kebenaran status payment.
+  - Tenant billing ownership, Midtrans webhook behavior, Domain 06, dan Domain 10 tidak diubah.
+  - Audit event server-generated: PAYMENT_LIST_VIEWED, PAYMENT_DETAIL_VIEWED, BILLING_SUMMARY_VIEWED.

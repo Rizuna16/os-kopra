@@ -87,3 +87,53 @@ export async function disablePlatformPlan(id: string): Promise<PlatformPlan> {
 export function isForbidden(err: unknown): boolean {
   return err instanceof ApiError && err.status === 403;
 }
+
+export interface PlatformPaymentPlan {
+  id: string;
+  name: string;
+  code: string;
+  amount: string;
+  currency: string;
+  billing_interval: string;
+}
+
+export interface PlatformPayment {
+  id: string;
+  subscription_id: string | null;
+  business_id: string | null;
+  business_name: string | null;
+  owner_id: string | null;
+  owner_email: string | null;
+  plan: PlatformPaymentPlan | null;
+  amount: string;
+  currency: string;
+  status: string;
+  provider: string;
+  provider_reference: string;
+  paid_at: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface PlatformBillingSummary {
+  total_payments: number;
+  total_paid_payments: number;
+  total_pending: number;
+  total_failed: number;
+  total_expired: number;
+  total_canceled: number;
+  valid_paid_revenue: string;
+}
+
+export async function listPlatformPayments(): Promise<PlatformPayment[]> {
+  const data = await apiFetch<PlatformPayment[]>("/admin/payments/");
+  return Array.isArray(data) ? data : [];
+}
+
+export async function getPlatformPayment(id: string): Promise<PlatformPayment> {
+  return apiFetch<PlatformPayment>(`/admin/payments/${id}/`);
+}
+
+export async function getPlatformBillingSummary(): Promise<PlatformBillingSummary> {
+  return apiFetch<PlatformBillingSummary>("/admin/billing/summary/");
+}

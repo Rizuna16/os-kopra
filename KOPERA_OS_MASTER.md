@@ -7373,3 +7373,106 @@ Tidak ada modifikasi backend diperlukan.
 
 END OF MASTER BLUEPRINT / DOMAIN ROADMAP
 ==================================================
+
+---
+
+## 46. PART 29 — P1 COMMERCIAL FOUNDATION — DOMAIN 07 PAYMENT & BILLING
+
+### STATUS
+LOCKED (Discovery PASS / Contract Lock PASS / RED PASS / GREEN PASS / Documentation & Lock PASS)
+
+### A. SCOPE
+- Platform-wide Super Admin oversight of payments and billing.
+- Read-only payment inspection (list / detail).
+- Platform-wide billing summary aggregation (revenue from PAID only).
+- No payment status mutation; Midtrans webhook remains the sole source of truth.
+- Tenant billing ownership, Midtrans webhook behavior, Domain 06, and Domain 10 are untouched.
+
+### B. BACKEND API CONTRACT
+- GET /api/v1/admin/payments/ — platform-wide payment list (read-only)
+- GET /api/v1/admin/payments/<uuid:payment_id>/ — payment detail (read-only)
+- GET /api/v1/admin/billing/summary/ — platform-wide billing summary (read-only)
+- No POST / PUT / PATCH / DELETE payment endpoints.
+
+### C. AUTHORIZATION CONTRACT
+- IsSuperAdmin (request.user.is_authenticated == True AND request.user.is_superuser == True).
+- Anonymous -> 401; Owner / Admin / Kasir / Staff / is_staff=True without superuser -> 403; Super Admin -> 200.
+- Reuses PART 25 apps.admin.permissions.IsSuperAdmin; no privilege-class invention.
+
+### D. PAYMENT IMMUTABILITY
+- Payment.status is NEVER modified by any platform endpoint.
+- No manual status set, no fabricated state.
+- Midtrans webhook (apps.billing.views.py MidtransWebhookView) remains the only source of payment status truth.
+- PATCH / PUT / DELETE on /api/v1/admin/payments/<id>/ -> 404 / 405 / 400 (rejected).
+
+### E. BILLING SUMMARY CONTRACT
+- total_payments — COUNT of all payments.
+- total_paid_payments — COUNT of PAID payments.
+- total_pending / total_failed / total_expired / total_canceled — COUNT per status.
+- valid_paid_revenue — SUM of amount over PAID payments only.
+- Revenue is NOT inflated from PENDING / FAILED / EXPIRED / CANCELED states.
+
+### F. AUDIT CONTRACT
+Server-generated AuditLog events emitted on every successful read:
+- PAYMENT_LIST_VIEWED
+- PAYMENT_DETAIL_VIEWED
+- BILLING_SUMMARY_VIEWED
+- Actor = request.user; event type never accepted from client payload.
+- Audit failure must not break the main request.
+
+### G. DATA SANITIZATION
+The payment serializer (_serialize_payment in apps/admin/views.py) exposes only:
+id, subscription_id, business_id, business_name, owner_id, owner_email,
+plan{id,name,code,amount,currency,billing_interval}, amount, currency, status,
+provider, provider_reference, paid_at, created_at, updated_at.
+Never serialized: password / password hash / JWT / access token / refresh token /
+session JTI / API key / API secret / Midtrans server key / webhook secret /
+private credentials / other secrets.
+
+### H. TENANT ISOLATION
+- No BusinessContext used on platform endpoints.
+- No tenant membership authorization for platform endpoints.
+- Platform aggregation permitted only because caller is Super Admin.
+- BusinessAccessMixin / tenant billing ownership checks / tenant billing contracts unchanged.
+- Exposes only contracted payment/business/owner/plan metadata.
+
+### I. FRONTEND
+- frontend/src/pages/SuperAdminPayments.tsx (renders under PlatformLayout).
+- frontend/src/services/platformAdmin.ts extended: listPlatformPayments, getPlatformPayment, getPlatformBillingSummary, PlatformPayment, PlatformBillingSummary.
+- Route added: /platform-admin/payments (under PlatformLayout; NOT BusinessRoute; NOT BusinessContext).
+- Frontend tests: frontend/src/test/superAdminDomain07.test.tsx.
+
+### J. REUSED EXISTING MODELS
+- apps.billing.models.Plan
+- apps.billing.models.Payment
+- apps.billing.models.PaymentWebhookEvent
+- apps.business.models.Subscription
+- apps.business.models.Business
+- apps.authentication.models.User
+- apps.audit.models.AuditLog
+
+### K. VERIFICATION EVIDENCE
+- Domain 07 backend focused tests: 8/8 PASS (apps/admin/tests/test_part29_domain07_red.py)
+- Backend full regression: 1265/1265 PASS
+- Frontend Domain 07 tests: PASS (frontend/src/test/superAdminDomain07.test.tsx)
+- TypeScript (tsc --noEmit): PASS
+- Production build (vite build): PASS
+- Security audit: PASS (CRITICAL 0 / HIGH 0 / MEDIUM 0 / LOW 0)
+- Tenant isolation: PASS
+- Payment immutability: PASS
+- No migration created/altered.
+- Domain 06 (Subscription & Plan) compatibility: PASS (unchanged)
+- Domain 10 (Feature & Module): OUT OF SCOPE — untouched
+
+### L. FORBIDDEN-FILE AUDIT
+- No new database models created.
+- No migrations created/altered.
+- Domain 06 implementation untouched.
+- Midtrans webhook behavior untouched.
+- Tenant billing contracts untouched.
+- Domain 10 not started.
+
+### M. LOCK STATUS
+PART 29 — DOMAIN 07 PAYMENT & BILLING — LOCKED
+Future changes require the full controlled workflow:
+Discovery -> Contract Lock -> RED -> GREEN -> Verification -> Documentation -> LOCK
