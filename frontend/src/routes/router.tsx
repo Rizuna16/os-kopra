@@ -108,6 +108,8 @@ import { SuperAdminPlanDetail } from "../pages/SuperAdminPlanDetail";
 import { SuperAdminPayments } from "../pages/SuperAdminPayments";
 import { SuperAdminModules } from "../pages/SuperAdminModules";
 import { SuperAdminFeatures } from "../pages/SuperAdminFeatures";
+import { SuperAdminSupportCenter } from "../pages/SuperAdminSupportCenter";
+import { SuperAdminSupportTicketDetail } from "../pages/SuperAdminSupportTicketDetail";
 
 function BusinessRoute({ children }: { children: ReactNode }) {
   const { currentBusinessId, currentBusiness } = useBusiness();
@@ -1157,6 +1159,28 @@ export function AppRoutes() {
             <ProtectedRoute>
               <PlatformLayout>
                 <SuperAdminPayments />
+              </PlatformLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Domain 08 — Support Center */}
+        <Route
+          path="/platform-admin/support"
+          element={
+            <ProtectedRoute>
+              <PlatformLayout>
+                <SuperAdminSupportCenter />
+              </PlatformLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/platform-admin/support/:ticketId"
+          element={
+            <ProtectedRoute>
+              <PlatformLayout>
+                <SuperAdminSupportTicketDetail />
               </PlatformLayout>
             </ProtectedRoute>
           }

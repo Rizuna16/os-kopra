@@ -327,3 +327,67 @@ export async function getPlatformPayment(id: string): Promise<PlatformPayment> {
 export async function getPlatformBillingSummary(): Promise<PlatformBillingSummary> {
   return apiFetch<PlatformBillingSummary>("/admin/billing/summary/");
 }
+
+// ============================================================
+// DOMAIN 08 — SUPPORT CENTER (PLATFORM SUPER ADMIN)
+// ============================================================
+
+export interface SupportTicketRequester {
+  id: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+}
+
+export interface SupportTicketReply {
+  id: string;
+  ticket: string;
+  author: SupportTicketRequester;
+  message: string;
+  created_at: string;
+}
+
+export interface SupportTicketListItem {
+  id: string;
+  subject: string;
+  status: string;
+  priority: string;
+  requester: SupportTicketRequester;
+  replies_count: number;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface SupportTicketDetail extends SupportTicketListItem {
+  description: string;
+  replies: SupportTicketReply[];
+}
+
+export async function listSupportTickets(): Promise<SupportTicketListItem[]> {
+  const data = await apiFetch<{ results: SupportTicketListItem[] }>("/admin/support/tickets/");
+  return data && Array.isArray(data.results) ? data.results : [];
+}
+
+export async function getSupportTicket(id: string): Promise<SupportTicketDetail> {
+  return apiFetch<SupportTicketDetail>(`/admin/support/tickets/${id}/`);
+}
+
+export async function updateSupportTicket(
+  id: string,
+  input: { status?: string; priority?: string },
+): Promise<SupportTicketDetail> {
+  return apiFetch<SupportTicketDetail>(`/admin/support/tickets/${id}/`, {
+    method: "PATCH",
+    body: input,
+  });
+}
+
+export async function replyToSupportTicket(
+  id: string,
+  message: string,
+): Promise<SupportTicketReply> {
+  return apiFetch<SupportTicketReply>(`/admin/support/tickets/${id}/replies/`, {
+    method: "POST",
+    body: { message },
+  });
+}

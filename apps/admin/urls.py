@@ -32,6 +32,9 @@ from apps.admin.views import (
     AdminPlanFeatureListView,
     AdminPlanFeatureDeleteView,
     AdminBusinessFeatureListView,
+    AdminSupportTicketListView,
+    AdminSupportTicketDetailView,
+    AdminSupportTicketReplyView,
 )
 
 app_name = "koperaadmin"
@@ -140,5 +143,16 @@ urlpatterns = [
         "businesses/<uuid:business_id>/features/<uuid:feature_id>/",
         AdminBusinessFeatureListView.as_view(),
         name="business-feature-update",
+    ),
+    path("support/tickets/", AdminSupportTicketListView.as_view(), name="support-ticket-list"),
+    path(
+        "support/tickets/<uuid:ticket_id>/",
+        AdminSupportTicketDetailView.as_view(),
+        name="support-ticket-detail",
+    ),
+    path(
+        "support/tickets/<uuid:ticket_id>/replies/",
+        AdminSupportTicketReplyView.as_view(),
+        name="support-ticket-replies",
     ),
 ]

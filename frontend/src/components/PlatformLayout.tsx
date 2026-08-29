@@ -17,6 +17,7 @@ const NAV_ITEMS = [
   { to: "/platform-admin/subscriptions", label: "Subscriptions" },
   { to: "/platform-admin/plans", label: "Plans" },
   { to: "/platform-admin/payments", label: "Payments" },
+  { to: "/platform-admin/support", label: "Support Center" },
   { to: "/platform-admin/modules", label: "Modules" },
   { to: "/platform-admin/features", label: "Features" },
 ];

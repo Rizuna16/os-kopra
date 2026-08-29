@@ -7,6 +7,18 @@ from apps.admin.models import (
     Feature,
     PlanFeature,
     BusinessFeatureOverride,
+    SupportTicket,
+    TicketReply,
+)
+from apps.admin.serializers import (
+    ModuleSerializer,
+    FeatureSerializer,
+    PlanFeatureSerializer,
+    BusinessFeatureOverrideSerializer,
+    SupportTicketListSerializer,
+    SupportTicketDetailSerializer,
+    SupportTicketWriteSerializer,
+    TicketReplySerializer,
 )
 from apps.admin.serializers import (
     ModuleSerializer,
@@ -927,3 +939,110 @@ class AdminDashboardView(APIView):
             },
             "system_status": system_status,
         })
+
+
+# =====================================================================
+# DOMAIN 08 — SUPPORT CENTER (PLATFORM SUPER ADMIN)
+# =====================================================================
+
+
+class AdminSupportTicketListView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def get(self, request):
+        tickets = SupportTicket.objects.select_related("requester").all().order_by("-created_at")
+        _audit(request.user, "SUPPORT_TICKET_LIST_VIEWED", event_type="support")
+        serializer = SupportTicketListSerializer(tickets, many=True)
+        return Response({"results": serializer.data})
+
+    def post(self, request):
+        serializer = SupportTicketWriteSerializer(
+            data=request.data,
+            context={"request": request},
+        )
+        serializer.is_valid(raise_exception=True)
+        ticket = serializer.save()
+        _audit(
+            request.user,
+            "SUPPORT_TICKET_CREATED",
+            event_type="support",
+            target=str(ticket.id),
+        )
+        return Response(SupportTicketDetailSerializer(ticket).data, status=201)
+
+
+class AdminSupportTicketDetailView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def get_object(self, ticket_id):
+        return SupportTicket.objects.filter(id=ticket_id).first()
+
+    def get(self, request, ticket_id):
+        ticket = self.get_object(ticket_id)
+        if ticket is None:
+            return Response({"detail": "Not found."}, status=404)
+        _audit(
+            request.user,
+            "SUPPORT_TICKET_DETAIL_VIEWED",
+            event_type="support",
+            target=str(ticket.id),
+        )
+        return Response(SupportTicketDetailSerializer(ticket).data)
+
+    def patch(self, request, ticket_id):
+        ticket = self.get_object(ticket_id)
+        if ticket is None:
+            return Response({"detail": "Not found."}, status=404)
+        serializer = SupportTicketWriteSerializer(
+            ticket,
+            data=request.data,
+            partial=True,
+            context={"request": request},
+        )
+        serializer.is_valid(raise_exception=True)
+        ticket = serializer.save()
+        _audit(
+            request.user,
+            "SUPPORT_TICKET_UPDATED",
+            event_type="support",
+            target=str(ticket.id),
+        )
+        return Response(SupportTicketDetailSerializer(ticket).data)
+
+
+class AdminSupportTicketReplyView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def get_object(self, ticket_id):
+        return SupportTicket.objects.filter(id=ticket_id).first()
+
+    def get(self, request, ticket_id):
+        ticket = self.get_object(ticket_id)
+        if ticket is None:
+            return Response({"detail": "Not found."}, status=404)
+        replies = ticket.replies.select_related("author").all()
+        _audit(
+            request.user,
+            "SUPPORT_TICKET_REPLIES_VIEWED",
+            event_type="support",
+            target=str(ticket.id),
+        )
+        return Response(TicketReplySerializer(replies, many=True).data)
+
+    def post(self, request, ticket_id):
+        ticket = self.get_object(ticket_id)
+        if ticket is None:
+            return Response({"detail": "Not found."}, status=404)
+        serializer = TicketReplySerializer(
+            data=request.data,
+            context={"request": request, "ticket": ticket},
+        )
+        serializer.is_valid(raise_exception=True)
+        reply = serializer.save()
+        _audit(
+            request.user,
+            "SUPPORT_TICKET_REPLIED",
+            event_type="support",
+            target=str(ticket.id),
+        )
+        return Response(TicketReplySerializer(reply).data, status=201)

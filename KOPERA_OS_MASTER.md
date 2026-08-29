@@ -7838,3 +7838,105 @@ LOCKED (Discovery PASS / Contract Lock PASS / RED PASS / GREEN PASS / Regression
 ### I. LOCK STATUS
 🔒 **LOCKED**
 Domain 05 User Management is fully documented and locked.
+
+---
+
+## 52. PART 29 — DOMAIN 08 SUPPORT CENTER
+
+### STATUS
+LOCKED (Discovery PASS / Contract Lock PASS / RED PASS / GREEN PASS / Regression PASS / Security Audit PASS / Reconciliation PASS / Documentation & Lock PASS)
+
+### A. SCOPE & PLATFORM LEVEL
+- Domain 08 Support Center provides platform-level Super Admin oversight of support tickets submitted across the KOPERA OS platform.
+- Strictly restricted to Super Admin (`is_superuser=True`).
+- Completely orthogonal to tenant-level customer service, business-level support, employee communication, notifications (Domain 09), and audit logging (Domain 13).
+- Platform-wide scope: reads across ALL support tickets intentionally (NOT filtered by tenant/business).
+- SUPER ADMIN confirmed PLATFORM level via `User.is_superuser=True` — NOT a tenant role, NOT under Owner/Business/Tenant.
+
+### B. ENTITIES
+- **SupportTicket** (`apps.admin.models.SupportTicket`):
+  - `id` (UUID, PK)
+  - `subject` (CharField, max 255)
+  - `description` (TextField)
+  - `status` (TextChoices: OPEN, IN_PROGRESS, RESOLVED, CLOSED)
+  - `priority` (TextChoices: LOW, MEDIUM, HIGH, URGENT)
+  - `requester` (FK → `settings.AUTH_USER_MODEL`, server-set on create)
+  - `assigned_to` (FK → `settings.AUTH_USER_MODEL`, nullable, for future assignment)
+  - `created_at`, `updated_at` (auto timestamps)
+- **TicketReply** (`apps.admin.models.TicketReply`):
+  - `id` (UUID, PK)
+  - `ticket` (FK → `SupportTicket`, CASCADE)
+  - `author` (FK → `settings.AUTH_USER_MODEL`, server-set on create)
+  - `message` (TextField)
+  - `created_at` (auto timestamp)
+- Relationships: `SupportTicket.replies` (reverse FK from `TicketReply`), `User.support_tickets` / `User.assigned_tickets` / `User.ticket_replies`.
+
+### C. BACKEND API CONTRACT
+- **Endpoints** (all under `/api/v1/admin/support/`):
+  - `GET /api/v1/admin/support/tickets/` — Platform-wide ticket list (paginated via `results` envelope)
+  - `POST /api/v1/admin/support/tickets/` — Create ticket (Super Admin only)
+  - `GET /api/v1/admin/support/tickets/<uuid:ticket_id>/` — Ticket detail with nested replies
+  - `PATCH /api/v1/admin/support/tickets/<uuid:ticket_id>/` — Update `status` and/or `priority`
+  - `GET /api/v1/admin/support/tickets/<uuid:ticket_id>/replies/` — List replies
+  - `POST /api/v1/admin/support/tickets/<uuid:ticket_id>/replies/` — Add reply
+- **Required Fields** (list):
+  - `id`, `subject`, `status`, `priority`, `requester` ({id, email, first_name, last_name}), `replies_count`, `created_at`, `updated_at`
+- **Required Fields** (detail):
+  - All list fields + `description`, `replies` (array of {id, ticket, author, message, created_at})
+- **Behavior Contract**:
+  - Super Admin → `200 OK` (list/detail), `201 Created` (create/reply), `200 OK` (patch)
+  - Anonymous → `401 Unauthorized`
+  - Tenant Owner / Admin / Kasir / non-superuser staff → `403 Forbidden`
+  - POST `/tickets/` allowed (Super Admin can create platform tickets); PATCH only `status`/`priority`; no DELETE.
+  - Nonexistent or malformed UUID → `404 Not Found` (IDOR-safe).
+- **Serialization**: via `SupportTicketListSerializer`, `SupportTicketDetailSerializer`, `SupportTicketWriteSerializer`, `TicketReplySerializer` in `apps.admin.serializers`.
+- **Requester/Author Identity**: Always server-set to `request.user` (never accepted from client payload).
+
+### D. FRONTEND ROUTES & LAYOUT
+- **Frontend Routes**:
+  - `/platform-admin/support` (SuperAdminSupportCenter — ticket list)
+  - `/platform-admin/support/:ticketId` (SuperAdminSupportTicketDetail — detail + mutation + replies)
+- **Layout**: `PlatformLayout` (renders under platform admin navigation, outside tenant business context).
+- **Components**: `SuperAdminSupportCenter` (`frontend/src/pages/SuperAdminSupportCenter.tsx`), `SuperAdminSupportTicketDetail` (`frontend/src/pages/SuperAdminSupportTicketDetail.tsx`).
+- **Tests**: `frontend/src/test/superAdminDomain08.test.tsx`.
+
+### E. AUTHORIZATION BOUNDARY
+- Relies on `IsSuperAdmin` permission class (`apps.admin.permissions.IsSuperAdmin`), requiring `request.user.is_authenticated AND request.user.is_superuser`.
+- No tenant membership checks or `BusinessAccessMixin` applied.
+- `SupportTicket.objects.all()` — platform-wide aggregation (NOT `business_id` scoped).
+
+### F. AUDIT CONTRACT
+- Server-generated AuditLog events emitted on successful requests:
+  - `SUPPORT_TICKET_LIST_VIEWED`
+  - `SUPPORT_TICKET_DETAIL_VIEWED`
+  - `SUPPORT_TICKET_UPDATED`
+  - `SUPPORT_TICKET_REPLIED`
+- Actor = `request.user`; event type never accepted from client payload.
+- Audit failure must not break the main request.
+- AuditLog is append-only infrastructure (Domain 13), not owned by Domain 08.
+
+### G. DOMAIN BOUNDARIES
+- **Domain 09 Notification**: Separate. Domain 08 manages ticket communication; Domain 09 manages in-app notifications. No unauthorized cross-bleeding.
+- **Domain 13 Audit Log**: Separate. Domain 08 triggers audit events as side-effect; Domain 13 owns the append-only `AuditLog` table.
+- **Domain 05 User Management**: Separate. Domain 08 references User via FK (`requester`, `author`, `assigned_to`) but does not redefine user management.
+- **Domains 02/03/04/06/07/10**: Unchanged; Domain 08 sits alongside them without model/API overlap.
+
+### H. TESTING & VERIFICATION SUMMARY
+- **Backend Focused Tests**: 5/5 PASS (`apps/admin/tests/test_part29_domain08_red.py`).
+- **Backend Security Audit Tests**: 5/5 PASS (`apps/admin/tests/test_part29_domain08_security_audit.py`).
+- **Frontend Tests**: 2/2 PASS (`frontend/src/test/superAdminDomain08.test.tsx`).
+- **Backend Full Regression**: 1360/1360 PASS (including all locked domains 01–07, 10).
+- **TypeScript Compilation (`tsc --noEmit`)**: PASS.
+- **Production Build (`npm run build`)**: PASS.
+
+### I. SECURITY AUDIT STATUS
+🟢 **PASS**
+- 0 security findings.
+- Strict authorization (`IsSuperAdmin`), platform-wide read/create/update scope, IDOR/BOLA-safe (404 for arbitrary/malformed UUID), UUID path validation, PII-minimized data exposure (NO password / hash / refresh token / JWT / IP / session / reset token / secret leak), server-side requester/author identity, immutable server-side audit logging verified.
+- SUPER ADMIN confirmed PLATFORM level; tenant roles (OWNER/ADMIN/KASIR) separated via `BusinessMembership`.
+
+### J. LOCK STATUS
+🔒 **LOCKED**
+Domain 08 Support Center is fully documented and locked.
+
+---

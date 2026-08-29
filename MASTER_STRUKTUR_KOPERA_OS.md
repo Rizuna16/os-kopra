@@ -726,6 +726,15 @@ PLATFORM KOPERA � STRUKTUR SUPER ADMIN (P1 COMMERCIAL FOUNDATION):
       |   +-- read-only payment inspection (tidak ada mutasi status)
       |   +-- no manual payment status mutation (Midtrans/webhook = source of truth)
       |   +-- platform aggregation hanya untuk Super Admin
+      +-- 08. SUPPORT CENTER (Domain 08 - LOCKED)
+      |   +-- platform-level Super Admin support ticketing (SupportTicket / TicketReply)
+      |   +-- ticket list (GET /api/v1/admin/support/tickets/)
+      |   +-- ticket detail (GET /api/v1/admin/support/tickets/<uuid:ticket_id>/)
+      |   +-- ticket replies (GET /api/v1/admin/support/tickets/<uuid:ticket_id>/replies/)
+      |   +-- ticket mutation (PATCH status/priority only; POST reply only)
+      |   +-- requester/author = request.user server-side (no client spoofing)
+      |   +-- audit event server-generated: SUPPORT_TICKET_LIST_VIEWED, SUPPORT_TICKET_DETAIL_VIEWED, SUPPORT_TICKET_UPDATED, SUPPORT_TICKET_REPLIED
+      |   +-- Domain 08 != Domain 09 Notification; Domain 08 != Domain 13 Audit Log; AuditLog = side-effect/infrastructure only
       +-- 18. KOPERA ADMIN MANAGEMENT
 - Domain 01 Super Admin Dashboard (PART 29 - P1 Commercial Foundation): LOCKED.
   - Platform-level dashboard bersifat READ-ONLY (GET /api/v1/admin/dashboard/).
