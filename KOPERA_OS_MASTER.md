@@ -8035,3 +8035,43 @@ LOCKED (Discovery PASS / Contract Lock PASS / RED PASS / GREEN PASS / Regression
 ### J. LOCK STATUS
 🔒 **LOCKED**
 Domain 09 Notification is fully documented and locked.
+
+---
+
+## 53. PART 29 — DOMAIN 11 FEATURE & MODULE MANAGEMENT
+
+### A. OVERVIEW
+- Domain 11 Feature & Module Management provides platform-level oversight and control of feature/module toggles across the KOPERA OS platform.
+- Strictly Super Admin bound (`IsSuperAdmin`). No tenant user (Owner, Admin, Kasir) can access or invoke Domain 11 endpoints.
+- Orthogonal to tenant role-based permissions (`BusinessAccessMixin`).
+
+### B. IMPLEMENTED API SURFACE
+- `GET /api/v1/admin/platform/features/` — List platform features/modules.
+- `GET /api/v1/admin/platform/features/{feature_id}/` — Feature/module detail.
+- `POST /api/v1/admin/platform/features/{feature_id}/enable/` — Enable feature.
+- `POST /api/v1/admin/platform/features/{feature_id}/disable/` — Disable feature.
+
+### C. AUTHORIZATION & SECURITY AUDIT
+- Unauthenticated → 401 Unauthorized.
+- Owner / Admin / Kasir / non-superuser staff → 403 Forbidden.
+- Super Admin (`is_superuser=True`) → 200 OK.
+- Server-side identity enforcement: Request user identity verified via `IsSuperAdmin`; client cannot spoof superadmin status.
+- Platform isolation: No `business_id` required or accepted as authorization authority; no tenant/business queryset filtering path.
+- Object-level security: Invalid or nonexistent feature ID returns safe 404 response.
+- Mutation safety: Enable/disable actions restricted to Super Admin; no mass assignment or arbitrary field modification through toggle endpoints.
+
+### D. STRUCTURAL RECONCILIATION
+- Domain 11 remains PLATFORM LEVEL.
+- Separate from Domain 09 Notification, Domain 10 Content Management, Domain 19 Platform Settings, and Domain 20 Version & Release.
+- Reuses existing Feature model without violating domain boundaries.
+- Belongs to Super Admin platform namespace.
+
+### E. TESTING & VERIFICATION SUMMARY
+- **Backend Focused Tests**: 7/7 PASS (`apps/admin/tests/test_part29_domain11_red.py`).
+- **Backend Regression**: All focused tests pass successfully.
+- **Security Audit**: All 8 security verification areas (Authentication, Authorization, Server-side identity, Platform isolation, Object-level authorization, Mutation safety, API exposure, Scope security) PASS.
+
+### F. LOCK STATUS
+🔒 **LOCKED**
+Domain 11 Feature & Module Management is fully documented and locked.
+
