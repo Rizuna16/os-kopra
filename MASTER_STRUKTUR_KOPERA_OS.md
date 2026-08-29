@@ -688,7 +688,17 @@ PLATFORM KOPERA � STRUKTUR SUPER ADMIN (P1 COMMERCIAL FOUNDATION):
       |   +-- audit event server-generated: ACCOUNT_LIST_VIEWED, ACCOUNT_DETAIL_VIEWED
       |   +-- platform aggregation hanya untuk Super Admin
       |   +-- TIDAK membuat physical Account model
-      +-- 03. OWNER MANAGEMENT
+      +-- 03. OWNER MANAGEMENT (Domain 03 - LOCKED)
+      |   +-- owner list (GET /api/v1/admin/owners/)
+      |   +-- owner detail (GET /api/v1/admin/owners/<uuid:owner_id>/)
+      |   +-- owner identity (id, email, first_name, last_name)
+      |   +-- owner status (is_active, is_email_verified)
+      |   +-- business aggregation, subscription summary
+      |   +-- read-only (tidak ada mutasi POST/PUT/PATCH/DELETE)
+      |   +-- audit event server-generated: OWNER_LIST_VIEWED, OWNER_DETAIL_VIEWED
+      |   +-- platform aggregation hanya untuk Super Admin
+      |   +-- Owner adalah User pemilik usaha (bukan physical model)
+      |   +-- Domain 02 Account != Domain 03 Owner; Domain 03 != Domain 04 Business; Domain 03 != Domain 05 User
       +-- 04. BUSINESS / USAHA MANAGEMENT
       +-- 05. USER / EMPLOYEE MANAGEMENT
       +-- 06. SUBSCRIPTION & PLAN (Domain 06 - LOCKED)
@@ -716,6 +726,15 @@ PLATFORM KOPERA � STRUKTUR SUPER ADMIN (P1 COMMERCIAL FOUNDATION):
   - Audit event server-generated: ACCOUNT_LIST_VIEWED, ACCOUNT_DETAIL_VIEWED.
   - Domain 03 Owner, 04 Business, 05 User, 06 Subscription, 07 Payment tetap terpisah; finance.models.Account BUKAN Platform Account.
   - Frontend route /platform-admin/accounts, /:ownerUserId.
+- Domain 03 Owner Management (PART 29 - P1 Commercial Foundation): LOCKED.
+  - Platform-level owner oversight bersifat READ-ONLY (GET /api/v1/admin/owners/, /{owner_id}/).
+  - Owner = User pemilik usaha dilihat di level identitas/status individu; TIDAK ada physical Owner model.
+  - Owner identity (id, email, first_name, last_name), status (is_active, is_email_verified), business aggregation, subscription summary.
+  - Anonymous -> 401; Owner/Admin/Kasir/non-superuser staff -> 403; Super Admin -> 200.
+  - POST/PUT/PATCH/DELETE -> 405/403 (read-only enforcement).
+  - Audit event server-generated: OWNER_LIST_VIEWED, OWNER_DETAIL_VIEWED.
+  - Domain 02 Account != Domain 03 Owner; Domain 03 != Domain 04 Business; Domain 03 != Domain 05 User.
+  - Frontend route /platform-admin/owners, /:ownerId.
 - Domain 07 Payment & Billing (PART 29 - P1 Commercial Foundation): LOCKED.
   - Payment oversight bersifat READ-ONLY (list / detail).
   - Billing summary menghitung realized revenue HANYA dari status PAID.

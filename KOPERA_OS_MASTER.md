@@ -7607,3 +7607,71 @@ LOCKED (Discovery PASS / Contract Lock PASS / RED PASS / GREEN PASS / Regression
 ### I. LOCK STATUS
 🔒 **LOCKED**
 Domain 02 Account Management is fully documented and locked.
+
+---
+
+## 49. PART 29 — DOMAIN 03 OWNER MANAGEMENT
+
+### STATUS
+LOCKED (Discovery PASS / Contract Lock PASS / RED PASS / GREEN PASS / Regression PASS / Security Audit PASS / Documentation & Lock PASS)
+
+### A. SCOPE & PLATFORM LEVEL
+- Domain 03 Owner Management provides platform-level oversight of individual owner identities at the platform (Super Admin) level.
+- Strictly restricted to Super Admin (`is_superuser=True`).
+- Completely orthogonal to tenant roles (`BusinessMembership.role`), tenant permissions (`ROLE_PERMISSIONS`), and tenant data scopes.
+
+### B. ARCHITECTURAL DECISION & OWNER DEFINITION
+- **Owner**: the business-owning `User` viewed at individual identity/status level (`User.objects.filter(businesses__isnull=False)`).
+- **DO NOT create a physical Owner model**: Preserved as established in PART 28 P0 governance foundation.
+- **Explicit Domain Boundaries**:
+  - Domain 02 Account Management → logical account (owner as account anchor + aggregation)
+  - Domain 04 Business Management → businesses lifecycle/status
+  - Domain 05 User Management → users/memberships/roles (admin/kasir)
+  - Domain 06 Subscription → subscription entities
+  - Domain 07 Payment & Billing → payments/billing
+
+### C. BACKEND API CONTRACT
+- **Endpoints**:
+  - `GET /api/v1/admin/owners/` — Platform-wide owner list (read-only)
+  - `GET /api/v1/admin/owners/<uuid:owner_id>/` — Owner detail (read-only)
+- **Behavior Contract**:
+  - Super Admin → `200 OK` with JSON payload containing owner identity, status, business aggregation, and subscription summary.
+  - Anonymous → `401 Unauthorized`
+  - Tenant Owner / Admin / Kasir / non-superuser staff → `403 Forbidden`
+  - POST / PUT / PATCH / DELETE mutations → `405 Method Not Allowed` / `403 Forbidden` (Read-only enforcement).
+
+### D. FRONTEND ROUTES & LAYOUT
+- **Frontend Routes**:
+  - `/platform-admin/owners`
+  - `/platform-admin/owners/:ownerId`
+- **Layout**: `PlatformLayout` (renders under platform admin navigation, outside tenant business context).
+- **Components**: `SuperAdminOwners` (`frontend/src/pages/SuperAdminOwners.tsx`), `SuperAdminOwnerDetail` (`frontend/src/pages/SuperAdminOwnerDetail.tsx`).
+- **Tests**: `frontend/src/test/superAdminDomain03.test.tsx`.
+
+### E. AUTHORIZATION BOUNDARY
+- Relies on `IsSuperAdmin` permission class (`apps.admin.permissions.IsSuperAdmin`), requiring `request.user.is_authenticated AND request.user.is_superuser`.
+- No tenant membership checks or `BusinessAccessMixin` applied.
+
+### F. AUDIT CONTRACT (`OWNER_LIST_VIEWED`, `OWNER_DETAIL_VIEWED`)
+- Server-generated AuditLog events emitted on successful requests:
+  - `OWNER_LIST_VIEWED`
+  - `OWNER_DETAIL_VIEWED`
+- Actor = `request.user`; event type never accepted from client payload.
+- Audit failure must not break the main request.
+
+### G. TESTING & VERIFICATION SUMMARY
+- **Backend Focused Tests**: 20/20 PASS (`apps/admin/tests/test_part29_domain03_red.py`).
+- **Frontend Tests**: 7/7 PASS (`frontend/src/test/superAdminDomain03.test.tsx`).
+- **Backend Full Regression**: 1318/1318 PASS.
+- **Frontend Full Regression**: 953/953 PASS.
+- **TypeScript Compilation (`tsc --noEmit`)**: PASS.
+- **Production Build (`npm run build`)**: PASS.
+
+### H. SECURITY AUDIT STATUS
+🟢 **PASS**
+- 0 security findings.
+- Strict authorization (`IsSuperAdmin`), read-only enforcement, secure aggregation boundaries, and immutable audit logging verified.
+
+### I. LOCK STATUS
+🔒 **LOCKED**
+Domain 03 Owner Management is fully documented and locked.
