@@ -726,16 +726,29 @@ PLATFORM KOPERA � STRUKTUR SUPER ADMIN (P1 COMMERCIAL FOUNDATION):
       |   +-- read-only payment inspection (tidak ada mutasi status)
       |   +-- no manual payment status mutation (Midtrans/webhook = source of truth)
       |   +-- platform aggregation hanya untuk Super Admin
-      +-- 08. SUPPORT CENTER (Domain 08 - LOCKED)
-      |   +-- platform-level Super Admin support ticketing (SupportTicket / TicketReply)
-      |   +-- ticket list (GET /api/v1/admin/support/tickets/)
-      |   +-- ticket detail (GET /api/v1/admin/support/tickets/<uuid:ticket_id>/)
-      |   +-- ticket replies (GET /api/v1/admin/support/tickets/<uuid:ticket_id>/replies/)
-      |   +-- ticket mutation (PATCH status/priority only; POST reply only)
-      |   +-- requester/author = request.user server-side (no client spoofing)
-      |   +-- audit event server-generated: SUPPORT_TICKET_LIST_VIEWED, SUPPORT_TICKET_DETAIL_VIEWED, SUPPORT_TICKET_UPDATED, SUPPORT_TICKET_REPLIED
-      |   +-- Domain 08 != Domain 09 Notification; Domain 08 != Domain 13 Audit Log; AuditLog = side-effect/infrastructure only
-      +-- 18. KOPERA ADMIN MANAGEMENT
++-- 08. SUPPORT CENTER (Domain 08 - LOCKED)
+       |   +-- platform-level Super Admin support ticketing (SupportTicket / TicketReply)
+       |   +-- ticket list (GET /api/v1/admin/support/tickets/)
+       |   +-- ticket detail (GET /api/v1/admin/support/tickets/<uuid:ticket_id>/)
+       |   +-- ticket replies (GET /api/v1/admin/support/tickets/<uuid:ticket_id>/replies/)
+       |   +-- ticket mutation (PATCH status/priority only; POST reply only)
+       |   +-- requester/author = request.user server-side (no client spoofing)
+       |   +-- audit event server-generated: SUPPORT_TICKET_LIST_VIEWED, SUPPORT_TICKET_DETAIL_VIEWED, SUPPORT_TICKET_UPDATED, SUPPORT_TICKET_REPLIED
+       |   +-- Domain 08 != Domain 09 Notification; Domain 08 != Domain 13 Audit Log; AuditLog = side-effect/infrastructure only
+       +-- 09. NOTIFICATION (Domain 09 - LOCKED)
+       |   +-- in-app business-scoped notifications (Notification model)
+       |   +-- notification list (GET /api/v1/businesses/<uuid:business_id>/notifications/)
+       |   +-- notification detail (GET /api/v1/businesses/<uuid:business_id>/notifications/<uuid:notification_id>/)
+       |   +-- notification mark-read (PATCH /api/v1/businesses/<uuid:business_id>/notifications/<uuid:notification_id>/read/)
+       |   +-- recipient isolation: recipient=request.user enforced server-side
+       |   +-- business isolation: BusinessAccessMixin + recipient scope
+       |   +-- read-state mutation: is_read only, hard-set True server-side
+       |   +-- in-app only: YES (no push / email / SMS / event bus / scheduler / queue)
+       |   +-- response fields: id, type, title, message, is_read, created_at
+       |   +-- authorization: IsAuthenticated + BusinessAccessMixin (require_business_permission("notification", "view"))
+       |   +-- audit event server-generated: NOTIFICATION_LIST_VIEWED, NOTIFICATION_DETAIL_VIEWED, NOTIFICATION_READ
+       |   +-- Domain 09 != Domain 08 Support Center; Domain 09 != Domain 13 Audit Log; Domain 09 != Domain 05 User Management
+       +-- 18. KOPERA ADMIN MANAGEMENT
 - Domain 01 Super Admin Dashboard (PART 29 - P1 Commercial Foundation): LOCKED.
   - Platform-level dashboard bersifat READ-ONLY (GET /api/v1/admin/dashboard/).
   - Menampilkan 7 metrik platform: total_accounts, total_owners, total_businesses, total_users, active_subscriptions, revenue_summary, system_status.

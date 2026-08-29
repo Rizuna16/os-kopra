@@ -7940,3 +7940,98 @@ LOCKED (Discovery PASS / Contract Lock PASS / RED PASS / GREEN PASS / Regression
 Domain 08 Support Center is fully documented and locked.
 
 ---
+
+## 52. PART 29 — DOMAIN 09 NOTIFICATION
+
+### STATUS
+LOCKED (Discovery PASS / Contract Lock PASS / RED PASS / GREEN PASS / Regression PASS / Security Audit PASS / Reconciliation PASS / Documentation & Lock PASS)
+
+### A. SCOPE & BOUNDARY
+- Domain 09 manages in-app business-scoped notifications.
+- Strictly tenant/business-scoped (NOT platform-wide).
+- Completely orthogonal to Domain 08 Support Center (which manages platform-level support tickets).
+- Separate from Domain 13 Audit Log (append-only infrastructure).
+- Separate from Domain 05 User Management (references User via FK but does not redefine user management).
+- No email/push/SMS channels — in-app only.
+- No event bus / scheduler / queue / retry / broadcast.
+- No preferences / templates / AI / analytics / retention engine / export.
+- No unread-count endpoint / pagination / speculative fields.
+
+### B. ENTITIES
+- **Notification** (`apps.notification.models.Notification`):
+  - `id` (UUID, PK)
+  - `business` (FK → `apps.business.models.Business`, CASCADE)
+  - `recipient` (FK → `settings.AUTH_USER_MODEL`, CASCADE)
+  - `type` (CharField, max 50)
+  - `title` (CharField, max 255)
+  - `message` (TextField)
+  - `is_read` (BooleanField, default=False)
+  - `created_at` (DateTimeField, auto_now_add=True)
+- Relationships: `Business.notifications`, `User.notifications`
+- Indexes: composite on `(business, recipient)`
+
+### C. BACKEND API CONTRACT
+- **Endpoints** (all under `/api/v1/businesses/<uuid:business_id>/notifications/`):
+  - `GET /api/v1/businesses/<uuid:business_id>/notifications/` — Notification list (ordered by -created_at)
+  - `GET /api/v1/businesses/<uuid:business_id>/notifications/<uuid:notification_id>/` — Notification detail
+  - `PATCH /api/v1/businesses/<uuid:business_id>/notifications/<uuid:notification_id>/read/` — Mark notification as read
+- **Required Fields** (list/detail):
+  - `id`, `type`, `title`, `message`, `is_read`, `created_at`
+- **Behavior Contract**:
+  - Authenticated business member (owner or BusinessMembership) → `200 OK` (list/detail), `200 OK` (mark-read)
+  - Anonymous → `401 Unauthorized`
+  - Non-member / cross-business / cross-user → `404 Not Found` (IDOR-safe)
+  - Nonexistent or malformed UUID → `404 Not Found`
+  - Only GET list, GET detail, PATCH read allowed; POST/PUT/DELETE → `404/405`
+  - Read-state mutation: `is_read` forced True server-side (no client input)
+- **Serialization**: via `serialize_notification()` in `apps.notification.views`
+- **Recipient Identity**: Always server-scoped to `request.user` (never accepted from client payload)
+- **Query Scoping**: Every queryset filters `business=business AND recipient=request.user`
+
+### D. FRONTEND ROUTES & LAYOUT
+- **Frontend Routes**:
+  - `/notifications` (Notifications — list)
+  - `/notifications/:notificationId` (NotificationDetail — detail + mark-read)
+- **Layout**: `BusinessLayout` (renders under tenant business context, uses `BusinessContext`)
+- **Components**: `Notifications` (`frontend/src/pages/Notifications.tsx`), `NotificationDetail` (`frontend/src/pages/NotificationDetail.tsx`)
+- **Services**: `listNotifications`, `getNotification`, `markNotificationRead` (`frontend/src/notifications/notificationService.ts`)
+- **Types**: `Notification` (`frontend/src/notifications/types.ts`)
+- **Tests**: `frontend/src/test/notifications.test.tsx`, `frontend/src/test/notificationDetail.test.tsx`, `frontend/src/test/notificationService.test.ts`, `frontend/src/test/notificationTenantIsolation.test.tsx`
+
+### E. AUTHORIZATION BOUNDARY
+- Relies on `IsAuthenticated` + `BusinessAccessMixin` (`require_business_permission("notification", "view")`)
+- Business membership resolved server-side: owner OR `BusinessMembership` member with `notification:view` permission
+- `recipient=request.user` enforced in every queryset (cross-user access → 404)
+- No platform-wide aggregation — strictly `business_id` scoped
+
+### F. AUDIT CONTRACT
+- Server-generated AuditLog events emitted on successful requests:
+  - `NOTIFICATION_LIST_VIEWED`
+  - `NOTIFICATION_DETAIL_VIEWED`
+  - `NOTIFICATION_READ`
+- Actor = `request.user`; event type never accepted from client payload
+- Audit failure must not break the main request
+- AuditLog is append-only infrastructure (Domain 13), not owned by Domain 09
+
+### G. DOMAIN BOUNDARIES
+- **Domain 08 Support Center**: Separate. Domain 08 manages platform-level support ticket communication; Domain 09 manages in-app business-scoped notifications. No unauthorized cross-bleeding.
+- **Domain 13 Audit Log**: Separate. Domain 09 triggers audit events as side-effect; Domain 13 owns the append-only `AuditLog` table.
+- **Domain 05 User Management**: Separate. Domain 09 references User via FK (`recipient`) but does not redefine user management.
+- **Domains 01–07, 10**: Unchanged; Domain 09 sits alongside them without model/API overlap.
+
+### H. TESTING & VERIFICATION SUMMARY
+- **Backend Focused Tests**: 17/17 PASS (`apps/notification/tests/test_notification.py`)
+- **Frontend Tests**: 14/14 PASS (`frontend/src/test/notifications.test.tsx`, `frontend/src/test/notificationDetail.test.tsx`, `frontend/src/test/notificationService.test.ts`, `frontend/src/test/notificationTenantIsolation.test.tsx`)
+- **Backend Full Regression**: 1365/1365 PASS (including all locked domains 01–08, 10)
+- **TypeScript Compilation (`tsc --noEmit`)**: PASS
+- **Production Build (`npm run build`)**: PASS
+
+### I. SECURITY AUDIT STATUS
+🟢 **PASS**
+- 0 security findings.
+- Strict authorization (`IsAuthenticated` + `BusinessAccessMixin` + `recipient=request.user`), business-scoped read/write scope, IDOR/BOLA-safe (404 for arbitrary/malformed UUID, cross-user, cross-business), UUID path validation, PII-minimized data exposure (NO password / hash / refresh token / JWT / IP / session / reset token / secret leak), server-side recipient identity, immutable server-side audit logging verified.
+- SUPER ADMIN confirmed PLATFORM level (separate); tenant roles (OWNER/ADMIN/KASIR) separated via `BusinessMembership`.
+
+### J. LOCK STATUS
+🔒 **LOCKED**
+Domain 09 Notification is fully documented and locked.
