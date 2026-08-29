@@ -76,6 +76,7 @@ import { ReportsOverview } from "../pages/ReportsOverview";
 import { ReportsSales } from "../pages/ReportsSales";
 import { ReportsPurchasing } from "../pages/ReportsPurchasing";
 import { ReportsFinance } from "../pages/ReportsFinance";
+import { ReportsInventory } from "../pages/ReportsInventory";
 import { Notifications } from "../pages/Notifications";
 import { NotificationDetail } from "../pages/NotificationDetail";
 import { Billing } from "../pages/Billing";
@@ -827,6 +828,18 @@ export function AppRoutes() {
               <BusinessRoute>
                 <AppLayout>
                   <ReportsFinance />
+                </AppLayout>
+              </BusinessRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reports/inventory"
+          element={
+            <ProtectedRoute>
+              <BusinessRoute>
+                <AppLayout>
+                  <ReportsInventory />
                 </AppLayout>
               </BusinessRoute>
             </ProtectedRoute>

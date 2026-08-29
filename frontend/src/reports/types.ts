@@ -65,6 +65,14 @@ export interface FinanceReport {
   };
 }
 
+export interface InventoryReport {
+  total_products: number;
+  total_variants: number;
+  total_stock_quantity: number;
+  low_stock_count: number;
+  inventory_value: string;
+}
+
 export interface ReportFilter {
   date_from?: string;
   date_to?: string;

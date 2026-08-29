@@ -4,6 +4,7 @@ import type {
   SalesReport,
   PurchasingReport,
   FinanceReport,
+  InventoryReport,
   ReportFilter,
 } from "./types";
 
@@ -52,4 +53,10 @@ export async function getFinanceReport(
 ): Promise<FinanceReport> {
   const query = buildQuery(filter);
   return apiFetch<FinanceReport>(`/businesses/${businessId}/reports/finance/${query}`);
+}
+
+export async function getInventoryReport(
+  businessId: string
+): Promise<InventoryReport> {
+  return apiFetch<InventoryReport>(`/businesses/${businessId}/reports/inventory/`);
 }

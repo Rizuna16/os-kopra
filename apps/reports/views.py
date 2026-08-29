@@ -213,3 +213,52 @@ class FinanceReportView(BusinessAccessMixin, APIView):
         business = self.require_business_permission("reports", "view")
         dt_from, dt_to = parse_date_params(request)
         return Response(finance_metrics(business, dt_from, dt_to), status=200)
+
+
+def inventory_metrics(business):
+    from apps.inventory.models import Stock
+
+    total_products = Product.objects.filter(business=business).count()
+    total_variants = Variant.objects.filter(product__business=business).count()
+
+    total_stock_quantity = Stock.objects.filter(location__business=business).aggregate(
+        total=Sum("quantity")
+    )["total"]
+    if total_stock_quantity is None:
+        total_stock_quantity = Decimal("0.00")
+
+    variant_ids = Variant.objects.filter(product__business=business).values_list("id", flat=True)
+    variant_qtys = (
+        Stock.objects.filter(location__business=business)
+        .values("variant_id")
+        .annotate(total_qty=Sum("quantity"))
+    )
+    qty_map = {item["variant_id"]: item["total_qty"] or Decimal("0.00") for item in variant_qtys}
+
+    low_stock_count = 0
+    for v_id in variant_ids:
+        qty = qty_map.get(v_id, Decimal("0.00"))
+        if qty <= Decimal("5.00"):
+            low_stock_count += 1
+
+    inventory_value = Stock.objects.filter(location__business=business).aggregate(
+        value=Sum(F("quantity") * F("variant__product__price"))
+    )["value"]
+    if inventory_value is None:
+        inventory_value = Decimal("0.00")
+
+    return {
+        "total_products": total_products,
+        "total_variants": total_variants,
+        "total_stock_quantity": float(total_stock_quantity),
+        "low_stock_count": low_stock_count,
+        "inventory_value": f"{Decimal(inventory_value):.2f}",
+    }
+
+
+class InventoryReportView(BusinessAccessMixin, APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, business_id):
+        business = self.require_business_permission("reports", "view")
+        return Response(inventory_metrics(business), status=200)
