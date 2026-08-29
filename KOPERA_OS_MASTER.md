@@ -7750,3 +7750,91 @@ LOCKED (Discovery PASS / Contract Lock PASS / RED PASS / GREEN PASS / Regression
 ### I. LOCK STATUS
 🔒 **LOCKED**
 Domain 04 Business Management is fully documented and locked.
+
+---
+
+## 51. PART 29 — DOMAIN 05 USER MANAGEMENT
+
+### STATUS
+LOCKED (Discovery PASS / Contract Lock PASS / RED PASS / GREEN PASS / Regression PASS / Security Audit PASS / Documentation & Lock PASS)
+
+### A. SCOPE & PLATFORM LEVEL
+- Domain 05 User Management provides platform-level oversight of ALL users across the KOPERA OS platform at the Super Admin level.
+- Strictly restricted to Super Admin (`is_superuser=True`).
+- Completely orthogonal to tenant roles (`BusinessMembership.role`), tenant permissions (`ROLE_PERMISSIONS`), and tenant data scopes.
+- Platform-wide scope: reads across ALL users intentionally (NOT filtered by tenant/membership).
+- **NOT all users are Accounts**: Domain 02 (Account) = subset of users who own businesses; Domain 05 (User) = full user population.
+
+### B. ARCHITECTURAL DECISION & USER DEFINITION
+- **User**: the `apps.authentication.models.User` entity with platform flags (`is_superuser`, `is_staff`, `is_active`, `is_email_verified`) and identity (`email`, `first_name`, `last_name`, `created_at`).
+- **DO NOT create a physical User-profile model**: reuses `User` from `apps.authentication`.
+- **Role Boundary**:
+  - OWNER / ADMIN / KASIR = TENANT-level roles via `BusinessMembership.role`.
+  - SUPER ADMIN = PLATFORM-level authority via `User.is_superuser=True` — NOT a tenant role, NOT under Owner/Business/Tenant.
+- **Explicit Domain Boundaries**:
+  - Domain 02 Account Management → logical account (owner anchor + aggregation)
+  - Domain 03 Owner Management → owner identity/status
+  - Domain 04 Business Management → business lifecycle/status
+  - Domain 06 Subscription → subscription entities
+  - Domain 07 Payment & Billing → payments/billing
+
+### C. BACKEND API CONTRACT
+- **Endpoints**:
+  - `GET /api/v1/admin/users/` — Platform-wide user list (read-only)
+  - `GET /api/v1/admin/users/<uuid:user_id>/` — User detail (read-only)
+- **Required User Fields** (list + detail):
+  - `id` (UUID)
+  - `email`
+  - `first_name`
+  - `last_name`
+  - `is_active`
+  - `is_staff`
+  - `is_superuser`
+  - `is_email_verified`
+  - `created_at`
+- **Detail Relationship Data**:
+  - `accessible_businesses` (businesses where user holds membership)
+  - `memberships` (`[{business_id, role}]`)
+  - `employee_info` (`[{business_id, name, code, active}]`)
+- **Behavior Contract**:
+  - Super Admin → `200 OK` with JSON payload containing required user fields (+ relationship data on detail).
+  - Anonymous → `401 Unauthorized`
+  - Tenant Owner / Admin / Kasir / non-superuser staff → `403 Forbidden`
+  - POST / PUT / PATCH / DELETE mutations → `405 Method Not Allowed` / `403 Forbidden` (Read-only enforcement).
+- **Serialization**: via `_serialize_user()` helper in `apps.admin.views` (accepted; no dedicated DRF serializer required for this contract).
+
+### D. FRONTEND ROUTES & LAYOUT
+- **Frontend Routes**:
+  - `/platform-admin/users`
+  - `/platform-admin/users/:userId`
+- **Layout**: `PlatformLayout` (renders under platform admin navigation, outside tenant business context).
+- **Components**: `SuperAdminUsers` (`frontend/src/pages/SuperAdminUsers.tsx`), `SuperAdminUserDetail` (`frontend/src/pages/SuperAdminUserDetail.tsx`).
+- **Tests**: `frontend/src/test/superAdminDomain05.test.tsx`.
+
+### E. AUTHORIZATION BOUNDARY
+- Relies on `IsSuperAdmin` permission class (`apps.admin.permissions.IsSuperAdmin`), requiring `request.user.is_authenticated AND request.user.is_superuser`.
+- No tenant membership checks or `BusinessAccessMixin` applied.
+
+### F. AUDIT CONTRACT (`USER_LIST_VIEWED`, `USER_DETAIL_VIEWED`)
+- Server-generated AuditLog events emitted on successful requests:
+  - `USER_LIST_VIEWED`
+  - `USER_DETAIL_VIEWED`
+- Actor = `request.user`; event type never accepted from client payload.
+- Audit failure must not break the main request.
+
+### G. TESTING & VERIFICATION SUMMARY
+- **Backend Focused Tests**: 20/20 PASS (`apps/admin/tests/test_part29_domain05_red.py`).
+- **Frontend Tests**: 3/3 PASS (`frontend/src/test/superAdminDomain05.test.tsx`).
+- **Backend Full Regression**: 172/172 PASS.
+- **TypeScript Compilation (`tsc --noEmit`)**: PASS.
+- **Production Build (`npm run build`)**: PASS.
+
+### H. SECURITY AUDIT STATUS
+🟢 **PASS**
+- 0 security findings.
+- Strict authorization (`IsSuperAdmin`), platform-wide read-only scope, IDOR/BOLA-safe (404 for arbitrary UUID), UUID path validation, PII-minimized data exposure (NO password / hash / refresh token / JWT / IP / session / reset token leak), and immutable server-side audit logging verified.
+- SUPER ADMIN confirmed PLATFORM level; tenant roles (OWNER/ADMIN/KASIR) separated via `BusinessMembership`.
+
+### I. LOCK STATUS
+🔒 **LOCKED**
+Domain 05 User Management is fully documented and locked.

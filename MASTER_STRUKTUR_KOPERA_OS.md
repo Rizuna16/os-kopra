@@ -708,7 +708,16 @@ PLATFORM KOPERA � STRUKTUR SUPER ADMIN (P1 COMMERCIAL FOUNDATION):
       |   +-- audit event server-generated: BUSINESS_LIST_VIEWED, BUSINESS_DETAIL_VIEWED
       |   +-- platform aggregation (Business.objects.all()) hanya untuk Super Admin
       |   +-- Domain 02 Account != Domain 04 Business; Domain 03 Owner != Domain 04 Business; Domain 04 != Domain 05 User; Domain 04 != Domain 06 Subscription; Domain 04 != Domain 07 Payment
-      +-- 05. USER / EMPLOYEE MANAGEMENT
+      +-- 05. USER / EMPLOYEE MANAGEMENT (Domain 05 - LOCKED)
+      |   +-- user list (GET /api/v1/admin/users/)
+      |   +-- user detail (GET /api/v1/admin/users/<uuid:user_id>/)
+      |   +-- required fields: id, email, first_name, last_name, is_active, is_staff, is_superuser, is_email_verified, created_at
+      |   +-- detail relationship: accessible_businesses, memberships [{business_id, role}], employee_info
+      |   +-- read-only (tidak ada mutasi POST/PUT/PATCH/DELETE)
+      |   +-- audit event server-generated: USER_LIST_VIEWED, USER_DETAIL_VIEWED
+      |   +-- platform aggregation (User.objects.all()) hanya untuk Super Admin
+      |   +-- OWNER/ADMIN/KASIR = tenant role (BusinessMembership); SUPER ADMIN = platform level (is_superuser)
+      |   +-- Domain 02 Account != Domain 05 User; Domain 03 Owner != Domain 05 User; Domain 04 Business != Domain 05 User
       +-- 06. SUBSCRIPTION & PLAN (Domain 06 - LOCKED)
       +-- 07. PAYMENT & BILLING (Domain 07 - LOCKED)
       |   +-- payment oversight (GET /api/v1/admin/payments/)
@@ -754,6 +763,18 @@ PLATFORM KOPERA � STRUKTUR SUPER ADMIN (P1 COMMERCIAL FOUNDATION):
   - Audit event server-generated: BUSINESS_LIST_VIEWED, BUSINESS_DETAIL_VIEWED.
   - Domain 02 Account != Domain 04 Business; Domain 03 Owner != Domain 04 Business; Domain 04 != Domain 05 User; Domain 04 != Domain 06 Subscription; Domain 04 != Domain 07 Payment.
   - Frontend route /platform-admin/businesses, /:businessId.
+- Domain 05 User Management (PART 29 - P1 Commercial Foundation): LOCKED.
+  - Platform-level user oversight bersifat READ-ONLY (GET /api/v1/admin/users/, /{user_id}/).
+  - Required fields: id, email, first_name, last_name, is_active, is_staff, is_superuser, is_email_verified, created_at.
+  - Detail relationship: accessible_businesses, memberships [{business_id, role}], employee_info.
+  - Platform-wide scope (User.objects.all()) — mencakup SEMUA user (owner, admin, kasir, staff, superuser).
+  - OWNER/ADMIN/KASIR = tenant role via BusinessMembership; SUPER ADMIN = platform level via User.is_superuser (BUKAN tenant role).
+  - Anonymous -> 401; Owner/Admin/Kasir/non-superuser staff -> 403; Super Admin -> 200.
+  - POST/PUT/PATCH/DELETE -> 405/403 (read-only enforcement).
+  - TIDAK ada search/filter/pagination pada kontrak platform V1/P0 ini.
+  - Audit event server-generated: USER_LIST_VIEWED, USER_DETAIL_VIEWED.
+  - Domain 02 Account != Domain 05 User; Domain 03 Owner != Domain 05 User; Domain 04 Business != Domain 05 User.
+  - Frontend route /platform-admin/users, /:userId.
 - Domain 07 Payment & Billing (PART 29 - P1 Commercial Foundation): LOCKED.
   - Payment oversight bersifat READ-ONLY (list / detail).
   - Billing summary menghitung realized revenue HANYA dari status PAID.
