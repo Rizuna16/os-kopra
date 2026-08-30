@@ -17,6 +17,7 @@ from apps.business.serializers import (
     SubscriptionCreateSerializer,
     SubscriptionSerializer,
 )
+from apps.business.services import get_business_feature_matrix
 
 
 class BusinessCreateView(APIView):
@@ -31,6 +32,21 @@ class BusinessCreateView(APIView):
         return Response(
             BusinessSerializer(business).data,
             status=status.HTTP_201_CREATED,
+        )
+
+
+class BusinessFeatureMatrixView(BusinessAccessMixin, APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, business_id):
+        business = self.get_business()
+        capabilities = get_business_feature_matrix(business.business_type)
+        return Response(
+            {
+                "business_type": business.business_type,
+                "capabilities": capabilities,
+            },
+            status=status.HTTP_200_OK,
         )
 
 
@@ -105,7 +121,7 @@ class SubscriptionCreateView(APIView):
         )
         # Prevent duplicate active subscriptions
         if business.subscriptions.filter(
-            status__in=[Subscription.Status.ONBOARDING, Subscription.Status.ACTIVE]
+            status__in=[Subscription.Status.TRIAL, Subscription.Status.ONBOARDING, Subscription.Status.ACTIVE]
         ).exists():
             return Response(
                 {"error": "Business already has an active subscription."},
@@ -127,6 +143,29 @@ class SubscriptionCreateView(APIView):
         return Response(
             SubscriptionSerializer(subscription).data,
             status=status.HTTP_201_CREATED,
+        )
+
+
+class SubscriptionCancelView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, business_id):
+        business = get_object_or_404(
+            Business.objects.filter(owner=request.user), pk=business_id
+        )
+        subscription = business.subscriptions.filter(
+            status__in=[Subscription.Status.TRIAL, Subscription.Status.ONBOARDING, Subscription.Status.ACTIVE, Subscription.Status.SUSPENDED, Subscription.Status.EXPIRED]
+        ).first()
+        if subscription is None:
+            return Response(
+                {"error": "No actionable subscription found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        subscription.status = Subscription.Status.CANCELED
+        subscription.save(update_fields=["status", "updated_at"])
+        return Response(
+            {"business": str(business.id), "status": subscription.status},
+            status=status.HTTP_200_OK,
         )
 
 

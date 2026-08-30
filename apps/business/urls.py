@@ -2,15 +2,22 @@ from django.urls import path
 
 from apps.business.views import (
     BusinessCreateView,
+    BusinessFeatureMatrixView,
     LocationCreateView,
     LocationDetailView,
     MemberDetailView,
     MemberListCreateView,
+    SubscriptionCancelView,
     SubscriptionCreateView,
 )
 
 urlpatterns = [
     path("", BusinessCreateView.as_view(), name="business-create"),
+    path(
+        "<uuid:business_id>/features/",
+        BusinessFeatureMatrixView.as_view(),
+        name="business-feature-matrix",
+    ),
     path(
         "<uuid:business_id>/locations/",
         LocationCreateView.as_view(),
@@ -25,6 +32,11 @@ urlpatterns = [
         "<uuid:business_id>/subscription/",
         SubscriptionCreateView.as_view(),
         name="subscription-create",
+    ),
+    path(
+        "<uuid:business_id>/subscription/cancel/",
+        SubscriptionCancelView.as_view(),
+        name="subscription-cancel",
     ),
     path(
         "<uuid:business_id>/members/",
