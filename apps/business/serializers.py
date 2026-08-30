@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from apps.business.models import BusinessMembership, Business, Location, Subscription
+from apps.business.services import ONBOARDING_TEMPLATES
 
 
 class BusinessSerializer(serializers.ModelSerializer):
@@ -9,18 +10,34 @@ class BusinessSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Business
-        fields = ["id", "name", "owner", "status", "created_at", "updated_at"]
+        fields = ["id", "name", "business_type", "owner", "status", "created_at", "updated_at"]
         read_only_fields = ["id", "owner", "status", "created_at", "updated_at"]
 
 
 class BusinessCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Business
-        fields = ["name"]
+        fields = ["name", "business_type"]
+
+    def validate_business_type(self, value):
+        if value and value not in ONBOARDING_TEMPLATES:
+            raise serializers.ValidationError(
+                f"Invalid business type. Supported types: {', '.join(ONBOARDING_TEMPLATES)}"
+            )
+        return value
 
     def create(self, validated_data):
         user = self.context["request"].user
-        return Business.objects.create(owner=user, **validated_data)
+        from django.db import transaction
+        with transaction.atomic():
+            business = Business.objects.create(owner=user, **validated_data)
+            BusinessMembership.objects.create(
+                business=business,
+                user=user,
+                role=BusinessMembership.Role.OWNER,
+            )
+            Subscription.objects.create(business=business, status=Subscription.Status.TRIAL)
+            return business
 
 
 class LocationSerializer(serializers.ModelSerializer):

@@ -2,6 +2,7 @@ import uuid
 
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 
 class Business(models.Model):
@@ -13,6 +14,7 @@ class Business(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
+    business_type = models.CharField(max_length=100, blank=True, default="Usaha Lainnya")
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -63,9 +65,11 @@ class Location(models.Model):
 
 class Subscription(models.Model):
     class Status(models.TextChoices):
+        TRIAL = "TRIAL", "Trial"
         ONBOARDING = "ONBOARDING", "Onboarding"
         ACTIVE = "ACTIVE", "Active"
         SUSPENDED = "SUSPENDED", "Suspended"
+        EXPIRED = "EXPIRED", "Expired"
         CANCELED = "CANCELED", "Canceled"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -77,8 +81,16 @@ class Subscription(models.Model):
     status = models.CharField(
         max_length=20,
         choices=Status.choices,
-        default=Status.ONBOARDING,
+        default=Status.TRIAL,
     )
+    plan = models.ForeignKey(
+        "billing.Plan",
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+    )
+    period_start = models.DateTimeField(blank=True, null=True)
+    period_end = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -92,7 +104,7 @@ class Subscription(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=["business"],
-                condition=models.Q(status__in=["ONBOARDING", "ACTIVE"]),
+                condition=models.Q(status__in=["TRIAL", "ONBOARDING", "ACTIVE"]),
                 name="unique_active_subscription_per_business",
             ),
         ]
