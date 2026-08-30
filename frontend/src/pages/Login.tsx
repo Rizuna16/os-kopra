@@ -18,10 +18,14 @@ export function Login() {
     setError(null);
     setLoading(true);
     try {
-      await login({ email, password });
+      const user = await login({ email, password });
       const to = (location.state as { from?: { pathname?: string } } | null)?.from
         ?.pathname;
-      navigate(to ?? "/app", { replace: true });
+      if (user?.is_superuser) {
+        navigate(to ?? "/platform-admin/dashboard", { replace: true });
+      } else {
+        navigate(to ?? "/app", { replace: true });
+      }
     } catch (err) {
       if (err instanceof ApiError) setError(err.message);
       else setError("Login failed. Please try again.");
