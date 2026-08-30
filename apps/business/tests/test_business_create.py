@@ -38,11 +38,12 @@ class TestBusinessCreateView:
     def test_create_business_success(self, auth_client, user):
         response = auth_client.post(
             "/api/v1/businesses/",
-            {"name": "Toko Budi"},
+            {"name": "Toko Budi", "business_type": "Usaha Lainnya"},
             content_type="application/json",
         )
         assert response.status_code == 201
         assert response.data["name"] == "Toko Budi"
+        assert response.data["business_type"] == "Usaha Lainnya"
         assert response.data["owner"] == str(user.id)
         assert response.data["status"] == "ONBOARDING"
         assert "id" in response.data
@@ -52,12 +53,13 @@ class TestBusinessCreateView:
         business = Business.objects.get(id=response.data["id"])
         assert business.owner == user
         assert business.name == "Toko Budi"
+        assert business.business_type == "Usaha Lainnya"
         assert business.status == "ONBOARDING"
 
     def test_create_business_owner_is_request_user(self, auth_client, user):
         response = auth_client.post(
             "/api/v1/businesses/",
-            {"name": "Toko Budi"},
+            {"name": "Toko Budi", "business_type": "Usaha Lainnya"},
             content_type="application/json",
         )
         assert response.status_code == 201
@@ -66,7 +68,7 @@ class TestBusinessCreateView:
     def test_create_business_owner_not_in_request_body(self, auth_client, user):
         response = auth_client.post(
             "/api/v1/businesses/",
-            {"name": "Toko Budi", "owner": "different-user-id"},
+            {"name": "Toko Budi", "business_type": "Usaha Lainnya", "owner": "different-user-id"},
             content_type="application/json",
         )
         assert response.status_code == 201
@@ -75,7 +77,7 @@ class TestBusinessCreateView:
     def test_create_business_status_onboarding(self, auth_client, user):
         response = auth_client.post(
             "/api/v1/businesses/",
-            {"name": "Toko Budi"},
+            {"name": "Toko Budi", "business_type": "Usaha Lainnya"},
             content_type="application/json",
         )
         assert response.status_code == 201
@@ -84,7 +86,7 @@ class TestBusinessCreateView:
     def test_create_business_unauthenticated(self, client):
         response = client.post(
             "/api/v1/businesses/",
-            {"name": "Toko Budi"},
+            {"name": "Toko Budi", "business_type": "Usaha Lainnya"},
             content_type="application/json",
         )
         assert response.status_code == 401
@@ -92,14 +94,14 @@ class TestBusinessCreateView:
     def test_create_second_business_same_user(self, auth_client, user):
         response1 = auth_client.post(
             "/api/v1/businesses/",
-            {"name": "Toko Budi"},
+            {"name": "Toko Budi", "business_type": "Fashion"},
             content_type="application/json",
         )
         assert response1.status_code == 201
 
         response2 = auth_client.post(
             "/api/v1/businesses/",
-            {"name": "Budi Coffee"},
+            {"name": "Budi Coffee", "business_type": "Makanan & Minuman"},
             content_type="application/json",
         )
         assert response2.status_code == 201
@@ -112,7 +114,7 @@ class TestBusinessCreateView:
     def test_create_business_does_not_create_location(self, auth_client, user):
         response = auth_client.post(
             "/api/v1/businesses/",
-            {"name": "Toko Budi"},
+            {"name": "Toko Budi", "business_type": "Usaha Lainnya"},
             content_type="application/json",
         )
         assert response.status_code == 201
@@ -122,7 +124,7 @@ class TestBusinessCreateView:
     def test_create_business_does_not_create_subscription(self, auth_client, user):
         response = auth_client.post(
             "/api/v1/businesses/",
-            {"name": "Toko Budi"},
+            {"name": "Toko Budi", "business_type": "Usaha Lainnya"},
             content_type="application/json",
         )
         assert response.status_code == 201
@@ -131,7 +133,7 @@ class TestBusinessCreateView:
     def test_create_business_does_not_create_user(self, auth_client, user):
         response = auth_client.post(
             "/api/v1/businesses/",
-            {"name": "Toko Budi"},
+            {"name": "Toko Budi", "business_type": "Usaha Lainnya"},
             content_type="application/json",
         )
         assert response.status_code == 201
@@ -141,7 +143,7 @@ class TestBusinessCreateView:
     def test_create_business_status_mass_assignment_ignored(self, auth_client, user):
         response = auth_client.post(
             "/api/v1/businesses/",
-            {"name": "Toko Budi", "status": "ACTIVE"},
+            {"name": "Toko Budi", "business_type": "Fashion", "status": "ACTIVE"},
             content_type="application/json",
         )
         assert response.status_code == 201
@@ -153,7 +155,7 @@ class TestBusinessCreateView:
         before = Business.objects.count()
         response = auth_client.post(
             "/api/v1/businesses/",
-            {},
+            {"business_type": "Fashion"},
             content_type="application/json",
         )
         assert response.status_code == 400

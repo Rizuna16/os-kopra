@@ -15,12 +15,16 @@ class BusinessSerializer(serializers.ModelSerializer):
 
 
 class BusinessCreateSerializer(serializers.ModelSerializer):
+    business_type = serializers.ChoiceField(choices=[(t, t) for t in ONBOARDING_TEMPLATES])
+
     class Meta:
         model = Business
         fields = ["name", "business_type"]
 
     def validate_business_type(self, value):
-        if value and value not in ONBOARDING_TEMPLATES:
+        if not value or not value.strip():
+            raise serializers.ValidationError("Business type is required.")
+        if value not in ONBOARDING_TEMPLATES:
             raise serializers.ValidationError(
                 f"Invalid business type. Supported types: {', '.join(ONBOARDING_TEMPLATES)}"
             )

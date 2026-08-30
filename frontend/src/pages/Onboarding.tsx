@@ -18,12 +18,28 @@ export function Onboarding() {
 
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [bizName, setBizName] = useState("");
+  const [bizType, setBizType] = useState("");
   const [locName, setLocName] = useState("");
   const [plans, setPlans] = useState<Plan[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   const hadBusinessOnMount = useRef(business.currentBusinessId != null);
+
+  const BUSINESS_TYPES = [
+    "Bangunan & Perkakas",
+    "Sembako & Kebutuhan Harian",
+    "Fashion",
+    "Makanan & Minuman",
+    "Elektronik & Komputer",
+    "Kecantikan & Perawatan",
+    "Kesehatan & Apotek",
+    "Rumah Tangga & Furniture",
+    "Otomotif & Sparepart",
+    "Buku & Alat Tulis",
+    "Grosir & Distributor",
+    "Usaha Lainnya"
+  ];
 
   useEffect(() => {
     const completedSession =
@@ -63,7 +79,7 @@ export function Onboarding() {
     setError(null);
     setBusy(true);
     try {
-      const created = await createBusiness(bizName.trim());
+      const created = await createBusiness(bizName.trim(), bizType);
       business.addBusiness(created);
       setStep(2);
     } catch (err) {
@@ -265,9 +281,30 @@ export function Onboarding() {
                   className="w-full px-4 py-2.5 text-sm rounded-xl border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
                 />
               </div>
+              <div>
+                <label htmlFor="business-type-select" className="text-sm font-medium text-gray-700 block mb-1">Business type</label>
+                <select
+                  id="business-type-select"
+                  value={bizType}
+                  onChange={(e) => setBizType(e.target.value)}
+                  data-testid="business-type-select"
+                  required
+                  className="w-full px-4 py-2.5 text-sm rounded-xl border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+                >
+                  <option value="">-- Pilih Tipe Usaha --</option>
+                  {BUSINESS_TYPES.map((type, index) => (
+                    <option
+                      key={type}
+                      value={type}
+                    >
+                      {type}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <button
                 type="submit"
-                disabled={busy}
+                disabled={busy || !bizType || !bizName}
                 data-testid="business-submit"
                 className="py-3 px-4 bg-blue-600 hover:bg-blue-700 font-medium text-sm text-white rounded-xl shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed w-full"
               >

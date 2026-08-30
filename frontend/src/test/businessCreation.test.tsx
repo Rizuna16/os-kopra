@@ -37,9 +37,9 @@ describe("Business creation (onboarding)", () => {
     vi.restoreAllMocks();
   });
 
-  it("POSTs only { name } and returns the server business (no business_type)", async () => {
+  it("POSTs name and business_type and returns the server business", async () => {
     const fetchMock = mockBusinessPost();
-    const result = await createBusiness("Toko Contoh");
+    const result = await createBusiness("Toko Contoh", "Usaha Lainnya");
     expect(result.id).toBe(SERVER_BIZ.id);
     expect(result.status).toBe("ONBOARDING");
     const call = fetchMock.mock.calls[0];
@@ -47,6 +47,7 @@ describe("Business creation (onboarding)", () => {
     expect((call[1] as RequestInit).method).toBe("POST");
     expect(JSON.parse((call[1] as RequestInit).body as string)).toEqual({
       name: "Toko Contoh",
+      business_type: "Usaha Lainnya",
     });
   });
 
@@ -57,7 +58,7 @@ describe("Business creation (onboarding)", () => {
       const [state, setState] = useState("init");
       useEffect(() => {
         (async () => {
-          const created = await createBusiness("Toko Contoh");
+          const created = await createBusiness("Toko Contoh", "Usaha Lainnya");
           b.addBusiness(created);
           setState("done");
         })();
@@ -85,7 +86,7 @@ describe("Business creation (onboarding)", () => {
 
   it("uses the server-returned UUID and never a client-generated id", async () => {
     mockBusinessPost();
-    const result = await createBusiness("Toko Contoh");
+    const result = await createBusiness("Toko Contoh", "Usaha Lainnya");
     expect(result.id).toBe("11111111-1111-1111-1111-111111111111");
   });
 });

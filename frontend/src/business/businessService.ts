@@ -9,10 +9,10 @@ import type {
 
 export type { PaymentResponse };
 
-export async function createBusiness(name: string): Promise<BusinessSummary> {
+export async function createBusiness(name: string, businessType: string): Promise<BusinessSummary> {
   return await apiFetch<BusinessSummary>("/businesses/", {
     method: "POST",
-    body: { name },
+    body: { name, business_type: businessType },
   });
 }
 

@@ -31,7 +31,7 @@ describe("Tenant isolation", () => {
       return new Response("{}", { status: 200 });
     });
     (globalThis as any).fetch = fetchMock;
-    const result = await createBusiness("Toko Contoh");
+    const result = await createBusiness("Toko Contoh", "Usaha Lainnya");
     expect(result.id).toBe(BIZ_ID);
   });
 
