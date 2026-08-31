@@ -64,13 +64,13 @@ class TestSubscriptionCreateView:
         )
         assert response.status_code == 201
         assert response.data["business"] == str(business.id)
-        assert response.data["status"] == "ONBOARDING"
+        assert response.data["status"] == "TRIAL"
         assert "id" in response.data
         assert "created_at" in response.data
 
         subscription = Subscription.objects.get(id=response.data["id"])
         assert subscription.business == business
-        assert subscription.status == Subscription.Status.ONBOARDING
+        assert subscription.status == Subscription.Status.TRIAL
 
     def test_subscription_belongs_to_correct_business(self, auth_client, business):
         response = auth_client.post(

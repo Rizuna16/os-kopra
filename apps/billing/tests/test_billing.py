@@ -59,11 +59,11 @@ def inactive_plan(db):
 
 @pytest.fixture
 def subscription(db, business):
-    return Subscription.objects.create(business=business, status="ONBOARDING")
+    return Subscription.objects.create(business=business, status="TRIAL")
 
 @pytest.fixture
 def other_subscription(db, other_business):
-    return Subscription.objects.create(business=other_business, status="ONBOARDING")
+    return Subscription.objects.create(business=other_business, status="TRIAL")
 
 
 @pytest.mark.django_db
@@ -376,7 +376,7 @@ class TestWebhook:
         p.refresh_from_db()
         assert p.status == "FAILED"
         subscription.refresh_from_db()
-        assert subscription.status == "ONBOARDING"
+        assert subscription.status == "TRIAL"
 
     def test_invalid_signature_rejected(self, business, subscription, basic_plan):
         p = Payment.objects.create(subscription=subscription, plan=basic_plan, amount=basic_plan.amount, currency="IDR", status="PENDING", provider="MIDTRANS")
@@ -388,7 +388,7 @@ class TestWebhook:
         p.refresh_from_db()
         assert p.status == "PENDING"
         subscription.refresh_from_db()
-        assert subscription.status == "ONBOARDING"
+        assert subscription.status == "TRIAL"
 
     def _paid_payment_and_active_subscription(self, subscription, basic_plan):
         subscription.status = "ACTIVE"

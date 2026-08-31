@@ -126,17 +126,17 @@ class TestSubscriptionCreateContract:
         assert Location.objects.count() == loc_ct
         assert User.objects.count() == user_ct
 
-    # ---- Behavior 2: ONBOARDING initial state ---------------------------
-    def test_created_subscription_is_onboarding(self, auth_client, business):
+    # ---- Behavior 2: TRIAL initial state ---------------------------
+    def test_created_subscription_is_trial(self, auth_client, business):
         response = auth_client.post(
             SUBSCRIPTION_URL.format(biz=business.id),
             {},
             content_type="application/json",
         )
         assert response.status_code == 201
-        assert response.data["status"] == "ONBOARDING"
+        assert response.data["status"] == "TRIAL"
         sub = Subscription.objects.get(id=response.data["id"])
-        assert sub.status == Subscription.Status.ONBOARDING
+        assert sub.status == Subscription.Status.TRIAL
 
     def test_response_exposes_onboarding_only_fields(self, auth_client, business):
         response = auth_client.post(
@@ -270,4 +270,4 @@ class TestSubscriptionCreateContract:
             content_type="application/json",
         )
         assert response.status_code == 201
-        assert response.data["status"] == "ONBOARDING"
+        assert response.data["status"] == "TRIAL"

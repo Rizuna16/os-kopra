@@ -104,12 +104,12 @@ def inactive_plan(db):
 
 @pytest.fixture
 def subscription(db, business):
-    return Subscription.objects.create(business=business, status="ONBOARDING")
+    return Subscription.objects.create(business=business, status="TRIAL")
 
 
 @pytest.fixture
 def other_subscription(db, other_business):
-    return Subscription.objects.create(business=other_business, status="ONBOARDING")
+    return Subscription.objects.create(business=other_business, status="TRIAL")
 
 
 def _midtrans_payload(order_id, transaction_id, status, amount="99000.00", server_key="SB-Mid-server-test"):
@@ -369,7 +369,7 @@ class TestPaymentCreateContract:
         p = Payment.objects.get(subscription=subscription)
         assert p.status == "FAILED"
         subscription.refresh_from_db()
-        assert subscription.status == "ONBOARDING"
+        assert subscription.status == "TRIAL"
 
     # 35. response field contract
     @patch("apps.billing.views.create_snap_transaction", return_value=MOCK_SNAP_RESPONSE)
@@ -379,7 +379,7 @@ class TestPaymentCreateContract:
             {"subscription_id": str(subscription.id), "plan_id": str(basic_plan.id)},
             content_type="application/json",
         )
-        assert set(r.data.keys()) == {"id", "status", "provider_reference", "redirect_url", "token"}
+        assert set(r.data.keys()) == {"id", "status", "purpose", "provider_reference", "redirect_url", "token"}
 
 
 @pytest.mark.django_db
@@ -412,7 +412,7 @@ class TestWebhookContract:
         p.refresh_from_db()
         assert p.status == "PENDING"
         subscription.refresh_from_db()
-        assert subscription.status == "ONBOARDING"
+        assert subscription.status == "TRIAL"
         assert PaymentWebhookEvent.objects.filter(event_id=f"txn-inv-{p.id}").exists()
 
     # 23/24/25/26. successful webhook outcomes
@@ -494,12 +494,12 @@ class TestEndpointAbsenceContract:
         )
         assert r.status_code == 404
 
-    def test_no_subscription_cancel_endpoint(self, auth_client, subscription):
+    def test_subscription_cancel_endpoint_exists(self, auth_client, subscription):
         r = auth_client.post(
             f"/api/v1/businesses/{subscription.business.id}/subscription/cancel/",
             {}, content_type="application/json",
         )
-        assert r.status_code == 404
+        assert r.status_code == 200
 
 
 @pytest.mark.django_db(transaction=True)
