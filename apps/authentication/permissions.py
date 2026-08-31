@@ -290,6 +290,33 @@ def has_business_permission(user, business, domain, action):
     """
     if user.is_superuser:
         return True
+
+    # Subscription gating for state-changing operational domains
+    if action in ("create", "update", "delete", "manage"):
+        if domain not in ("billing", "subscription", "membership"):
+            from apps.business.models import Subscription
+            has_active = Subscription.objects.filter(
+                business=business,
+                status__in=[
+                    Subscription.Status.TRIAL,
+                    Subscription.Status.ONBOARDING,
+                    Subscription.Status.ACTIVE,
+                ]
+            ).exists()
+            if not has_active:
+                has_expired_or_suspended = Subscription.objects.filter(
+                    business=business,
+                    status__in=[
+                        Subscription.Status.EXPIRED,
+                        Subscription.Status.SUSPENDED,
+                    ]
+                ).exists()
+                if has_expired_or_suspended:
+                    from rest_framework.exceptions import PermissionDenied
+                    raise PermissionDenied(
+                        "You do not have permission to perform this action because the business subscription has expired or is suspended."
+                    )
+
     role = resolve_business_role(user, business)
     if role is None:
         return False
