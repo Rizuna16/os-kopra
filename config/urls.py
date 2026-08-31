@@ -99,6 +99,10 @@ urlpatterns = [
         "api/v1/businesses/<uuid:business_id>/notifications/",
         include("apps.notification.urls"),
     ),
+    path(
+        "api/v1/businesses/<uuid:business_id>/settings/",
+        include("apps.settings.urls"),
+    ),
     path("api/stocks/<uuid:id>/", StockDetailView.as_view(), name="stock-detail"),
     path(
         "api/v1/stocks/transfer/", StockTransferView.as_view(), name="stock-transfer"

@@ -25,6 +25,9 @@ class Business(models.Model):
         choices=Status.choices,
         default=Status.ONBOARDING,
     )
+    logo_url = models.URLField(max_length=500, null=True, blank=True, default=None)
+    brand_color = models.CharField(max_length=7, null=True, blank=True, default=None)
+    tagline = models.CharField(max_length=255, null=True, blank=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

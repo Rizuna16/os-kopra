@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "apps.audit",
     "apps.backup",
     "apps.monitoring",
+    "apps.settings",
 ]
 
 MIDDLEWARE = [

@@ -65,7 +65,7 @@
 | 15 | PEGAWAI | IMPLEMENTED | PARTIAL | IMPLEMENTED | IMPLEMENTED | IMPLEMENTED | Tenant | PARTIAL |
 | 16 | NOTIFIKASI | IMPLEMENTED | IMPLEMENTED | IMPLEMENTED | IMPLEMENTED | IMPLEMENTED | Tenant | IMPLEMENTED |
 | 17 | ROLE & PERMISSION | IMPLEMENTED | MISSING | MISSING | IMPLEMENTED | IMPLEMENTED | Tenant | PARTIAL |
-| 18 | SETTINGS | PARTIAL | PARTIAL | PARTIAL | PARTIAL | IMPLEMENTED | Tenant | PARTIAL |
+| 18 | SETTINGS | IMPLEMENTED | IMPLEMENTED | IMPLEMENTED | IMPLEMENTED | IMPLEMENTED | Tenant | IMPLEMENTED |
 | 19 | PAYMENT SYSTEM | IMPLEMENTED | IMPLEMENTED | IMPLEMENTED | IMPLEMENTED | IMPLEMENTED | Tenant | IMPLEMENTED |
 | 20 | MOBILE | MISSING | MISSING | MISSING | MISSING | N/A | N/A | DEFERRED |
 | 21 | SECURITY | IMPLEMENTED | PARTIAL | IMPLEMENTED | IMPLEMENTED | IMPLEMENTED | Platform/Tenant | IMPLEMENTED |
@@ -83,7 +83,7 @@
 - **14** `apps/reports` (overview/sales/purchasing/finance); frontend has Overview/Sales/Purchasing/Finance pages. Export (Excel/CSV/PDF) not evidenced → PARTIAL.
 - **15** `apps/employee` (Employee↔User↔Business), frontend CRUD. Shift/Kehadiran absent → PARTIAL.
 - **17** RBAC engine IMPLEMENTED in `apps/authentication/permissions.py` (`ROLE_PERMISSIONS`, `has_business_permission`, `resolve_business_role`). No standalone management UI. GUDANG role from master NOT in `Role` choices → gap. PARTIAL.
-- **18** Basic settings/billing present; full multi-tab config (tax/currency/invoice/receipt/integration/API) absent → PARTIAL.
+- **18** `apps/settings` (BusinessTaxConfig, BusinessCurrencyConfig, BusinessInvoiceConfig, BusinessReceiptConfig, UserNotificationPreference, BusinessIntegrationConfig) + business brand extension (logo_url, brand_color, tagline). 14 endpoints (7 GET/PATCH) with auto-provisioning, RBAC, tenant isolation, subscription gating. Frontend: 7-tab Settings UI (`/settings/*`) under ProtectedRoute+BusinessRoute+AppLayout. Tests GREEN.
 - **20** No mobile codebase → DEFERRED (infrastructure/future).
 - **21** `apps/security` test suite + audit/backup/throttling/session-revocation enforced. IMPLEMENTED.
 - **22** monitoring/health/audit/logging present; no system frontend → PARTIAL.

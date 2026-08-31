@@ -80,6 +80,8 @@ import { ReportsInventory } from "../pages/ReportsInventory";
 import { Notifications } from "../pages/Notifications";
 import { NotificationDetail } from "../pages/NotificationDetail";
 import { Billing } from "../pages/Billing";
+import { Settings } from "../pages/Settings";
+import { SettingsBusiness } from "../pages/SettingsBusiness";
 import { OnlineStoreList } from "../pages/OnlineStoreList";
 import { OnlineStoreCreate } from "../pages/OnlineStoreCreate";
 import { OnlineStoreProductList } from "../pages/OnlineStoreProductList";
@@ -897,6 +899,32 @@ export function AppRoutes() {
               <BusinessRoute>
                 <AppLayout>
                   <Billing />
+                </AppLayout>
+              </BusinessRoute>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Settings (PART 18 V1) — business-scoped, tenant-isolated */}
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <BusinessRoute>
+                <AppLayout>
+                  <Settings />
+                </AppLayout>
+              </BusinessRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings/:tab"
+          element={
+            <ProtectedRoute>
+              <BusinessRoute>
+                <AppLayout>
+                  <Settings />
                 </AppLayout>
               </BusinessRoute>
             </ProtectedRoute>
