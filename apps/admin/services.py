@@ -28,7 +28,19 @@ def is_feature_enabled(business, feature_code):
         # If INHERIT, continue to Plan entitlement
 
     # Resolve Effective Active Plan
-    active_sub = Subscription.objects.filter(business=business, status="ACTIVE").first()
+    from django.utils import timezone
+    now = timezone.now()
+    active_sub = Subscription.objects.filter(
+        business=business,
+        status="ACTIVE",
+        period_end__isnull=True,
+    ).first()
+    if not active_sub:
+        active_sub = Subscription.objects.filter(
+            business=business,
+            status="ACTIVE",
+            period_end__gt=now,
+        ).first()
     if active_sub:
         latest_payment = Payment.objects.filter(
             subscription=active_sub,

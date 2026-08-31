@@ -13,6 +13,11 @@ class PlanSerializer(serializers.ModelSerializer):
 class PaymentCreateSerializer(serializers.Serializer):
     subscription_id = serializers.UUIDField()
     plan_id = serializers.UUIDField()
+    purpose = serializers.ChoiceField(
+        choices=Payment.Purpose.choices,
+        default=Payment.Purpose.INITIAL,
+        required=False,
+    )
 
     def validate(self, attrs):
         for forbidden in ("amount", "currency", "status", "provider_reference", "paid_at"):
@@ -20,6 +25,12 @@ class PaymentCreateSerializer(serializers.Serializer):
                 raise serializers.ValidationError(
                     {forbidden: "This field must not be provided by the client."}
                 )
+        if "purpose" in self.initial_data and self.initial_data.get("purpose") not in (
+            Payment.Purpose.INITIAL,
+            Payment.Purpose.RENEWAL,
+            Payment.Purpose.UPGRADE,
+        ):
+            raise serializers.ValidationError({"purpose": "Invalid purpose value."})
         return attrs
 
 

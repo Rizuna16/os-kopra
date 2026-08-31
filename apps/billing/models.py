@@ -39,6 +39,11 @@ class Payment(models.Model):
         EXPIRED = "EXPIRED", "Expired"
         CANCELED = "CANCELED", "Canceled"
 
+    class Purpose(models.TextChoices):
+        INITIAL = "INITIAL", "Initial"
+        RENEWAL = "RENEWAL", "Renewal"
+        UPGRADE = "UPGRADE", "Upgrade"
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     subscription = models.ForeignKey(
         "business.Subscription",
@@ -52,6 +57,11 @@ class Payment(models.Model):
         max_length=20,
         choices=Status.choices,
         default=Status.PENDING,
+    )
+    purpose = models.CharField(
+        max_length=20,
+        choices=Purpose.choices,
+        default=Purpose.INITIAL,
     )
     provider = models.CharField(max_length=50, default="MIDTRANS")
     provider_reference = models.CharField(max_length=255, blank=True)
