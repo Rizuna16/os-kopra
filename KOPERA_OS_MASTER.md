@@ -720,6 +720,20 @@ Landing Page: **SELESAI DIBAHAS & LOCKED**.
 - **Tests**: 24 tests passed across 6 test suites (`src/test/{fitur,harga,faq,kontak,terms,privacy}.test.tsx`). Full public suite (35 tests) green.
 - **Locked Modules**: Nodes 15–19 untouched. Zero backend changes.
 
+### GAP-03BRAND — Brand Management UI & Storefront Branding: 🟢 SELESAI & LOCKED.
+- **Scope**: Presentation-layer only. No backend, API, model, or routing changes.
+- **SettingsBusiness.tsx**:
+  - Logo preview (`business-logo-preview`) with graceful fallback on error
+  - Color picker (`business-color-picker`) synchronized with hex input (`business-color-input`)
+  - Live brand preview card (`business-brand-preview-card`) showing logo, name, tagline, and brand accent header
+- **Storefront.tsx**:
+  - Storefront logo (`storefront-logo`) rendered when `logo_url` available
+  - Storefront tagline (`storefront-tagline`) rendered under store title
+  - Brand color accent applied to primary CTA (View Cart button) via `style={{ backgroundColor: brandColor }}` with Tailwind fallback
+- **Test Coverage**: 7 new contract tests in `brandManagement.test.tsx` + existing tests pass
+- **Security Audit**: PASS (0 findings). No API changes, no RBAC changes, no tenant isolation changes, no migrations, no upload, no dangerouslySetInnerHTML, no new dependencies, Nodes 15–19 untouched.
+- **Regression**: Typecheck ✓, Build ✓, Frontend 1018 tests ✓, Backend 1548 tests ✓ (1 pre-existing unrelated fail).
+
 ---
 
 ## 18. CURRENT PRODUCT STATUS

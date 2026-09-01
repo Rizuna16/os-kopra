@@ -16,6 +16,7 @@ export function SettingsBusiness() {
   const [logoUrl, setLogoUrl] = useState("");
   const [brandColor, setBrandColor] = useState("");
   const [tagline, setTagline] = useState("");
+  const [logoError, setLogoError] = useState(false);
 
   useEffect(() => {
     if (!currentBusinessId) return;
@@ -109,18 +110,49 @@ export function SettingsBusiness() {
             placeholder="https://example.com/logo.png"
             className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           />
+          {logoUrl && (
+            <div className="mt-2">
+              <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Logo Preview</label>
+              {!logoError ? (
+                <img
+                  data-testid="business-logo-preview"
+                  src={logoUrl}
+                  alt="Logo preview"
+                  className="max-h-24 max-w-48 rounded-lg border border-gray-200"
+                  onError={() => setLogoError(true)}
+                />
+              ) : (
+                <div data-testid="business-logo-preview" className="w-24 h-24 rounded-lg border border-gray-300 bg-gray-100 flex items-center justify-center">
+                  <span className="text-xs text-gray-500">Preview unavailable</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div>
           <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Warna Brand (Hex)</label>
           <div className="flex items-center gap-3">
             <input
+              type="color"
+              data-testid="business-color-picker"
+              value={brandColor || "#4F46E5"}
+              onChange={(e) => setBrandColor(e.target.value.toUpperCase())}
+              className="w-10 h-10 rounded-lg border border-gray-300 cursor-pointer flex-shrink-0"
+            />
+            <input
               type="text"
               data-testid="business-color-input"
               value={brandColor}
-              onChange={(e) => setBrandColor(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (/^#[0-9A-Fa-f]{0,6}$/.test(val)) {
+                  setBrandColor(val.toUpperCase());
+                }
+              }}
               placeholder="#4F46E5"
               className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              maxLength={7}
             />
             {brandColor && /^#[0-9A-Fa-f]{6}$/.test(brandColor) && (
               <div
@@ -142,6 +174,32 @@ export function SettingsBusiness() {
             maxLength={255}
             className="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           />
+        </div>
+
+        <div data-testid="business-brand-preview-card" className="p-4 border border-gray-200 rounded-xl bg-white">
+          <div className="text-xs font-bold text-gray-700 uppercase mb-2">Live Brand Preview</div>
+          <div className="p-4 border border-gray-200 rounded-lg">
+            <div className="h-3 rounded-t-lg" style={{ backgroundColor: brandColor || "#E5E7EB" }} />
+            <div className="p-4">
+              <div className="flex items-center gap-3 mb-3">
+                {logoUrl && !logoError ? (
+                  <img src={logoUrl} alt="Logo" className="w-12 h-12 rounded-lg object-cover" onError={() => setLogoError(true)} />
+                ) : logoError ? (
+                  <div className="w-12 h-12 rounded-lg border border-gray-300 bg-gray-100 flex items-center justify-center">
+                    <span className="text-xs text-gray-500">Logo</span>
+                  </div>
+                ) : (
+                  <div className="w-12 h-12 rounded-lg border border-gray-300 bg-gray-100 flex items-center justify-center">
+                    <span className="text-xs text-gray-500">Logo</span>
+                  </div>
+                )}
+                <div>
+                  <h3 className="font-semibold text-gray-900">{name || "Nama Bisnis"}</h3>
+                  <p className="text-sm text-gray-500">{tagline || "Tagline bisnis Anda"}</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <button

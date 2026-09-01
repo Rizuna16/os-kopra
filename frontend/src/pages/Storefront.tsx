@@ -11,6 +11,7 @@ export function Storefront() {
   const { slug } = useParams<{ slug: string }>();
   const [store, setStore] = useState<OnlineStoreSummary | null>(null);
   const [catalog, setCatalog] = useState<PublicProduct[]>([]);
+  const [brandColor, setBrandColor] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,6 +26,7 @@ export function Storefront() {
       .then((data) => {
         if (!cancelled) {
           setStore(data);
+          setBrandColor((data as any).brand_color || null);
         }
         return getPublicCatalog(slug);
       })
@@ -50,9 +52,26 @@ export function Storefront() {
     <div className="min-h-screen bg-gray-50" data-testid="storefront">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6">
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-            Online Store: {store?.name ?? slug}
-          </h1>
+          <div className="flex items-center gap-4 mb-4">
+            {store && (store as any).logo_url && (
+              <img
+                data-testid="storefront-logo"
+                src={(store as any).logo_url}
+                alt={`${store.name} logo`}
+                className="w-16 h-16 rounded-xl object-cover border border-gray-200"
+              />
+            )}
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-gray-900">
+                Online Store: {store?.name ?? slug}
+              </h1>
+              {store && (store as any).tagline && (
+                <p data-testid="storefront-tagline" className="text-sm text-gray-600 mt-1">
+                  {(store as any).tagline}
+                </p>
+              )}
+            </div>
+          </div>
           {loading ? (
             <p className="text-gray-600" data-testid="storefront-loading">Loading store...</p>
           ) : error ? (
@@ -97,7 +116,8 @@ export function Storefront() {
               <div className="mt-6">
                 <Link
                   to={`/store/${slug}/cart`}
-                  className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+                  className="inline-flex items-center px-4 py-2 text-white rounded-md hover:opacity-90"
+                  style={{ backgroundColor: brandColor || "#4F46E5" }}
                 >
                   View Cart
                 </Link>
