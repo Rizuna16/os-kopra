@@ -7,6 +7,7 @@ import { SettingsInvoice } from "./SettingsInvoice";
 import { SettingsReceipt } from "./SettingsReceipt";
 import { SettingsNotificationPrefs } from "./SettingsNotificationPrefs";
 import { SettingsIntegration } from "./SettingsIntegration";
+import { SettingsSecurity } from "./SettingsSecurity";
 
 export type SettingsTab =
   | "business"
@@ -15,7 +16,8 @@ export type SettingsTab =
   | "invoice"
   | "receipt"
   | "notifications"
-  | "integration";
+  | "integration"
+  | "security";
 
 interface TabConfig {
   id: SettingsTab;
@@ -30,6 +32,7 @@ const TABS: TabConfig[] = [
   { id: "receipt", label: "Struk" },
   { id: "notifications", label: "Notifikasi" },
   { id: "integration", label: "Integrasi" },
+  { id: "security", label: "Keamanan" },
 ];
 
 const TAB_COMPONENTS: Record<SettingsTab, JSX.Element> = {
@@ -40,6 +43,7 @@ const TAB_COMPONENTS: Record<SettingsTab, JSX.Element> = {
   receipt: <SettingsReceipt />,
   notifications: <SettingsNotificationPrefs />,
   integration: <SettingsIntegration />,
+  security: <SettingsSecurity />,
 };
 
 export function Settings() {
