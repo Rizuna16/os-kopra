@@ -3,7 +3,8 @@ from datetime import datetime, time
 from decimal import Decimal
 from io import BytesIO
 
-from django.db.models import Count, F, Sum, Q
+from django.db.models import Count, F, Sum, Q, Value
+from django.db.models.functions import Coalesce
 from django.http import HttpResponse
 from django.utils import timezone
 
@@ -90,12 +91,26 @@ def sales_metrics(business, dt_from, dt_to):
     ).aggregate(total=Sum("loyalty_earned"))["total"]
     loyalty = Decimal(loyalty) if loyalty is not None else Decimal("0.00")
 
+    cogs = SaleLine.objects.filter(
+        sale__business=business,
+        sale__status=Sale.Status.COMPLETED,
+        **date_filters(dt_from, dt_to, "sale__created_at__"),
+    ).aggregate(
+        total=Sum(
+            F("quantity") * Coalesce(F("applied_cost_price"), Value(Decimal("0.00")))
+        )
+    )["total"]
+    cogs = Decimal(cogs) if cogs is not None else Decimal("0.00")
+    gross_profit = revenue - cogs
+
     return {
         "total": total,
         "completed": completed,
         "voided": voided,
         "draft": draft,
         "revenue": to_money(revenue),
+        "cogs": to_money(cogs),
+        "gross_profit": to_money(gross_profit),
         "loyalty_earned": to_money(loyalty),
     }
 
@@ -131,6 +146,12 @@ def finance_metrics(business, dt_from, dt_to):
     ).aggregate(total=Sum("amount"))["total"]
     expense_total = Decimal(expense_total) if expense_total is not None else Decimal("0.00")
 
+    sales = sales_metrics(business, dt_from, dt_to)
+    revenue = Decimal(sales["revenue"]) if sales["revenue"] else Decimal("0.00")
+    cogs = Decimal(sales["cogs"]) if sales["cogs"] else Decimal("0.00")
+    gross_profit = revenue - cogs
+    net_profit = gross_profit - expense_total
+
     journal_counts = (
         Journal.objects.filter(
             business=business,
@@ -160,6 +181,7 @@ def finance_metrics(business, dt_from, dt_to):
 
     return {
         "expense_total": to_money(expense_total),
+        "net_profit": to_money(net_profit),
         "journal": journal_status,
         "journal_entry": {
             "DEBIT": to_money(debit),

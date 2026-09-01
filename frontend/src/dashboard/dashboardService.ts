@@ -11,6 +11,7 @@ export interface DashboardData {
     totalPenjualan: number;
     totalPengeluaran: string;
     totalProduk: number;
+    estimasiLaba?: string;
   };
   overview: OverviewReport;
   notifications: Notification[];
@@ -26,10 +27,11 @@ export async function getOwnerDashboard(businessId: string): Promise<DashboardDa
 
   return {
     executive: {
-      totalOmzet: overview.sales.revenue,
-      totalPenjualan: overview.sales.completed,
-      totalPengeluaran: overview.finance.expense_total,
-      totalProduk: overview.counts.products,
+      totalOmzet: overview?.sales?.revenue || "0.00",
+      totalPenjualan: overview?.sales?.completed || 0,
+      totalPengeluaran: overview?.finance?.expense_total || "0.00",
+      totalProduk: overview?.counts?.products || 0,
+      estimasiLaba: overview?.finance?.net_profit || "0.00",
     },
     overview,
     notifications,

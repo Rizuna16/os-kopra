@@ -565,7 +565,7 @@ export function OwnerDashboard() {
           </div>
 
           {/* SECTION 2 — EXECUTIVE KPI */}
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
             
             {/* Card 1: Total Omzet */}
             <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm hover:shadow-xl hover:border-indigo-200 transition-all duration-300 flex flex-col justify-between group">
@@ -652,6 +652,28 @@ export function OwnerDashboard() {
               <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-semibold text-amber-600">
                 <span>Catalog Inventory</span>
                 <span>Active SKUs</span>
+              </div>
+            </div>
+
+            {/* Card 5: Estimasi Laba */}
+            <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm hover:shadow-xl hover:border-emerald-200 transition-all duration-300 flex flex-col justify-between group">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Estimasi Laba</span>
+                <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl group-hover:scale-110 transition-transform duration-300">
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+              </div>
+              <div className="py-3 space-y-1">
+                <h3 data-testid="kpi-estimasi-laba" className="text-3xl font-black text-slate-900 tracking-tight">
+                  {data?.executive.estimasiLaba}
+                </h3>
+                <p className="text-xs text-slate-500 font-medium">Laba bersih bersifat estimasi</p>
+              </div>
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-semibold text-emerald-600">
+                <span>Net Profit</span>
+                <span>Based on flat cost</span>
               </div>
             </div>
 

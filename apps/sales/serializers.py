@@ -118,6 +118,7 @@ class SaleLineSerializer(serializers.ModelSerializer):
             "variant",
             "quantity",
             "unit_price",
+            "applied_cost_price",
             "applied_promotion",
             "applied_discount_type",
             "applied_discount_value",
@@ -127,6 +128,7 @@ class SaleLineSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
             "variant",
+            "applied_cost_price",
             "applied_promotion",
             "applied_discount_type",
             "applied_discount_value",
@@ -338,20 +340,25 @@ class SaleCreateSerializer(serializers.Serializer):
 
 
 def _snapshot_promotions_for_sale(sale):
-    """Copy current Promotion discount values into SaleLine at COMPLETED."""
+    """Copy current Promotion discount values and Variant cost_price into SaleLine at COMPLETED."""
     for line in sale.lines.all():
+        update_fields = []
+        if line.applied_cost_price is None:
+            line.applied_cost_price = getattr(line.variant, "cost_price", Decimal("0.00"))
+            update_fields.append("applied_cost_price")
+
         promotion = line.applied_promotion
-        if promotion is None:
-            continue
-        if promotion.business_id != sale.business_id:
-            raise serializers.ValidationError(
-                {"applied_promotion": "Promotion does not belong to this business."}
-            )
-        line.applied_discount_type = promotion.discount_type
-        line.applied_discount_value = promotion.discount_value
-        line.save(
-            update_fields=["applied_discount_type", "applied_discount_value"]
-        )
+        if promotion is not None:
+            if promotion.business_id != sale.business_id:
+                raise serializers.ValidationError(
+                    {"applied_promotion": "Promotion does not belong to this business."}
+                )
+            line.applied_discount_type = promotion.discount_type
+            line.applied_discount_value = promotion.discount_value
+            update_fields.extend(["applied_discount_type", "applied_discount_value"])
+
+        if update_fields:
+            line.save(update_fields=update_fields)
 
 
 class SaleUpdateSerializer(serializers.Serializer):

@@ -84,17 +84,20 @@ class ProductUpdateSerializer(serializers.ModelSerializer):
 
 class VariantSerializer(serializers.ModelSerializer):
     product = serializers.UUIDField(source="product.id", read_only=True)
+    cost_price = PriceField()
 
     class Meta:
         model = Variant
-        fields = ["id", "product", "name", "created_at", "updated_at"]
+        fields = ["id", "product", "name", "cost_price", "created_at", "updated_at"]
         read_only_fields = ["id", "product", "created_at", "updated_at"]
 
 
 class VariantCreateSerializer(serializers.ModelSerializer):
+    cost_price = PriceField(required=False)
+
     class Meta:
         model = Variant
-        fields = ["name"]
+        fields = ["name", "cost_price"]
 
     def validate_name(self, value):
         if value is None or not value.strip():

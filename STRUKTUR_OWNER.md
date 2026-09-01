@@ -198,7 +198,7 @@ KOPERA
 
 | GAP ID | Domain | Submenu | Status | Evidence | Notes |
 |---|---|---|---|---|---|
-| GAP-01DASH-LABA | OVERVIEW | Estimasi Laba | 🟡 DEFERRED — CONTRACT REQUIRED | No laba/HPP architecture | Requires accounting cost price (HPP) & profit formula |
+| GAP-01DASH-LABA | OVERVIEW | Estimasi Laba | 🟢 IMPLEMENTED & LOCKED | `Variant.cost_price`, `SaleLine.applied_cost_price`, `cogs`, `gross_profit`, `net_profit` in Reports & Dashboard | Part 8 and Part 12 additive amendments implemented and verified |
 | GAP-02DASH-PIUTANG | OVERVIEW/KEUANGAN | Piutang | 🟡 DEFERRED — CONTRACT REQUIRED | No receivables model | Requires AR ledger & model |
 | GAP-03DASH-HUTANG | OVERVIEW/KEUANGAN | Hutang | 🟡 DEFERRED — CONTRACT REQUIRED | No payables model | Requires AP ledger & model |
 | GAP-04DASH-CASHFLOW | KEUANGAN | Cash Flow | 🟡 DEFERRED — CONTRACT REQUIRED | No cash flow aggregation | Requires cash flow statement engine |

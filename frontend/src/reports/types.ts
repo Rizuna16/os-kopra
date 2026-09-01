@@ -5,6 +5,8 @@ export interface OverviewReport {
     voided: number;
     draft: number;
     revenue: string;
+    cogs?: string;
+    gross_profit?: string;
     loyalty_earned: string;
   };
   purchasing: {
@@ -16,6 +18,7 @@ export interface OverviewReport {
   };
   finance: {
     expense_total: string;
+    net_profit?: string;
     journal: {
       DRAFT: number;
       POSTED: number;
@@ -41,6 +44,8 @@ export interface SalesReport {
   voided: number;
   draft: number;
   revenue: string;
+  cogs?: string;
+  gross_profit?: string;
   loyalty_earned: string;
 }
 
@@ -54,6 +59,7 @@ export interface PurchasingReport {
 
 export interface FinanceReport {
   expense_total: string;
+  net_profit?: string;
   journal: {
     DRAFT: number;
     POSTED: number;

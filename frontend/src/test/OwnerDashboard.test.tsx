@@ -38,10 +38,11 @@ function renderDashboard(businessId: string) {
 }
 
 const OVERVIEW = {
-  sales: { total: 10, completed: 8, voided: 1, draft: 1, revenue: "1000.00", loyalty_earned: "50.00" },
+  sales: { total: 10, completed: 8, voided: 1, draft: 1, revenue: "1000.00", cogs: "400.00", gross_profit: "600.00", loyalty_earned: "50.00" },
   purchasing: { total: 5, confirmed: 4, cancelled: 0, draft: 1, cost: "800.00" },
   finance: {
     expense_total: "200.00",
+    net_profit: "400.00",
     journal: { DRAFT: 1, POSTED: 2, REVERSED: 0 },
     journal_entry: { DEBIT: "1000.00", CREDIT: "1000.00" },
   },
@@ -99,6 +100,7 @@ describe("OwnerDashboard (Post-V1)", () => {
     expect(screen.getByTestId("kpi-total-penjualan")).toHaveTextContent("8");
     expect(screen.getByTestId("kpi-total-pengeluaran")).toHaveTextContent("200.00");
     expect(screen.getByTestId("kpi-total-produk")).toHaveTextContent("45");
+    expect(screen.getByTestId("kpi-estimasi-laba")).toHaveTextContent("400.00");
   });
 
   it("renders a loading skeleton before data resolves", async () => {
@@ -112,8 +114,8 @@ describe("OwnerDashboard (Post-V1)", () => {
     await bootAuth(true);
     const zero = {
       ...OVERVIEW,
-      sales: { ...OVERVIEW.sales, completed: 0, revenue: "0.00" },
-      finance: { ...OVERVIEW.finance, expense_total: "0.00" },
+      sales: { ...OVERVIEW.sales, completed: 0, revenue: "0.00", cogs: "0.00", gross_profit: "0.00" },
+      finance: { ...OVERVIEW.finance, expense_total: "0.00", net_profit: "0.00" },
       counts: { ...OVERVIEW.counts, products: 0 },
     };
     (globalThis as any).fetch = baseFetch(200, {
@@ -234,7 +236,7 @@ describe("OwnerDashboard (Post-V1)", () => {
     expect(screen.getByTestId("sidebar-nav-laporan")).toHaveAttribute("href", "/reports/overview");
     expect(screen.getByTestId("sidebar-nav-toko-online")).toHaveAttribute("href", "/stores");
     expect(screen.getByTestId("sidebar-nav-notifikasi")).toHaveAttribute("href", "/notifications");
-    expect(screen.getByTestId("sidebar-nav-pengaturan")).toHaveAttribute("href", "/billing");
+    expect(screen.getByTestId("sidebar-nav-pengaturan")).toHaveAttribute("href", "/settings");
 
     // active state check
     expect(screen.getByTestId("sidebar-nav-dashboard")).toHaveClass("active-menu-item");
