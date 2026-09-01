@@ -1565,6 +1565,107 @@ Scope confirmation:
 
 ---
 
+## 18.7.1. NODE 19 — REPORTS & ANALYTICS EXTENSION V1
+
+**NODE 19 — Reports & Analytics Extension V1** (working checkpoint label for the historical Parts 18 Reports & Analytics domain).
+
+Legend:
+- 🟢 = selesai dan sudah melewati regression + security audit
+
+Extension V1 status:
+- 🟢 Product Report
+- 🟢 Customer Report
+- 🟢 Supplier Report
+- 🟢 Promotion Report
+- 🟢 Employee Report
+- 🟢 CSV Export
+- 🟢 XLSX Export
+
+### NODE 19 Status Detail
+
+- Contract: **NODE 19 EXTENSION V1 — LOCKED**
+- Implementation: **COMPLETE**
+- Authorization: **IsAuthenticated + BusinessAccessMixin + `require_business_permission("reports", "view")`**
+- Read-only aggregation: **YES** (GET only; no POST/PATCH/PUT/DELETE, no model mutation, no migrations)
+- Business scope: **MANDATORY** (all aggregation querysets constrained to authorized business)
+- Dependencies: **`openpyxl==3.1.5`** declared in `requirements/base.txt` (XLSX generation only)
+
+### NODE 19 Extension — Endpoints (GET only)
+
+| Endpoint | Method | Description |
+| :--- | :--- | :--- |
+| `GET /api/v1/businesses/<uuid:business_id>/reports/product/` | GET | Product aggregation metrics |
+| `GET /api/v1/businesses/<uuid:business_id>/reports/customer/` | GET | Customer aggregation metrics |
+| `GET /api/v1/businesses/<uuid:business_id>/reports/supplier/` | GET | Supplier aggregation metrics |
+| `GET /api/v1/businesses/<uuid:business_id>/reports/promotion/` | GET | Promotion usage & redemption metrics |
+| `GET /api/v1/businesses/<uuid:business_id>/reports/employee/` | GET | Employee count & shift activity metrics |
+| `GET /api/v1/businesses/<uuid:business_id>/reports/export/<str:report_type>/<str:fmt>/` | GET | CSV/XLSX export of authorized report |
+
+### NODE 19 Extension — Authorization Model
+
+- All NODE 19 endpoints reuse the existing `BusinessAccessMixin` and the centralized `require_business_permission("reports", "view")` RBAC gate in `apps/authentication/permissions.py`.
+- Role matrix for `reports/view` (unchanged, reused):
+  - **OWNER**: allowed
+  - **ADMIN**: allowed (`("ADMIN", "reports", "view"): True`)
+  - **KASIR**: denied (`("KASIR", "reports", "view"): False`)
+- No custom role checks or duplicated permission engine introduced.
+- Export routes share identical authorization checks via `ExportReportView`.
+
+### NODE 19 Extension — Business Isolation
+
+- Cross-business access via `business_id` UUID manipulation results in HTTP 404 (not found / not owned).
+- All aggregation querysets explicitly filter by `business`, `product__business`, `sale__business`, `purchase_order__business`, etc. No global aggregation leak.
+- No cross-business aggregation allowed.
+
+### NODE 19 Extension — Location Behavior
+
+- Location filter accepted via `?location_id=` query parameter (read-only, validated, no scope expansion).
+- Domains with native Location relationship (Sales, Purchasing, Inventory) may scope by location.
+- Domains without a direct Location FK (`Product`, `Customer`, `Supplier`, `Promotion`, `Employee`) remain business-wide aggregations; no Location model relationship is invented for these domain entities.
+
+### NODE 19 Extension — Export Behavior
+
+- CSV export: `Content-Type: text/csv`; flattened key/value rows.
+- XLSX export: `Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`; generated via `openpyxl`.
+- `report_type` is constrained by an allowlist (`overview`, `sales`, `purchasing`, `finance`, `inventory`, `product`, `customer`, `supplier`, `promotion`, `employee`); unknown types return HTTP 400.
+- `fmt` is constrained by an allowlist (`csv`, `xlsx`); unsupported formats return HTTP 400.
+- `Content-Disposition` filename is server-generated (not user-controlled), preventing filename injection.
+- No filesystem writes; responses are streamed via `HttpResponse`/`BytesIO`.
+- Export applies identical business + RBAC authorization gate as JSON report endpoints.
+
+### NODE 19 Extension — Data Scope
+
+Each report exposes only the metrics defined by the NODE 19 extension contract.
+- **Product Report**: total_products, active_products, inactive_products, total_variants, summary.
+- **Customer Report**: total_customers, active_customers, customer_growth, top_customers.
+- **Supplier Report**: total_suppliers, active_suppliers, purchase_volume, purchase_value, supplier_activity.
+- **Promotion Report**: promotion_usage, redemption_count, discount_summary, performance.
+- **Employee Report**: employee_count, active_employee_count, employee_sales_summary, shift_activity.
+
+### NODE 19 Extension — Test Baseline
+
+- `apps/reports/tests/test_node19_extension_red.py`: 39 test cases.
+- Reports suite: 68/68 PASS (29 existing PART 18 + 39 NODE 19).
+- Full backend regression: no regression introduced (existing locked modules untouched).
+
+### NODE 19 Extension — Security Audit
+
+- FINAL SECURITY VERDICT: **PASS**
+- CRITICAL: 0 / HIGH: 0 / MEDIUM: 0 / LOW: 0 / INFO: 0
+- Audit areas covered: Authentication, Authorization, Business isolation / IDOR, Queryset isolation, Location boundary, Date filtering, CSV export, XLSX export, Routing, Mass assignment, Data exposure, Resource safety, Dependency.
+
+### NODE 19 Extension — Scope Confirmation
+
+- PART 18 V1 Contract (Overview, Sales, Purchasing, Finance, Inventory): **LOCKED / UNTOUCHED**.
+- No migrations created.
+- No report persistence models created.
+- No existing API contracts modified.
+- No existing routing boundaries modified.
+- Nodes 15–18 **LOCKED / UNTOUCHED**.
+- No refactoring of unrelated code.
+
+---
+
 ## 18.8. CURRENT PRODUCT STATUS — PART 19 NOTIFICATION
 
 **PART 19 — Notification**
