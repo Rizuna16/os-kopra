@@ -3,6 +3,9 @@ export interface OnlineStoreSummary {
   name: string;
   slug: string;
   is_active: boolean;
+  logo_url?: string | null;
+  brand_color?: string | null;
+  tagline?: string | null;
 }
 
 export interface OnlineStoreDetail {

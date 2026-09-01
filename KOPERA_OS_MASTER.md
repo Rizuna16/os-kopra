@@ -7091,6 +7091,86 @@ PART 22 Online Store Frontend V1 dinyatakan **SELESAI & LOCKED** setelah Regress
 
 ---
 
+## 40.1. PART 22 AMENDMENT — PUBLIC STORE BRANDING API EXPOSURE
+
+### STATUS
+🟢 SELESAI & LOCKED
+- Amendment Contract: **PART 22 AMENDMENT — PUBLIC STORE BRANDING API EXPOSURE — LOCKED**
+- RED: **COMPLETE — Backend 5 tests + Frontend 1 test (branding fields)**
+- GREEN: **COMPLETE — All tests PASS**
+- Regression: **COMPLETE — 1553 backend tests PASS (1 pre-existing unrelated failure), frontend typecheck/build/test PASS**
+- Security Audit: **PASS**
+
+### A. SCOPE
+Expand the public store response (`GET /api/v1/stores/<slug>/`) to expose three existing Business branding fields:
+- `logo_url` — from `store.business.logo_url`
+- `brand_color` — from `store.business.brand_color`
+- `tagline` — from `store.business.tagline`
+
+### B. BACKEND CHANGES
+- **File**: `apps/onlinestore/serializers.py`
+- Modified: `PublicStoreSerializer`
+- Added three `ReadOnlyField` with `source` pointing to parent Business:
+  ```python
+  logo_url = serializers.ReadOnlyField(source="business.logo_url")
+  brand_color = serializers.ReadOnlyField(source="business.brand_color")
+  tagline = serializers.ReadOnlyField(source="business.tagline")
+  ```
+- Meta `fields` expanded to include the three new fields.
+- No model changes. No migrations. No view changes. No URL changes. No permission changes.
+
+### C. FRONTEND TYPE CHANGES
+- **File**: `frontend/src/onlinestore/types.ts`
+- Extended existing `OnlineStoreSummary` interface:
+  ```typescript
+  logo_url?: string | null;
+  brand_color?: string | null;
+  tagline?: string | null;
+  ```
+- No competing interface created. No unrelated types modified.
+
+### D. STOREFRONT COMPONENT CHANGES
+- **File**: `frontend/src/pages/Storefront.tsx`
+- Removed all `(store as any)` casts for branding fields.
+- Now uses typed access: `store.logo_url`, `store.brand_color`, `store.tagline`.
+- Preserves all existing test IDs: `storefront`, `storefront-loading`, `storefront-error`, `storefront-logo`, `storefront-tagline`.
+
+### E. TEST COVERAGE
+- **Backend**: `apps/onlinestore/tests/test_public_store_branding.py` — 5 tests:
+  1. Public store exposes `logo_url`, `brand_color`, `tagline` from parent Business
+  2. Null branding values return safely (None/null)
+  3. Existing fields preserved (`id`, `name`, `slug`, `is_active`)
+  4. Endpoint accessible without authentication (AllowAny)
+  5. Unrelated Business/private fields NOT exposed (exact key set verified)
+- **Frontend**: `frontend/src/test/storefront.test.tsx` — 1 test:
+  1. Typed `logo_url` renders (image src correct)
+  2. Typed `tagline` renders
+  3. Typed `brand_color` applies to CTA button background
+  4. Existing storefront test IDs unchanged
+  5. No `(store as any)` dependency
+
+### F. SECURITY AUDIT
+- Endpoint unchanged: `GET /api/v1/stores/<slug>/`
+- URL unchanged
+- Public access unchanged (AllowAny)
+- RBAC unchanged
+- Authentication unchanged
+- Tenant isolation unchanged (store resolved by slug, scoped to its business)
+- Models unchanged
+- Migrations: none
+- File upload: none
+- Dependencies unchanged
+- Routing unchanged
+- No sensitive Business fields exposed (owner, created_at, updated_at, default_location, business FK not serialized)
+- Branding fields are read-only through this public serializer
+- Nodes 15–19 untouched
+
+### G. REGRESSION
+- Backend: 1553 tests PASS (1 pre-existing failure in `test_employee_membership.py::TestMembershipFoundation::test_8_owner_existing_behavior_remains_intact` — unrelated to this amendment)
+- Frontend: typecheck PASS, build PASS, full test suite PASS
+
+---
+
 ## 41. BACKEND AUTHORIZATION ENGINE CONSOLIDATION — CONTRACT LOCK #6
 
 ### STATUS

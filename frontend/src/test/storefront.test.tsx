@@ -75,4 +75,44 @@ describe("Storefront public catalog UI component (/store/:slug)", () => {
 
     await waitFor(() => expect(screen.getByTestId("storefront-error")).toBeTruthy());
   });
+
+  it("renders typed branding fields (logo, tagline, CTA brand color)", async () => {
+    await bootAuth(false);
+    const fetchMock = vi.fn(async (url: string) => {
+      if (String(url).includes(`/api/v1/stores/${SLUG}/products/`)) {
+        return new Response(JSON.stringify([]), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      if (String(url).includes(`/api/v1/stores/${SLUG}/`)) {
+        return new Response(
+          JSON.stringify({
+            id: "s1",
+            name: "Toko Makmur",
+            slug: SLUG,
+            is_active: true,
+            logo_url: "https://example.com/logo.png",
+            brand_color: "#123456",
+            tagline: "Serba Ada",
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } }
+        );
+      }
+      return new Response("{}", { status: 200 });
+    });
+    (globalThis as any).fetch = fetchMock;
+
+    renderStorefront(SLUG);
+
+    await waitFor(() => expect(screen.getByTestId("storefront-logo")).toBeTruthy());
+    const logoImg = screen.getByTestId("storefront-logo") as HTMLImageElement;
+    expect(logoImg.src).toBe("https://example.com/logo.png");
+
+    await waitFor(() => expect(screen.getByTestId("storefront-tagline")).toBeTruthy());
+    expect(screen.getByText("Serba Ada")).toBeTruthy();
+
+    const cartLink = screen.getByRole("link", { name: /view cart/i });
+    expect(cartLink.style.backgroundColor).toBe("rgb(18, 52, 86)");
+  });
 });

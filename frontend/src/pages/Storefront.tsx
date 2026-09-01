@@ -26,7 +26,7 @@ export function Storefront() {
       .then((data) => {
         if (!cancelled) {
           setStore(data);
-          setBrandColor((data as any).brand_color || null);
+          setBrandColor(data.brand_color || null);
         }
         return getPublicCatalog(slug);
       })
@@ -53,10 +53,10 @@ export function Storefront() {
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6">
           <div className="flex items-center gap-4 mb-4">
-            {store && (store as any).logo_url && (
+            {store && store.logo_url && (
               <img
                 data-testid="storefront-logo"
-                src={(store as any).logo_url}
+                src={store.logo_url}
                 alt={`${store.name} logo`}
                 className="w-16 h-16 rounded-xl object-cover border border-gray-200"
               />
@@ -65,9 +65,9 @@ export function Storefront() {
               <h1 className="text-2xl font-bold tracking-tight text-gray-900">
                 Online Store: {store?.name ?? slug}
               </h1>
-              {store && (store as any).tagline && (
+              {store && store.tagline && (
                 <p data-testid="storefront-tagline" className="text-sm text-gray-600 mt-1">
-                  {(store as any).tagline}
+                  {store.tagline}
                 </p>
               )}
             </div>

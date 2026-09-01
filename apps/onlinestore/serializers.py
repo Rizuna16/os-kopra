@@ -275,9 +275,13 @@ class OnlineOrderCreateSerializer(serializers.Serializer):
 
 
 class PublicStoreSerializer(serializers.ModelSerializer):
+    logo_url = serializers.ReadOnlyField(source="business.logo_url")
+    brand_color = serializers.ReadOnlyField(source="business.brand_color")
+    tagline = serializers.ReadOnlyField(source="business.tagline")
+
     class Meta:
         model = OnlineStore
-        fields = ["id", "name", "slug", "is_active"]
+        fields = ["id", "name", "slug", "is_active", "logo_url", "brand_color", "tagline"]
 
 
 class PublicProductSerializer(serializers.ModelSerializer):
