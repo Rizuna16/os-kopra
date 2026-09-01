@@ -401,24 +401,24 @@ export function OwnerDashboard() {
   }
 
   // Calculate percentages for snapshots
-  const salesTotal = data?.overview.sales.total || 1;
-  const salesCompleted = data?.overview.sales.completed || 0;
-  const salesVoided = data?.overview.sales.voided || 0;
-  const salesDraft = data?.overview.sales.draft || 0;
+  const salesTotal = data?.overview?.sales?.total || 1;
+  const salesCompleted = data?.overview?.sales?.completed || 0;
+  const salesVoided = data?.overview?.sales?.voided || 0;
+  const salesDraft = data?.overview?.sales?.draft || 0;
   const salesCompletedPct = Math.min(100, Math.round((salesCompleted / (salesTotal || 1)) * 100));
   const salesVoidedPct = Math.min(100, Math.round((salesVoided / (salesTotal || 1)) * 100));
   const salesDraftPct = Math.max(0, 100 - salesCompletedPct - salesVoidedPct);
 
-  const poTotal = data?.overview.purchasing.total || 1;
-  const poConfirmed = data?.overview.purchasing.confirmed || 0;
-  const poCancelled = data?.overview.purchasing.cancelled || 0;
-  const poDraft = data?.overview.purchasing.draft || 0;
+  const poTotal = data?.overview?.purchasing?.total || 1;
+  const poConfirmed = data?.overview?.purchasing?.confirmed || 0;
+  const poCancelled = data?.overview?.purchasing?.cancelled || 0;
+  const poDraft = data?.overview?.purchasing?.draft || 0;
   const poConfirmedPct = Math.min(100, Math.round((poConfirmed / (poTotal || 1)) * 100));
   const poCancelledPct = Math.min(100, Math.round((poCancelled / (poTotal || 1)) * 100));
   const poDraftPct = Math.max(0, 100 - poConfirmedPct - poCancelledPct);
 
-  const debitVal = parseFloat(data?.overview.finance.journal_entry.DEBIT || "0");
-  const creditVal = parseFloat(data?.overview.finance.journal_entry.CREDIT || "0");
+  const debitVal = parseFloat(data?.overview?.finance?.journal_entry?.DEBIT || "0");
+  const creditVal = parseFloat(data?.overview?.finance?.journal_entry?.CREDIT || "0");
   const maxFin = Math.max(debitVal, creditVal, 1);
   const debitPct = Math.min(100, Math.round((debitVal / maxFin) * 100));
   const creditPct = Math.min(100, Math.round((creditVal / maxFin) * 100));
@@ -512,32 +512,32 @@ export function OwnerDashboard() {
         </header>
 
         {/* DASHBOARD CONTENT */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-8 overflow-y-auto">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 space-y-6 overflow-y-auto">
           
           {/* SECTION 1 — HERO / BUSINESS CONTEXT */}
-          <div className="bg-white rounded-3xl border border-slate-200/80 p-8 shadow-sm relative overflow-hidden">
+          <div className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-sm relative overflow-hidden">
             <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-indigo-500/5 via-purple-500/5 to-transparent rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
             
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 relative z-10">
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 flex-wrap">
-                  <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 relative z-10">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
                     <span className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse" />
                     Owner Command Center
                   </span>
-                  <span data-testid="dashboard-business-name" className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold bg-slate-900 text-white shadow-sm">
+                  <span data-testid="dashboard-business-name" className="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-bold bg-slate-900 text-white shadow-sm">
                     {businessName}
                   </span>
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                     BUSINESS ACTIVE
                   </span>
                 </div>
-                <div className="space-y-1">
-                  <p className="text-xs uppercase tracking-wider font-bold text-slate-400">Selamat datang kembali, <span data-testid="dashboard-owner-name">{ownerName}</span></p>
-                  <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+                <div className="space-y-0.5">
+                  <p className="text-[11px] uppercase tracking-wider font-bold text-slate-400">Selamat datang kembali, <span data-testid="dashboard-owner-name">{ownerName}</span></p>
+                  <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                     Executive Operations Dashboard
                   </h1>
-                  <p className="text-sm text-slate-500">
+                  <p className="text-xs text-slate-500">
                     Pantau kesehatan operasional bisnis Anda dalam satu layar secara real-time.
                   </p>
                 </div>
@@ -552,7 +552,7 @@ export function OwnerDashboard() {
                 <button
                   data-testid="dashboard-refresh-btn"
                   onClick={loadData}
-                  className="inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-700 font-bold py-3 px-5 rounded-xl border border-slate-200 shadow-sm transition-all duration-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 active:scale-95"
+                  className="inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-700 font-bold py-2.5 px-4 rounded-xl border border-slate-200 shadow-sm transition-all duration-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 active:scale-95"
                   title="Segarkan Data"
                 >
                   <svg className="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -565,113 +565,113 @@ export function OwnerDashboard() {
           </div>
 
           {/* SECTION 2 — EXECUTIVE KPI */}
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
             
             {/* Card 1: Total Omzet */}
-            <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm hover:shadow-xl hover:border-indigo-200 transition-all duration-300 flex flex-col justify-between group">
+            <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between group">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Omzet</span>
-                <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl group-hover:scale-110 transition-transform duration-300">
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl group-hover:scale-105 transition-transform duration-200">
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
               </div>
-              <div className="py-3 space-y-1">
-                <h3 data-testid="kpi-total-omzet" className="text-3xl font-black text-slate-900 tracking-tight">
+              <div className="py-2.5 space-y-0.5">
+                <h3 data-testid="kpi-total-omzet" className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                   {data?.executive.totalOmzet}
                 </h3>
-                <p className="text-xs text-slate-500 font-medium">Pendapatan dari penjualan selesai</p>
+                <p className="text-[11px] text-slate-500 font-medium">Pendapatan dari penjualan selesai</p>
               </div>
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-semibold text-indigo-600">
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] font-semibold text-indigo-600">
                 <span>Verified Revenue</span>
                 <span>Real-time</span>
               </div>
             </div>
 
             {/* Card 2: Total Penjualan */}
-            <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm hover:shadow-xl hover:border-emerald-200 transition-all duration-300 flex flex-col justify-between group">
+            <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between group">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Penjualan</span>
-                <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl group-hover:scale-110 transition-transform duration-300">
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl group-hover:scale-105 transition-transform duration-200">
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                   </svg>
                 </div>
               </div>
-              <div className="py-3 space-y-1">
-                <h3 data-testid="kpi-total-penjualan" className="text-3xl font-black text-slate-900 tracking-tight">
+              <div className="py-2.5 space-y-0.5">
+                <h3 data-testid="kpi-total-penjualan" className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                   {data?.executive.totalPenjualan}
                 </h3>
-                <p className="text-xs text-slate-500 font-medium">Transaksi selesai</p>
+                <p className="text-[11px] text-slate-500 font-medium">Transaksi selesai</p>
               </div>
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-semibold text-emerald-600">
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] font-semibold text-emerald-600">
                 <span>Completed Orders</span>
                 <span>Active POS</span>
               </div>
             </div>
 
             {/* Card 3: Total Pengeluaran */}
-            <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm hover:shadow-xl hover:border-rose-200 transition-all duration-300 flex flex-col justify-between group">
+            <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between group">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Pengeluaran</span>
-                <div className="p-3 bg-rose-50 text-rose-600 rounded-2xl group-hover:scale-110 transition-transform duration-300">
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="p-2.5 bg-rose-50 text-rose-600 rounded-xl group-hover:scale-105 transition-transform duration-200">
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
               </div>
-              <div className="py-3 space-y-1">
-                <h3 data-testid="kpi-total-pengeluaran" className="text-3xl font-black text-slate-900 tracking-tight">
+              <div className="py-2.5 space-y-0.5">
+                <h3 data-testid="kpi-total-pengeluaran" className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                   {data?.executive.totalPengeluaran}
                 </h3>
-                <p className="text-xs text-slate-500 font-medium">Pengeluaran tercatat</p>
+                <p className="text-[11px] text-slate-500 font-medium">Pengeluaran tercatat</p>
               </div>
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-semibold text-rose-600">
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] font-semibold text-rose-600">
                 <span>Expense Tracking</span>
                 <span>Audited</span>
               </div>
             </div>
 
             {/* Card 4: Total Produk */}
-            <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm hover:shadow-xl hover:border-amber-200 transition-all duration-300 flex flex-col justify-between group">
+            <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between group">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Produk</span>
-                <div className="p-3 bg-amber-50 text-amber-600 rounded-2xl group-hover:scale-110 transition-transform duration-300">
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="p-2.5 bg-amber-50 text-amber-600 rounded-xl group-hover:scale-105 transition-transform duration-200">
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                   </svg>
                 </div>
               </div>
-              <div className="py-3 space-y-1">
-                <h3 data-testid="kpi-total-produk" className="text-3xl font-black text-slate-900 tracking-tight">
+              <div className="py-2.5 space-y-0.5">
+                <h3 data-testid="kpi-total-produk" className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                   {data?.executive.totalProduk}
                 </h3>
-                <p className="text-xs text-slate-500 font-medium">Produk dalam katalog</p>
+                <p className="text-[11px] text-slate-500 font-medium">Produk dalam katalog</p>
               </div>
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-semibold text-amber-600">
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] font-semibold text-amber-600">
                 <span>Catalog Inventory</span>
                 <span>Active SKUs</span>
               </div>
             </div>
 
             {/* Card 5: Estimasi Laba */}
-            <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm hover:shadow-xl hover:border-emerald-200 transition-all duration-300 flex flex-col justify-between group">
+            <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between group">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Estimasi Laba</span>
-                <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl group-hover:scale-110 transition-transform duration-300">
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl group-hover:scale-105 transition-transform duration-200">
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
                 </div>
               </div>
-              <div className="py-3 space-y-1">
-                <h3 data-testid="kpi-estimasi-laba" className="text-3xl font-black text-slate-900 tracking-tight">
+              <div className="py-2.5 space-y-0.5">
+                <h3 data-testid="kpi-estimasi-laba" className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                   {data?.executive.estimasiLaba}
                 </h3>
-                <p className="text-xs text-slate-500 font-medium">Laba bersih bersifat estimasi</p>
+                <p className="text-[11px] text-slate-500 font-medium">Laba bersih bersifat estimasi</p>
               </div>
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-semibold text-emerald-600">
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] font-semibold text-emerald-600">
                 <span>Net Profit</span>
                 <span>Based on flat cost</span>
               </div>
@@ -680,77 +680,77 @@ export function OwnerDashboard() {
           </div>
 
           {/* SECTION 3 — OPERATIONAL PULSE */}
-          <div className="space-y-4">
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Operational Pulse</h2>
-                <p className="text-xs text-slate-500">Analisis menyeluruh modul Penjualan, Pembelian, dan Keuangan</p>
+                <h2 className="text-lg font-black text-slate-900 tracking-tight">Operational Pulse</h2>
+                <p className="text-[11px] text-slate-500">Analisis menyeluruh modul Penjualan, Pembelian, dan Keuangan</p>
               </div>
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-200/70 text-slate-700">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-200/70 text-slate-700">
                 Command Feed
               </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               
               {/* Panel 1: Penjualan */}
-              <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm space-y-5 flex flex-col justify-between">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                    <div className="flex items-center gap-2.5">
+              <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-4 flex flex-col justify-between">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                    <div className="flex items-center gap-2">
                       <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                         </svg>
                       </div>
                       <div>
-                        <h3 className="font-bold text-slate-900">Penjualan</h3>
-                        <p className="text-[11px] text-slate-400 font-medium">POS & Transaksi Retail</p>
+                        <h3 className="font-bold text-slate-900 text-sm">Penjualan</h3>
+                        <p className="text-[10px] text-slate-400 font-medium">POS & Transaksi Retail</p>
                       </div>
                     </div>
-                    <span className="px-2.5 py-1 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-lg">
-                      {data?.overview.sales.total} Total
+                    <span className="px-2 py-0.5 bg-indigo-50 text-indigo-700 text-[11px] font-bold rounded-lg">
+                      {data?.overview?.sales?.total} Total
                     </span>
                   </div>
 
-                  <div className="space-y-2.5 text-sm">
-                    <div className="flex justify-between items-center py-1.5 border-b border-slate-50">
+                  <div className="space-y-2 text-xs">
+                    <div className="flex justify-between items-center py-1 border-b border-slate-50">
                       <span className="text-slate-500 font-medium">Completed</span>
                       <span data-testid="summary-sales-completed" className="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
-                        {data?.overview.sales.completed}
+                        {data?.overview?.sales?.completed}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center py-1.5 border-b border-slate-50">
+                    <div className="flex justify-between items-center py-1 border-b border-slate-50">
                       <span className="text-slate-500 font-medium">Voided</span>
                       <span data-testid="summary-sales-voided" className="font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md">
-                        {data?.overview.sales.voided}
+                        {data?.overview?.sales?.voided}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center py-1.5 border-b border-slate-50">
+                    <div className="flex justify-between items-center py-1 border-b border-slate-50">
                       <span className="text-slate-500 font-medium">Draft</span>
                       <span data-testid="summary-sales-draft" className="font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md">
-                        {data?.overview.sales.draft}
+                        {data?.overview?.sales?.draft}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center py-1.5 border-b border-slate-50">
+                    <div className="flex justify-between items-center py-1 border-b border-slate-50">
                       <span className="text-slate-500 font-medium">Revenue</span>
-                      <span className="font-bold text-indigo-600">Rp {data?.overview.sales.revenue}</span>
+                      <span className="font-bold text-indigo-600">Rp {data?.overview?.sales?.revenue}</span>
                     </div>
-                    <div className="flex justify-between items-center py-1.5">
+                    <div className="flex justify-between items-center py-1">
                       <span className="text-slate-500 font-medium">Loyalty Earned</span>
-                      <span className="font-bold text-amber-600">Rp {data?.overview.sales.loyalty_earned}</span>
+                      <span className="font-bold text-amber-600">Rp {data?.overview?.sales?.loyalty_earned}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="hidden" data-testid="summary-sales-total">{data?.overview.sales.total}</div>
+                <div className="hidden" data-testid="summary-sales-total">{data?.overview?.sales?.total}</div>
 
-                <div className="space-y-1.5 pt-2 border-t border-slate-100">
-                  <div className="flex justify-between text-[11px] font-bold text-slate-500">
+                <div className="space-y-1 pt-2 border-t border-slate-100">
+                  <div className="flex justify-between text-[10px] font-bold text-slate-500">
                     <span>Sales Distribution</span>
                     <span>{salesCompletedPct}% Completed</span>
                   </div>
-                  <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden flex">
+                  <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden flex">
                     <div style={{ width: `${salesCompletedPct}%` }} className="bg-emerald-500 h-full" title="Completed" />
                     <div style={{ width: `${salesVoidedPct}%` }} className="bg-rose-500 h-full" title="Voided" />
                     <div style={{ width: `${salesDraftPct}%` }} className="bg-slate-400 h-full" title="Draft" />
@@ -759,22 +759,22 @@ export function OwnerDashboard() {
               </div>
 
               {/* Panel 2: Pembelian */}
-              <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm space-y-5 flex flex-col justify-between">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                    <div className="flex items-center gap-2.5">
+              <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-4 flex flex-col justify-between">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                    <div className="flex items-center gap-2">
                       <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                         </svg>
                       </div>
                       <div>
-                        <h3 className="font-bold text-slate-900">Pembelian</h3>
-                        <p className="text-[11px] text-slate-400 font-medium">Purchase Order & Supplier</p>
+                        <h3 className="font-bold text-slate-900 text-sm">Pembelian</h3>
+                        <p className="text-[10px] text-slate-400 font-medium">Purchase Order & Supplier</p>
                       </div>
                     </div>
-                    <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-lg">
-                      {data?.overview.purchasing.total} Total
+                    <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[11px] font-bold rounded-lg">
+                      {data?.overview?.purchasing?.total} Total
                     </span>
                   </div>
 
@@ -782,29 +782,29 @@ export function OwnerDashboard() {
                     <div className="flex justify-between items-center py-1.5 border-b border-slate-50">
                       <span className="text-slate-500 font-medium">Confirmed</span>
                       <span data-testid="summary-purchasing-confirmed" className="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
-                        {data?.overview.purchasing.confirmed}
+                        {data?.overview?.purchasing?.confirmed}
                       </span>
                     </div>
                     <div className="flex justify-between items-center py-1.5 border-b border-slate-50">
                       <span className="text-slate-500 font-medium">Cancelled</span>
                       <span data-testid="summary-purchasing-cancelled" className="font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md">
-                        {data?.overview.purchasing.cancelled}
+                        {data?.overview?.purchasing?.cancelled}
                       </span>
                     </div>
                     <div className="flex justify-between items-center py-1.5 border-b border-slate-50">
                       <span className="text-slate-500 font-medium">Draft</span>
                       <span data-testid="summary-purchasing-draft" className="font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md">
-                        {data?.overview.purchasing.draft}
+                        {data?.overview?.purchasing?.draft}
                       </span>
                     </div>
                     <div className="flex justify-between items-center py-1.5">
                       <span className="text-slate-500 font-medium">Total Cost</span>
-                      <span className="font-bold text-rose-600">Rp {data?.overview.purchasing.cost}</span>
+                      <span className="font-bold text-rose-600">Rp {data?.overview?.purchasing?.cost}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="hidden" data-testid="summary-purchasing-total">{data?.overview.purchasing.total}</div>
+                <div className="hidden" data-testid="summary-purchasing-total">{data?.overview?.purchasing?.total}</div>
 
                 <div className="space-y-1.5 pt-2 border-t border-slate-100">
                   <div className="flex justify-between text-[11px] font-bold text-slate-500">
@@ -835,32 +835,32 @@ export function OwnerDashboard() {
                       </div>
                     </div>
                     <span className="px-2.5 py-1 bg-rose-50 text-rose-700 text-xs font-bold rounded-lg">
-                      {data?.overview.finance.journal.POSTED} Posted
+                      {data?.overview?.finance?.journal.POSTED} Posted
                     </span>
                   </div>
 
                   <div className="space-y-2.5 text-sm">
                     <div className="flex justify-between items-center py-1.5 border-b border-slate-50">
                       <span className="text-slate-500 font-medium">Total Expense</span>
-                      <span data-testid="summary-finance-expense" className="font-bold text-rose-600">Rp {data?.overview.finance.expense_total}</span>
+                      <span data-testid="summary-finance-expense" className="font-bold text-rose-600">Rp {data?.overview?.finance?.expense_total}</span>
                     </div>
                     <div className="flex justify-between items-center py-1.5 border-b border-slate-50">
                       <span className="text-slate-500 font-medium">Journal Posted</span>
                       <span data-testid="summary-finance-journal-posted" className="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
-                        {data?.overview.finance.journal.POSTED}
+                        {data?.overview?.finance?.journal.POSTED}
                       </span>
                     </div>
                     <div className="flex justify-between items-center py-1.5 border-b border-slate-50">
                       <span className="text-slate-500 font-medium">Journal Draft / Rev</span>
-                      <span className="font-bold text-slate-600">{data?.overview.finance.journal.DRAFT} / {data?.overview.finance.journal.REVERSED}</span>
+                      <span className="font-bold text-slate-600">{data?.overview?.finance?.journal.DRAFT} / {data?.overview?.finance?.journal.REVERSED}</span>
                     </div>
                     <div className="flex justify-between items-center py-1.5 border-b border-slate-50">
                       <span className="text-slate-500 font-medium">Total Debit</span>
-                      <span data-testid="summary-finance-debit" className="font-bold text-slate-900">Rp {data?.overview.finance.journal_entry.DEBIT}</span>
+                      <span data-testid="summary-finance-debit" className="font-bold text-slate-900">Rp {data?.overview?.finance?.journal_entry.DEBIT}</span>
                     </div>
                     <div className="flex justify-between items-center py-1.5">
                       <span className="text-slate-500 font-medium">Total Credit</span>
-                      <span data-testid="summary-finance-credit" className="font-bold text-slate-900">Rp {data?.overview.finance.journal_entry.CREDIT}</span>
+                      <span data-testid="summary-finance-credit" className="font-bold text-slate-900">Rp {data?.overview?.finance?.journal_entry.CREDIT}</span>
                     </div>
                   </div>
                 </div>
@@ -881,82 +881,82 @@ export function OwnerDashboard() {
           </div>
 
           {/* SECTION 4 — ATTENTION CENTER, SECTION 5 — ONLINE STORE & SECTION 6 — QUICK ACTIONS */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
             
             {/* Left 2 Columns */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-5">
               
               {/* SECTION 4 — ATTENTION CENTER */}
-              <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <div className="flex items-center gap-2.5">
+              <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-3">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                  <div className="flex items-center gap-2">
                     <div className="p-2 bg-amber-50 text-amber-600 rounded-xl">
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                       </svg>
                     </div>
                     <div>
-                      <h2 className="text-lg font-bold text-slate-900">Perlu Perhatian</h2>
-                      <p className="text-[11px] text-slate-400 font-medium">Notification & Operational Alerts</p>
+                      <h2 className="text-base font-bold text-slate-900">Perlu Perhatian</h2>
+                      <p className="text-[10px] text-slate-400 font-medium">Notification & Operational Alerts</p>
                     </div>
                   </div>
-                  <span className="px-2.5 py-1 bg-amber-50 text-amber-700 text-xs font-bold rounded-lg">
+                  <span className="px-2 py-0.5 bg-amber-50 text-amber-700 text-xs font-bold rounded-lg">
                     {data?.notifications?.length || 0} Alerts
                   </span>
                 </div>
 
                 <div className="divide-y divide-slate-50">
                   {data?.notifications.map((notif) => (
-                    <div key={notif.id} className="py-3.5 flex items-start justify-between gap-4 group hover:bg-slate-50/60 px-3 rounded-xl transition-colors">
-                      <div className="flex items-start gap-3">
+                    <div key={notif.id} className="py-2.5 flex items-start justify-between gap-3 group hover:bg-slate-50/60 px-2.5 rounded-xl transition-colors">
+                      <div className="flex items-start gap-2.5">
                         {!notif.is_read && (
                           <span
                             data-testid={`notif-${notif.id}-unread-badge`}
-                            className="inline-block w-2.5 h-2.5 rounded-full bg-indigo-600 mt-1.5 flex-shrink-0 shadow-sm"
+                            className="inline-block w-2.5 h-2.5 rounded-full bg-indigo-600 mt-1 flex-shrink-0 shadow-sm"
                             title="Belum dibaca"
                           />
                         )}
                         <div className="space-y-0.5">
-                          <p className="font-bold text-slate-900 text-sm group-hover:text-indigo-600 transition-colors">{notif.title}</p>
-                          <p className="text-xs text-slate-500 leading-relaxed">{notif.message}</p>
+                          <p className="font-bold text-slate-900 text-xs group-hover:text-indigo-600 transition-colors">{notif.title}</p>
+                          <p className="text-[11px] text-slate-500 leading-relaxed">{notif.message}</p>
                         </div>
                       </div>
-                      <span className="text-[11px] text-slate-400 font-semibold flex-shrink-0 bg-slate-100 px-2 py-0.5 rounded-md">
+                      <span className="text-[10px] text-slate-400 font-semibold flex-shrink-0 bg-slate-100 px-2 py-0.5 rounded-md">
                         {new Date(notif.created_at).toLocaleDateString("id-ID")}
                       </span>
                     </div>
                   ))}
                   {(!data?.notifications || data.notifications.length === 0) && (
-                    <div className="py-10 text-center space-y-2">
-                      <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
-                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="py-8 text-center space-y-1.5">
+                      <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
-                      <p className="font-bold text-slate-900 text-sm">Semua Terlihat Baik</p>
-                      <p className="text-xs text-slate-400">Tidak ada perhatian khusus atau notifikasi tertunda.</p>
+                      <p className="font-bold text-slate-900 text-xs">Semua Terlihat Baik</p>
+                      <p className="text-[11px] text-slate-400">Tidak ada perhatian khusus atau notifikasi tertunda.</p>
                     </div>
                   )}
                 </div>
               </div>
 
               {/* SECTION 5 — ONLINE STORE */}
-              <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <div className="flex items-center gap-2.5">
+              <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-3">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                  <div className="flex items-center gap-2">
                     <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                       </svg>
                     </div>
                     <div>
-                      <h2 className="text-lg font-bold text-slate-900">Toko Online</h2>
-                      <p className="text-[11px] text-slate-400 font-medium">E-commerce storefront channel</p>
+                      <h2 className="text-base font-bold text-slate-900">Toko Online</h2>
+                      <p className="text-[10px] text-slate-400 font-medium">E-commerce storefront channel</p>
                     </div>
                   </div>
                   <Link
                     to="/stores/create"
-                    className="text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 px-3 py-1.5 rounded-xl transition-colors"
+                    className="text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-lg transition-colors"
                   >
                     + Buat Toko Baru
                   </Link>
@@ -964,15 +964,15 @@ export function OwnerDashboard() {
 
                 <div className="divide-y divide-slate-50">
                   {data?.onlineStores.map((store) => (
-                    <div key={store.id} className="py-4 flex items-center justify-between group">
+                    <div key={store.id} className="py-3 flex items-center justify-between group">
                       <div className="space-y-0.5">
-                        <p className="font-bold text-slate-900 text-sm group-hover:text-indigo-600 transition-colors">{store.name}</p>
-                        <p className="text-xs text-slate-400 font-medium">/{store.slug}</p>
+                        <p className="font-bold text-slate-900 text-xs group-hover:text-indigo-600 transition-colors">{store.name}</p>
+                        <p className="text-[11px] text-slate-400 font-medium">/{store.slug}</p>
                       </div>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2.5">
                         <span
                           data-testid={`store-${store.id}-status`}
-                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold shadow-sm ${
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold shadow-sm ${
                             store.is_active
                               ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                               : "bg-slate-100 text-slate-500 border border-slate-200"
@@ -982,7 +982,7 @@ export function OwnerDashboard() {
                         </span>
                         <Link
                           to={`/stores`}
-                          className="text-xs font-semibold px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-colors shadow-sm"
+                          className="text-[11px] font-semibold px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors shadow-sm"
                         >
                           Buka Toko
                         </Link>
@@ -990,11 +990,11 @@ export function OwnerDashboard() {
                     </div>
                   ))}
                   {(!data?.onlineStores || data.onlineStores.length === 0) && (
-                    <div className="py-8 text-center space-y-3">
-                      <p className="text-sm font-semibold text-slate-500">Toko online belum tersedia</p>
+                    <div className="py-6 text-center space-y-2">
+                      <p className="text-xs font-semibold text-slate-500">Toko online belum tersedia</p>
                       <Link
                         to="/stores/create"
-                        className="inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-xl text-xs shadow-md transition-all"
+                        className="inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-1.5 px-3.5 rounded-lg text-xs shadow-md transition-all"
                       >
                         Buat Toko Online
                       </Link>
@@ -1006,30 +1006,30 @@ export function OwnerDashboard() {
             </div>
 
             {/* SECTION 6 — QUICK ACTIONS */}
-            <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm space-y-4 h-fit">
-              <div className="flex items-center gap-2.5 border-b border-slate-100 pb-3">
+            <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm space-y-3 h-fit">
+              <div className="flex items-center gap-2 border-b border-slate-100 pb-2.5">
                 <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-slate-900">Aksi Cepat</h2>
-                  <p className="text-[11px] text-slate-400 font-medium">Executive quick actions</p>
+                  <h2 className="text-base font-bold text-slate-900">Aksi Cepat</h2>
+                  <p className="text-[10px] text-slate-400 font-medium">Executive quick actions</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-2.5 pt-1">
+              <div className="grid grid-cols-1 gap-2 pt-0.5">
                 <Link
                   to="/products/new"
                   data-testid="quick-action-tambah-produk"
-                  className="flex items-center justify-between bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl transition-all duration-200 text-sm shadow-lg shadow-indigo-600/20 group"
+                  className="flex items-center justify-between bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-3.5 rounded-xl transition-all duration-200 text-xs shadow-md shadow-indigo-600/15 group"
                 >
                   <div className="space-y-0.5">
-                    <span>Tambah Produk</span>
-                    <p className="text-[11px] text-indigo-100 font-normal">Tambahkan item baru ke katalog</p>
+                    <span className="block font-bold">Tambah Produk</span>
+                    <p className="text-[10px] text-indigo-100 font-normal">Tambahkan item baru ke katalog</p>
                   </div>
-                  <svg className="h-5 w-5 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-4 w-4 transform group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                   </svg>
                 </Link>
@@ -1037,13 +1037,13 @@ export function OwnerDashboard() {
                 <Link
                   to="/sales/new"
                   data-testid="quick-action-tambah-penjualan"
-                  className="flex items-center justify-between bg-slate-50/80 hover:bg-slate-100 text-slate-800 border border-slate-200/80 font-bold py-3 px-4 rounded-xl transition-all duration-200 text-sm shadow-sm group"
+                  className="flex items-center justify-between bg-slate-50/80 hover:bg-slate-100 text-slate-800 border border-slate-200/80 font-bold py-2.5 px-3.5 rounded-xl transition-all duration-200 text-xs shadow-sm group"
                 >
                   <div className="space-y-0.5">
-                    <span>Tambah Penjualan</span>
-                    <p className="text-[11px] text-slate-400 font-normal">Catat transaksi penjualan</p>
+                    <span className="block font-bold">Tambah Penjualan</span>
+                    <p className="text-[10px] text-slate-400 font-normal">Catat transaksi penjualan</p>
                   </div>
-                  <svg className="h-4 w-4 text-slate-400 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-3.5 w-3.5 text-slate-400 transform group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                   </svg>
                 </Link>
@@ -1051,13 +1051,13 @@ export function OwnerDashboard() {
                 <Link
                   to="/purchasing/new"
                   data-testid="quick-action-tambah-pembelian"
-                  className="flex items-center justify-between bg-slate-50/80 hover:bg-slate-100 text-slate-800 border border-slate-200/80 font-bold py-3 px-4 rounded-xl transition-all duration-200 text-sm shadow-sm group"
+                  className="flex items-center justify-between bg-slate-50/80 hover:bg-slate-100 text-slate-800 border border-slate-200/80 font-bold py-2.5 px-3.5 rounded-xl transition-all duration-200 text-xs shadow-sm group"
                 >
                   <div className="space-y-0.5">
-                    <span>Tambah Pembelian</span>
-                    <p className="text-[11px] text-slate-400 font-normal">Buat purchase order baru</p>
+                    <span className="block font-bold">Tambah Pembelian</span>
+                    <p className="text-[10px] text-slate-400 font-normal">Buat purchase order baru</p>
                   </div>
-                  <svg className="h-4 w-4 text-slate-400 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-3.5 w-3.5 text-slate-400 transform group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                   </svg>
                 </Link>
@@ -1065,13 +1065,13 @@ export function OwnerDashboard() {
                 <Link
                   to="/customers/new"
                   data-testid="quick-action-tambah-customer"
-                  className="flex items-center justify-between bg-slate-50/80 hover:bg-slate-100 text-slate-800 border border-slate-200/80 font-bold py-3 px-4 rounded-xl transition-all duration-200 text-sm shadow-sm group"
+                  className="flex items-center justify-between bg-slate-50/80 hover:bg-slate-100 text-slate-800 border border-slate-200/80 font-bold py-2.5 px-3.5 rounded-xl transition-all duration-200 text-xs shadow-sm group"
                 >
                   <div className="space-y-0.5">
-                    <span>Tambah Customer</span>
-                    <p className="text-[11px] text-slate-400 font-normal">Daftarkan pelanggan baru</p>
+                    <span className="block font-bold">Tambah Customer</span>
+                    <p className="text-[10px] text-slate-400 font-normal">Daftarkan pelanggan baru</p>
                   </div>
-                  <svg className="h-4 w-4 text-slate-400 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-3.5 w-3.5 text-slate-400 transform group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                   </svg>
                 </Link>
@@ -1079,13 +1079,13 @@ export function OwnerDashboard() {
                 <Link
                   to="/suppliers/new"
                   data-testid="quick-action-tambah-supplier"
-                  className="flex items-center justify-between bg-slate-50/80 hover:bg-slate-100 text-slate-800 border border-slate-200/80 font-bold py-3 px-4 rounded-xl transition-all duration-200 text-sm shadow-sm group"
+                  className="flex items-center justify-between bg-slate-50/80 hover:bg-slate-100 text-slate-800 border border-slate-200/80 font-bold py-2.5 px-3.5 rounded-xl transition-all duration-200 text-xs shadow-sm group"
                 >
                   <div className="space-y-0.5">
-                    <span>Tambah Supplier</span>
-                    <p className="text-[11px] text-slate-400 font-normal">Tambahkan data supplier</p>
+                    <span className="block font-bold">Tambah Supplier</span>
+                    <p className="text-[10px] text-slate-400 font-normal">Tambahkan data supplier</p>
                   </div>
-                  <svg className="h-4 w-4 text-slate-400 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-3.5 w-3.5 text-slate-400 transform group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                   </svg>
                 </Link>
@@ -1093,13 +1093,13 @@ export function OwnerDashboard() {
                 <Link
                   to="/onboarding"
                   data-testid="quick-action-tambah-usaha"
-                  className="flex items-center justify-between bg-slate-50/80 hover:bg-slate-100 text-slate-800 border border-slate-200/80 font-bold py-3 px-4 rounded-xl transition-all duration-200 text-sm shadow-sm group"
+                  className="flex items-center justify-between bg-slate-50/80 hover:bg-slate-100 text-slate-800 border border-slate-200/80 font-bold py-2.5 px-3.5 rounded-xl transition-all duration-200 text-xs shadow-sm group"
                 >
                   <div className="space-y-0.5">
-                    <span>Registrasi Usaha Baru</span>
-                    <p className="text-[11px] text-slate-400 font-normal">Buka entitas usaha retail baru</p>
+                    <span className="block font-bold">Registrasi Usaha Baru</span>
+                    <p className="text-[10px] text-slate-400 font-normal">Buka entitas usaha retail baru</p>
                   </div>
-                  <svg className="h-4 w-4 text-slate-400 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-3.5 w-3.5 text-slate-400 transform group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                   </svg>
                 </Link>
@@ -1107,13 +1107,13 @@ export function OwnerDashboard() {
                 <Link
                   to="/stores/create"
                   data-testid="quick-action-buka-online-store"
-                  className="flex items-center justify-between bg-slate-50/80 hover:bg-slate-100 text-slate-800 border border-slate-200/80 font-bold py-3 px-4 rounded-xl transition-all duration-200 text-sm shadow-sm group"
+                  className="flex items-center justify-between bg-slate-50/80 hover:bg-slate-100 text-slate-800 border border-slate-200/80 font-bold py-2.5 px-3.5 rounded-xl transition-all duration-200 text-xs shadow-sm group"
                 >
                   <div className="space-y-0.5">
-                    <span>Buka Toko Online</span>
-                    <p className="text-[11px] text-slate-400 font-normal">Kelola etalase storefront</p>
+                    <span className="block font-bold">Buka Toko Online</span>
+                    <p className="text-[10px] text-slate-400 font-normal">Kelola etalase storefront</p>
                   </div>
-                  <svg className="h-4 w-4 text-slate-400 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-3.5 w-3.5 text-slate-400 transform group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                   </svg>
                 </Link>
