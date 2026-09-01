@@ -226,15 +226,16 @@ export function Tentang() {
             <span>© {new Date().getFullYear()} KOPERA. Seluruh hak cipta dilindungi.</span>
           </div>
           <div className="flex items-center space-x-6">
-            <Link to="/" className="hover:text-blue-600 transition-colors">
-              Beranda
-            </Link>
-            <Link to="/login" className="hover:text-blue-600 transition-colors">
-              Masuk
-            </Link>
-            <Link to="/register" className="hover:text-blue-600 transition-colors">
-              Daftar
-            </Link>
+            <Link to="/" className="hover:text-blue-600 transition-colors">Beranda</Link>
+            <Link to="/tentang" className="hover:text-blue-600 transition-colors">Tentang</Link>
+            <Link to="/fitur" className="hover:text-blue-600 transition-colors">Fitur</Link>
+            <Link to="/harga" className="hover:text-blue-600 transition-colors">Harga</Link>
+            <Link to="/faq" className="hover:text-blue-600 transition-colors">FAQ</Link>
+            <Link to="/kontak" className="hover:text-blue-600 transition-colors">Kontak</Link>
+            <Link to="/terms" className="hover:text-blue-600 transition-colors">Terms</Link>
+            <Link to="/privacy" className="hover:text-blue-600 transition-colors">Privacy</Link>
+            <Link to="/login" className="hover:text-blue-600 transition-colors">Masuk</Link>
+            <Link to="/register" className="hover:text-blue-600 transition-colors">Daftar</Link>
           </div>
         </div>
       </footer>

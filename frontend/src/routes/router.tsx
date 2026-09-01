@@ -6,6 +6,12 @@ import { AdminRoute } from "./AdminRoute";
 import { BusinessProvider, useBusiness } from "../business/BusinessContext";
 import { Landing } from "../pages/Landing";
 import { Tentang } from "../pages/Tentang";
+import { Fitur } from "../pages/Fitur";
+import { Harga } from "../pages/Harga";
+import { FAQ } from "../pages/FAQ";
+import { Kontak } from "../pages/Kontak";
+import { Terms } from "../pages/Terms";
+import { Privacy } from "../pages/Privacy";
 import { Login } from "../pages/Login";
 import { Register } from "../pages/Register";
 import { VerifyEmail } from "../pages/VerifyEmail";
@@ -132,6 +138,12 @@ export function AppRoutes() {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/tentang" element={<Tentang />} />
+        <Route path="/fitur" element={<Fitur />} />
+        <Route path="/harga" element={<Harga />} />
+        <Route path="/faq" element={<FAQ />} />
+        <Route path="/kontak" element={<Kontak />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/privacy" element={<Privacy />} />
 
         <Route
           path="/login"

@@ -1,17 +1,19 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 
-export function Landing() {
+export function Fitur() {
+  useEffect(() => { document.title = "KOPERA OS — Fitur"; }, []);
   const { status } = useAuth();
   const isAuthenticated = status === "authenticated";
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 font-sans" data-testid="landing-page">
+    <div className="min-h-screen bg-white text-gray-900 font-sans" data-testid="fitur-page">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white/85 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <span className="text-xl font-black tracking-tight text-blue-600" data-testid="landing-brand">
+            <span className="text-xl font-black tracking-tight text-blue-600" data-testid="fitur-brand">
               KOPERA
             </span>
             <span className="text-xs uppercase tracking-widest px-2 py-0.5 bg-blue-50 text-blue-700 font-bold rounded-full">
@@ -19,9 +21,9 @@ export function Landing() {
             </span>
           </div>
           <nav className="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-600">
+            <Link to="/" className="hover:text-blue-600 transition-colors">Beranda</Link>
             <Link to="/tentang" className="hover:text-blue-600 transition-colors">Tentang</Link>
-            <Link to="/fitur" className="hover:text-blue-600 transition-colors">Fitur</Link>
-            <Link to="/harga" className="hover:text-blue-600 transition-colors">Harga</Link>
+            <Link to="/fitur" className="hover:text-blue-600 transition-colors active">Fitur</Link>
           </nav>
           <div className="flex items-center space-x-3">
             {isAuthenticated ? (
@@ -41,9 +43,9 @@ export function Landing() {
                 </Link>
                 <Link
                   to="/register"
-                  className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm transition-all"
+                  className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-600 rounded-xl shadow-sm transition-all"
                 >
-                  Mulai Sekarang
+                  Daftar Sekarang
                 </Link>
               </>
             )}
@@ -55,42 +57,17 @@ export function Landing() {
       <section className="relative overflow-hidden pt-16 pb-20 lg:pt-24 lg:pb-32 bg-gradient-to-b from-blue-50/50 via-white to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <div className="inline-flex items-center space-x-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full text-blue-700 text-xs font-semibold mb-6">
-            <span>Sistem Operasi Bisnis Ritel & Koperasi Terpadu</span>
+            <span>Modul Profesional untuk Operasional Bisnis Anda</span>
           </div>
           <h1
             className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-900 max-w-4xl mx-auto leading-tight"
-            data-testid="landing-hero-title"
+            data-testid="fitur-hero-title"
           >
-            Kelola Usaha Ritel & Koperasi <span className="text-blue-600">Lebih Cerdas dengan KOPERA OS</span>
+            Kemampuan Lengkap KOPERA OS
           </h1>
           <p className="mt-6 text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto font-normal">
-            Solusi komprehensif mulai dari Point of Sale (Kasir), Manajemen Inventori multi-lokasi, Pembukuan Keuangan, hingga Laporan Bisnis Real-Time dalam satu platform terintegrasi.
+            Mulai dari Point of Sale (Kasir), Manajemen Inventori multi-lokasi, Pembukuan Keuangan, hingga Laporan Bisnis Real-Time dalam satu platform terintegrasi.
           </p>
-          <div className="mt-10 flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
-            {isAuthenticated ? (
-              <Link
-                to="/app"
-                className="w-full sm:w-auto px-8 py-3.5 text-base font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-600/20 transition-all text-center"
-              >
-                Buka Dashboard
-              </Link>
-            ) : (
-              <>
-                <Link
-                  to="/register"
-                  className="w-full sm:w-auto px-8 py-3.5 text-base font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-600/20 transition-all text-center"
-                >
-                  Daftar Gratis Sekarang
-                </Link>
-                <Link
-                  to="/login"
-                  className="w-full sm:w-auto px-8 py-3.5 text-base font-semibold text-gray-700 bg-white hover:bg-gray-50 border border-gray-200 rounded-xl transition-all text-center"
-                >
-                  Masuk ke Akun
-                </Link>
-              </>
-            )}
-          </div>
         </div>
       </section>
 
@@ -178,15 +155,10 @@ export function Landing() {
             <span>© {new Date().getFullYear()} KOPERA. Seluruh hak cipta dilindungi.</span>
           </div>
           <div className="flex items-center space-x-6">
+            <Link to="/" className="hover:text-blue-600 transition-colors">Beranda</Link>
             <Link to="/tentang" className="hover:text-blue-600 transition-colors">Tentang</Link>
             <Link to="/fitur" className="hover:text-blue-600 transition-colors">Fitur</Link>
             <Link to="/harga" className="hover:text-blue-600 transition-colors">Harga</Link>
-            <Link to="/faq" className="hover:text-blue-600 transition-colors">FAQ</Link>
-            <Link to="/kontak" className="hover:text-blue-600 transition-colors">Kontak</Link>
-            <Link to="/terms" className="hover:text-blue-600 transition-colors">Terms</Link>
-            <Link to="/privacy" className="hover:text-blue-600 transition-colors">Privacy</Link>
-            <Link to="/login" className="hover:text-blue-600 transition-colors">Masuk</Link>
-            <Link to="/register" className="hover:text-blue-600 transition-colors">Daftar</Link>
           </div>
         </div>
       </footer>

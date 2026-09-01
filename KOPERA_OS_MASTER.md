@@ -708,7 +708,17 @@ Target jangka panjang. Contoh pertanyaan:
 
 ## 17. PART 1 STATUS
 
-Landing Page: **SELESAI DIBAHAS**.
+Landing Page: **SELESAI DIBAHAS & LOCKED**.
+
+### GAP-01MKT — Marketing Subpages V1: 🟢 SELESAI & LOCKED.
+- **Routes**: `/fitur`, `/harga`, `/faq`, `/kontak`, `/terms`, `/privacy`.
+- **Boundary**: Public / AllowAny. No authentication required, no business context, no backend API calls.
+- **Navigation**: Header includes Beranda, Tentang, Fitur, Harga. Footer includes Tentang, Fitur, Harga, FAQ, Kontak, Terms, Privacy, Masuk, Daftar.
+- **CTA Contract**: Adaptive (Unauthenticated: Daftar / Masuk; Authenticated: Buka Dashboard).
+- **SEO**: Static `document.title` per page.
+- **Security Audit**: PASS (0 findings). Tenant data exposure protected.
+- **Tests**: 24 tests passed across 6 test suites (`src/test/{fitur,harga,faq,kontak,terms,privacy}.test.tsx`). Full public suite (35 tests) green.
+- **Locked Modules**: Nodes 15–19 untouched. Zero backend changes.
 
 ---
 
