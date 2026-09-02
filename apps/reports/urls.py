@@ -1,6 +1,7 @@
 from django.urls import path
 
 from apps.reports.views import (
+    CashflowView,
     FinanceReportView,
     InventoryReportView,
     OverviewView,
@@ -15,6 +16,7 @@ from apps.reports.views import (
 )
 
 urlpatterns = [
+    path("cashflow/", CashflowView.as_view(), name="reports-cashflow"),
     path("overview/", OverviewView.as_view(), name="reports-overview"),
     path("sales/", SalesReportView.as_view(), name="reports-sales"),
     path("purchasing/", PurchasingReportView.as_view(), name="reports-purchasing"),

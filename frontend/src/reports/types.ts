@@ -83,3 +83,31 @@ export interface ReportFilter {
   date_from?: string;
   date_to?: string;
 }
+
+export interface CashflowMovement {
+  id: string;
+  date: string;
+  direction: string;
+  source_type: string;
+  reference: string;
+  payment_method: string;
+  amount: string;
+  is_reversal: boolean;
+}
+
+export interface CashflowReport {
+  summary: {
+    total_inflow: string;
+    total_outflow: string;
+    net_cashflow: string;
+  };
+  inflow_breakdown: {
+    pos_cash_sales: string;
+    receivable_collections: string;
+  };
+  outflow_breakdown: {
+    supplier_payments: string;
+    expenses: string;
+  };
+  cash_movements: CashflowMovement[];
+}

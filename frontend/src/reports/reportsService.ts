@@ -5,6 +5,7 @@ import type {
   PurchasingReport,
   FinanceReport,
   InventoryReport,
+  CashflowReport,
   ReportFilter,
 } from "./types";
 
@@ -59,4 +60,17 @@ export async function getInventoryReport(
   businessId: string
 ): Promise<InventoryReport> {
   return apiFetch<InventoryReport>(`/businesses/${businessId}/reports/inventory/`);
+}
+
+export async function getCashflowReport(
+  businessId: string,
+  filter?: ReportFilter & { location?: string }
+): Promise<CashflowReport> {
+  const { date_from, date_to, location } = filter || {};
+  const params: string[] = [];
+  if (date_from) params.push(`date_from=${date_from}`);
+  if (date_to) params.push(`date_to=${date_to}`);
+  if (location) params.push(`location=${location}`);
+  const query = params.length > 0 ? `?${params.join("&")}` : "";
+  return apiFetch<CashflowReport>(`/businesses/${businessId}/reports/cashflow/${query}`);
 }

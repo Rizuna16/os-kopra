@@ -8,11 +8,14 @@ from django.db.models.functions import Coalesce
 from django.http import HttpResponse
 from django.utils import timezone
 
+from django.shortcuts import get_object_or_404
+from rest_framework import status as drf_status
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.business.models import Location
 from apps.customer.models import Customer
 from apps.employee.models import Employee
 from apps.finance.models import Expense, Journal, JournalEntry
@@ -655,3 +658,273 @@ class ExportReportView(BusinessAccessMixin, APIView):
             return _build_xlsx_response(data, filename)
         else:
             raise ValidationError("Unsupported format. Use csv or xlsx.")
+
+
+# =============================================================================
+# GAP-04DASH-CASHFLOW — Operational Cash Flow Report
+# =============================================================================
+
+class CashflowView(BusinessAccessMixin, APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, business_id):
+        business = self.require_business_permission("reports", "view")
+        dt_from, dt_to = parse_date_params(request)
+        location_id = request.query_params.get("location")
+
+        from apps.receivable.models import Receivable, PaymentAllocation
+        from apps.payable.models import Payable, SupplierPaymentAllocation
+
+        sale_filter = date_filters(dt_from, dt_to, "created_at__")
+        location_filter = {}
+        if location_id:
+            loc = get_object_or_404(Location, pk=location_id, business=business)
+            location_filter = {"location": loc}
+
+        # =========================================================================
+        # INFLOW: A. Regular non-credit POS sales
+        # =========================================================================
+        pos_sales_filter = {
+            "business": business,
+            "status": Sale.Status.COMPLETED,
+            "receivable__isnull": True,
+            "payment_method__in": ["CASH", "QRIS", "TRANSFER"],
+            **sale_filter,
+        }
+        if location_filter:
+            pos_sales_filter["location"] = location_filter["location"]
+
+        pos_cash_sales = SaleLine.objects.filter(
+            sale__in=Sale.objects.filter(**pos_sales_filter),
+            **date_filters(dt_from, dt_to, "sale__created_at__"),
+        ).aggregate(
+            total=Sum(F("quantity") * F("unit_price"))
+        )["total"]
+        pos_cash_sales = Decimal(pos_cash_sales) if pos_cash_sales is not None else Decimal("0.00")
+
+        # =========================================================================
+        # INFLOW: B. Receivable collections (GAP-02 PaymentAllocation)
+        # Includes BOTH valid (is_reversed=False) AND reversed allocations
+        # because reversed allocation creates its own reversal movement
+        # =========================================================================
+        receivable_alloc_filter = {"receivable__business": business}
+        if location_filter:
+            receivable_alloc_filter["receivable__location"] = location_filter["location"]
+        if dt_from:
+            receivable_alloc_filter["payment_date__gte"] = dt_from
+        if dt_to:
+            receivable_alloc_filter["payment_date__lte"] = dt_to
+
+        # Also include reversed allocations for the reversal movement
+        receivable_alloc_all = PaymentAllocation.objects.filter(**receivable_alloc_filter)
+
+        # =========================================================================
+        # OUTFLOW: A. Supplier payments (GAP-03 SupplierPaymentAllocation)
+        # =========================================================================
+        supplier_alloc_filter = {"payable__business": business}
+        if location_filter:
+            supplier_alloc_filter["payable__location"] = location_filter["location"]
+        if dt_from:
+            supplier_alloc_filter["payment_date__gte"] = dt_from
+        if dt_to:
+            supplier_alloc_filter["payment_date__lte"] = dt_to
+
+        supplier_alloc_all = SupplierPaymentAllocation.objects.filter(**supplier_alloc_filter)
+
+        # =========================================================================
+        # OUTFLOW: B. Expenses
+        # =========================================================================
+        expense_filter = {"business": business}
+        if location_filter:
+            # Expenses don't have location FK, so skip location filter
+            pass
+        if dt_from:
+            expense_filter["created_at__gte"] = dt_from
+        if dt_to:
+            expense_filter["created_at__lte"] = dt_to
+
+        expense_total = Expense.objects.filter(**expense_filter).aggregate(
+            total=Sum("amount")
+        )["total"]
+        expense_total = Decimal(expense_total) if expense_total is not None else Decimal("0.00")
+
+        # =========================================================================
+        # Build cash_movements list
+        # =========================================================================
+        movements = []
+
+        # A. POS Cash Sales inflows
+        for sale in Sale.objects.filter(**pos_sales_filter):
+            line_total = SaleLine.objects.filter(sale=sale).aggregate(
+                t=Sum(F("quantity") * F("unit_price"))
+            )["t"]
+            line_total = Decimal(line_total) if line_total is not None else Decimal("0.00")
+            if line_total > 0:
+                movements.append({
+                    "id": str(sale.id),
+                    "date": sale.created_at.isoformat(),
+                    "direction": "INFLOW",
+                    "source_type": "POS_SALE",
+                    "reference": f"Sale {str(sale.id)[:8]}",
+                    "payment_method": sale.payment_method,
+                    "amount": to_money(line_total),
+                    "is_reversal": False,
+                })
+
+        # B. Receivable PaymentAllocation movements (valid + reversal)
+        for alloc in receivable_alloc_all:
+            if alloc.payment_method not in ("CASH", "QRIS", "TRANSFER"):
+                continue
+            if not alloc.is_reversed:
+                # Normal inflow
+                movements.append({
+                    "id": str(alloc.id),
+                    "date": alloc.payment_date.isoformat() if alloc.payment_date else "",
+                    "direction": "INFLOW",
+                    "source_type": "RECEIVABLE_PAYMENT",
+                    "reference": f"Allocation {str(alloc.id)[:8]}",
+                    "payment_method": alloc.payment_method,
+                    "amount": to_money(alloc.amount),
+                    "is_reversal": False,
+                })
+            else:
+                # Original movement remains historical
+                if alloc.payment_date:
+                    movements.append({
+                        "id": str(alloc.id),
+                        "date": alloc.payment_date.isoformat(),
+                        "direction": "INFLOW",
+                        "source_type": "RECEIVABLE_PAYMENT",
+                        "reference": f"Allocation {str(alloc.id)[:8]}",
+                        "payment_method": alloc.payment_method,
+                        "amount": to_money(alloc.amount),
+                        "is_reversal": False,
+                    })
+                # Reversal movement
+                if alloc.reversed_at:
+                    movements.append({
+                        "id": f"{alloc.id}-reversal",
+                        "date": alloc.reversed_at.isoformat(),
+                        "direction": "INFLOW_REVERSAL",
+                        "source_type": "RECEIVABLE_PAYMENT",
+                        "reference": f"Reversal of Allocation {str(alloc.id)[:8]}",
+                        "payment_method": alloc.payment_method,
+                        "amount": to_money(Decimal("0.00") - alloc.amount),
+                        "is_reversal": True,
+                    })
+                elif alloc.is_reversed:
+                    # reversed_at is null but is_reversed=True
+                    # Use updated_at as fallback timestamp
+                    if alloc.updated_at:
+                        movements.append({
+                            "id": f"{alloc.id}-reversal",
+                            "date": alloc.updated_at.isoformat(),
+                            "direction": "INFLOW_REVERSAL",
+                            "source_type": "RECEIVABLE_PAYMENT",
+                            "reference": f"Reversal of Allocation {str(alloc.id)[:8]}",
+                            "payment_method": alloc.payment_method,
+                            "amount": to_money(Decimal("0.00") - alloc.amount),
+                            "is_reversal": True,
+                        })
+
+        # C. Supplier PaymentAllocation movements (outflow)
+        for alloc in supplier_alloc_all:
+            if alloc.payment_method not in ("CASH", "QRIS", "TRANSFER"):
+                continue
+            if not alloc.is_reversed:
+                movements.append({
+                    "id": str(alloc.id),
+                    "date": alloc.payment_date.isoformat() if alloc.payment_date else "",
+                    "direction": "OUTFLOW",
+                    "source_type": "SUPPLIER_PAYMENT",
+                    "reference": f"Supplier Allocation {str(alloc.id)[:8]}",
+                    "payment_method": alloc.payment_method,
+                    "amount": to_money(alloc.amount),
+                    "is_reversal": False,
+                })
+            else:
+                if alloc.payment_date:
+                    movements.append({
+                        "id": str(alloc.id),
+                        "date": alloc.payment_date.isoformat(),
+                        "direction": "OUTFLOW",
+                        "source_type": "SUPPLIER_PAYMENT",
+                        "reference": f"Supplier Allocation {str(alloc.id)[:8]}",
+                        "payment_method": alloc.payment_method,
+                        "amount": to_money(alloc.amount),
+                        "is_reversal": False,
+                    })
+                if alloc.reversed_at:
+                    movements.append({
+                        "id": f"{alloc.id}-reversal",
+                        "date": alloc.reversed_at.isoformat(),
+                        "direction": "OUTFLOW_REVERSAL",
+                        "source_type": "SUPPLIER_PAYMENT",
+                        "reference": f"Reversal of Supplier Allocation {str(alloc.id)[:8]}",
+                        "payment_method": alloc.payment_method,
+                        "amount": to_money(Decimal("0.00") - alloc.amount),
+                        "is_reversal": True,
+                    })
+                elif alloc.is_reversed and alloc.updated_at:
+                    movements.append({
+                        "id": f"{alloc.id}-reversal",
+                        "date": alloc.updated_at.isoformat(),
+                        "direction": "OUTFLOW_REVERSAL",
+                        "source_type": "SUPPLIER_PAYMENT",
+                        "reference": f"Reversal of Supplier Allocation {str(alloc.id)[:8]}",
+                        "payment_method": alloc.payment_method,
+                        "amount": to_money(Decimal("0.00") - alloc.amount),
+                        "is_reversal": True,
+                    })
+
+        # D. Expense movements
+        for expense in Expense.objects.filter(**expense_filter):
+            movements.append({
+                "id": str(expense.id),
+                "date": expense.created_at.isoformat(),
+                "direction": "OUTFLOW",
+                "source_type": "EXPENSE",
+                "reference": expense.description[:50] if expense.description else "",
+                "payment_method": "",
+                "amount": to_money(expense.amount),
+                "is_reversal": False,
+            })
+
+        # Sort by date descending
+        movements.sort(key=lambda m: m.get("date", ""), reverse=True)
+
+        # =========================================================================
+        # Calculate totals
+        # =========================================================================
+        # Receiverable collection totals
+        collections_valid = receivable_alloc_all.filter(is_reversed=False).aggregate(
+            total=Sum("amount")
+        )["total"]
+        collections_valid = Decimal(collections_valid) if collections_valid is not None else Decimal("0.00")
+
+        # Supplier payment totals
+        supplier_valid = supplier_alloc_all.filter(is_reversed=False).aggregate(
+            total=Sum("amount")
+        )["total"]
+        supplier_valid = Decimal(supplier_valid) if supplier_valid is not None else Decimal("0.00")
+
+        total_inflow = pos_cash_sales + collections_valid
+        total_outflow = supplier_valid + expense_total
+        net_cashflow = total_inflow - total_outflow
+
+        return Response({
+            "summary": {
+                "total_inflow": to_money(total_inflow),
+                "total_outflow": to_money(total_outflow),
+                "net_cashflow": to_money(net_cashflow),
+            },
+            "inflow_breakdown": {
+                "pos_cash_sales": to_money(pos_cash_sales),
+                "receivable_collections": to_money(collections_valid),
+            },
+            "outflow_breakdown": {
+                "supplier_payments": to_money(supplier_valid),
+                "expenses": to_money(expense_total),
+            },
+            "cash_movements": movements,
+        }, status=drf_status.HTTP_200_OK)
