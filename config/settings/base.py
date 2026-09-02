@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "apps.monitoring",
     "apps.settings",
     "apps.receivable",
+    "apps.payable",
 ]
 
 MIDDLEWARE = [

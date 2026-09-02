@@ -98,6 +98,10 @@ import { ReceivableList } from "../pages/ReceivableList";
 import { CreditSaleCreate } from "../pages/CreditSaleCreate";
 import { ReceivableDetail } from "../pages/ReceivableDetail";
 import { PiutangReports } from "../pages/PiutangReports";
+import { PayableList } from "../pages/PayableList";
+import { PayableCreate } from "../pages/PayableCreate";
+import { PayableDetail } from "../pages/PayableDetail";
+import { UtangReports } from "../pages/UtangReports";
 
 import { PlatformLayout } from "../components/PlatformLayout";
 import { SuperAdminDashboard } from "../pages/SuperAdminDashboard";
@@ -580,6 +584,56 @@ export function AppRoutes() {
               <BusinessRoute>
                 <AppLayout>
                   <ReceivableDetail />
+                </AppLayout>
+              </BusinessRoute>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Payables / Hutang Module */}
+        <Route
+          path="/payables"
+          element={
+            <ProtectedRoute>
+              <BusinessRoute>
+                <AppLayout>
+                  <PayableList />
+                </AppLayout>
+              </BusinessRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/payables/new"
+          element={
+            <ProtectedRoute>
+              <BusinessRoute>
+                <AppLayout>
+                  <PayableCreate />
+                </AppLayout>
+              </BusinessRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/payables/reports"
+          element={
+            <ProtectedRoute>
+              <BusinessRoute>
+                <AppLayout>
+                  <UtangReports />
+                </AppLayout>
+              </BusinessRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/payables/:payableId"
+          element={
+            <ProtectedRoute>
+              <BusinessRoute>
+                <AppLayout>
+                  <PayableDetail />
                 </AppLayout>
               </BusinessRoute>
             </ProtectedRoute>

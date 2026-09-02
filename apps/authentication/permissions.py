@@ -214,6 +214,11 @@ ROLE_PERMISSIONS = {
     ("ADMIN", "receivables", "update"): True,
     ("ADMIN", "receivables", "delete"): False,
 
+    ("ADMIN", "payables", "view"): True,
+    ("ADMIN", "payables", "create"): True,
+    ("ADMIN", "payables", "update"): True,
+    ("ADMIN", "payables", "delete"): False,
+
     # KASIR — transaction executor
     ("KASIR", "dashboard", "view"): True,
     ("KASIR", "sales", "view"): True,
@@ -239,6 +244,11 @@ ROLE_PERMISSIONS = {
     ("KASIR", "receivables", "create"): True,
     ("KASIR", "receivables", "update"): False,
     ("KASIR", "receivables", "delete"): False,
+
+    ("KASIR", "payables", "view"): False,
+    ("KASIR", "payables", "create"): False,
+    ("KASIR", "payables", "update"): False,
+    ("KASIR", "payables", "delete"): False,
     # Kasir denials
     ("KASIR", "product", "view"): False,
     ("KASIR", "product", "create"): False,

@@ -45,6 +45,10 @@ urlpatterns = [
         include("apps.receivable.urls"),
     ),
     path(
+        "api/v1/businesses/<uuid:business_id>/payables/",
+        include("apps.payable.urls"),
+    ),
+    path(
         "api/v1/businesses/<uuid:business_id>/shifts/",
         include("apps.sales.shift_urls"),
     ),
