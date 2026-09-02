@@ -94,6 +94,10 @@ import { OnlineStoreProductList } from "../pages/OnlineStoreProductList";
 import { OnlineStoreOrders } from "../pages/OnlineStoreOrders";
 import { StorefrontCart } from "../pages/StorefrontCart";
 import { StorefrontCheckout } from "../pages/StorefrontCheckout";
+import { ReceivableList } from "../pages/ReceivableList";
+import { CreditSaleCreate } from "../pages/CreditSaleCreate";
+import { ReceivableDetail } from "../pages/ReceivableDetail";
+import { PiutangReports } from "../pages/PiutangReports";
 
 import { PlatformLayout } from "../components/PlatformLayout";
 import { SuperAdminDashboard } from "../pages/SuperAdminDashboard";
@@ -526,6 +530,56 @@ export function AppRoutes() {
               <BusinessRoute>
                 <AppLayout>
                   <SaleDetail />
+                </AppLayout>
+              </BusinessRoute>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Receivables / Piutang Module */}
+        <Route
+          path="/receivables"
+          element={
+            <ProtectedRoute>
+              <BusinessRoute>
+                <AppLayout>
+                  <ReceivableList />
+                </AppLayout>
+              </BusinessRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/receivables/new"
+          element={
+            <ProtectedRoute>
+              <BusinessRoute>
+                <AppLayout>
+                  <CreditSaleCreate />
+                </AppLayout>
+              </BusinessRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/receivables/reports"
+          element={
+            <ProtectedRoute>
+              <BusinessRoute>
+                <AppLayout>
+                  <PiutangReports />
+                </AppLayout>
+              </BusinessRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/receivables/:receivableId"
+          element={
+            <ProtectedRoute>
+              <BusinessRoute>
+                <AppLayout>
+                  <ReceivableDetail />
                 </AppLayout>
               </BusinessRoute>
             </ProtectedRoute>

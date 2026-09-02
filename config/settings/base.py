@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "apps.backup",
     "apps.monitoring",
     "apps.settings",
+    "apps.receivable",
 ]
 
 MIDDLEWARE = [
